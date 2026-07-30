@@ -1,0 +1,9 @@
+services:
+  backend:
+    image: python:3.12
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    command: ./init.sh
