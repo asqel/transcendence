@@ -1,5 +1,4 @@
 .env
 **/__pycache__/
 **/secrets/
-src/db/
 *.swp

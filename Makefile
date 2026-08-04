@@ -9,6 +9,8 @@ run-background:
 run-foreground:
 	$(DOCK_CMD) up --build --abort-on-container-exit
 
+block: run-foreground
+
 stop:
 	$(DOCK_CMD) down
 
