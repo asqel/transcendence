@@ -2,6 +2,9 @@ networks:
   transcendence:
     name: transcendence
 
+volumes:
+  db_data:
+
 services:
   backend:
     container_name: backend
@@ -25,7 +28,7 @@ services:
     image: mariadb
 
     volumes:
-      - ./db:/var/lib/mysql
+      - db_data:/var/lib/mysql
 
     networks:
       - transcendence
