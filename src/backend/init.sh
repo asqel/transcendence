@@ -3,8 +3,9 @@ set -e
 echo "linit est lent(cer)"
 pip install -r requirement.txt
 
+apt update -y
 apt install -y mariadb-server -y
-until mysqladmin ping -h db ${MARIADB_USER} -p${MARIADB_PASSWORD} ; do
+until mysqladmin ping -h db -u${MARIADB_USER} -p${MARIADB_PASSWORD} ; do
 	sleep 2
 done
 
