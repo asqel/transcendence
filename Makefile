@@ -4,10 +4,13 @@ DOCK_CMD = docker compose -f $(YML)
 all: run-background
 
 run-background:
-	$(DOCK_CMD) up --build -d
+	$(DOCK_CMD) up -d
 
 run-foreground:
-	$(DOCK_CMD) up --build --abort-on-container-exit
+	$(DOCK_CMD) up --abort-on-container-exit
+
+build:
+	$(DOCK_CMD) build
 
 block: run-foreground
 
@@ -30,4 +33,4 @@ re:
 	$(DOCK_CMD) down
 	$(DOCK_CMD) up --build -d
 
-.PHONY: all run-background run-foreground stop clean logs status build re
+.PHONY: all run-background run-foreground stop clean logs status build re block

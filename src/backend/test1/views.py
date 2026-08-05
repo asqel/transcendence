@@ -1,10 +1,12 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
 import json
 
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 
+@api_view(["GET", "POST"])
 @csrf_exempt # sinon les cookies crients (aled)
 def test(request):
 	try:
@@ -17,10 +19,12 @@ def test(request):
 		if name and passwd:
 			user = authenticate(username=name, password=passwd)
 			return JsonResponse({
-				"message": str(user)
+				"message": str(user),
+				"aa": str(request.user.is_authenticated)
 			})
 		return JsonResponse({
-			"message": str(data)
+			"message": str(data),
+				"aa": str(request.user.is_authenticated)
 		})
 
 	except Exception as e:

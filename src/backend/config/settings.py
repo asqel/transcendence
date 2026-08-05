@@ -40,9 +40,16 @@ INSTALLED_APPS = [
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
 	'channels',
+	'rest_framework',
 	'test1.apps.config',
 ]
 ASGI_APPLICATION = "config.asgi.application"
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
 
 MIDDLEWARE = [
 	'django.middleware.security.SecurityMiddleware',
