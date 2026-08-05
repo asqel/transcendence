@@ -1,0 +1,56 @@
+networks:
+  transcendence:
+    name: transcendence
+
+volumes:
+  db_data:
+
+services:
+  backend:
+    container_name: backend
+    image: python:3.12
+    depends_on:
+      - db 
+
+    volumes:
+      - ./backend:/app
+
+    working_dir: /app
+    command: ./init.sh
+
+    networks:
+      - transcendence
+    env_file:
+      - .env
+
+  db:
+    container_name: db
+    image: mariadb
+
+    volumes:
+      - db_data:/var/lib/mysql
+
+    networks:
+      - transcendence
+    env_file:
+      - .env
+
+  frontend:
+    container_name: frontend
+    image: nginx
+    depends_on:
+      - backend
+
+    volumes:
+        - ./frontend:/app
+    
+    working_dir: /app
+    command: ./init.sh
+
+    networks:
+      - transcendence
+    env_file:
+      - .env
+    ports:
+      - "443:443"
+    

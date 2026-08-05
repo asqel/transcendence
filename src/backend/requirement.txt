@@ -1,0 +1,6 @@
+django
+channels
+daphne
+mysqlclient
+djangorestframework
+djangorestframework-simplejwt
