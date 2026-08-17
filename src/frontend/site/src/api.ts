@@ -1,15 +1,6 @@
 // src/api.ts
 const API_URL = "/api";
 
-function refresh(refreshToken: string) {
-	let res: Promise<TokenResponse> = request<TokenResponse>(
-			"/token/refresh/",
-			{method: "POST", body: JSON.stringify({ refresh: refreshToken })}
-		);
-	return res;
-
-}
-
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
 	// 1. Récupère le token depuis le localStorage
 	const token: string|null = localStorage.getItem("access");
