@@ -1,6 +1,6 @@
-django
+Django==5.2.5
 channels
 daphne
 mysqlclient
-djangorestframework
+djangorestframework==3.17.2
 djangorestframework-simplejwt
