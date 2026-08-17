@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-in+ftj%cm$#3g=70h85b0-)z#@b^1o2eiz-859_5%tzwesouac'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 	'channels',
 	'rest_framework',
 	'test1.apps.config',
+	'models.apps.config'
 ]
 ASGI_APPLICATION = "config.asgi.application"
 

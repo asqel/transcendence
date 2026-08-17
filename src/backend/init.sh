@@ -3,6 +3,8 @@ set -e
 echo "linit est lent(cer)"
 pip install -r requirement.txt
 
+python manage.py makemigrations models
+
 apt update -y
 apt install -y mariadb-server -y
 until mysqladmin ping -h db -u${MARIADB_USER} -p${MARIADB_PASSWORD} ; do
