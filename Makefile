@@ -23,11 +23,11 @@ clean:
 logs:
 	$(DOCK_CMD) logs -f
 
+logs-front:
+	$(DOCK_CMD) logs -f frontend
+
 status:
 	$(DOCK_CMD) ps
-
-build:
-	$(DOCK_CMD) build
 
 re:
 	$(DOCK_CMD) down
