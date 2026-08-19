@@ -6,82 +6,92 @@ import About from './pages/About.tsx'
 import Contact from './pages/Contact.tsx'
 import NotFound from './pages/NotFound.tsx'
 import Login from './pages/Login.tsx'
+import Profile from './pages/Profile.tsx'
 
-// Composant pour protéger les routes
-function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { user, loading } = useAuth()
-  
-  if (loading) return <div>Chargement...</div>
-  if (!user) return <Navigate to="/login" replace />
-  
-  return <>{children}</>
-}
+
 
 // Navigation avec affichage conditionnel
 function Navigation() {
   const { user, logout } = useAuth()
 
   return (
-    <nav>
-      <Link to="/">Accueil</Link>
-      <Link to="/about">À propos</Link>
-      <Link to="/contact">Contact</Link>
-      
-      {user ? (
-        <>
-          <span style={{ marginLeft: 20 }}>Bonjour, {user.username}</span>
-          <button onClick={logout} style={{ marginLeft: 10 }}>
-            Déconnexion
-          </button>
-        </>
-      ) : (
-        <Link to="/login" style={{ marginLeft: 20 }}>Connexion</Link>
-      )}
-    </nav>
+	<nav>
+	  <Link to="/">Accueil</Link>
+	  <Link to="/about">À propos</Link>
+	  <Link to="/contact">Contact</Link>
+	  
+	  {user ? (
+		<>
+			<Link to="/profile">Profile</Link>
+			<span style={{ marginLeft: 20 }}>Bonjour, {user.username}</span>
+			<button onClick={logout} style={{ marginLeft: 10 }}>
+				Déconnexion
+			</button>
+		</>
+	  ) : (
+		<Link to="/login" style={{ marginLeft: 20 }}>Connexion</Link>
+	  )}
+	</nav>
   )
+}
+
+// Composant pour protéger les routes
+function ProtectedRoute({ children }: { children: ReactNode }) {
+  const { user, loading } = useAuth()
+  
+  if (loading)
+	return <div>Chargement...</div>
+  if (!user) return <Navigate to="/login" replace />
+  
+  return <>{children}</>
 }
 
 // Routes principales
 function AppRoutes() {
-  const { user } = useAuth()
+  const user  = useAuth().user;
 
   return (
-    <Routes>
-      {/* ✅ CORRECTION 2 : On utilise enfin ProtectedRoute ! 
-          Ici, la page d'accueil n'est visible que si on est connecté */}
-      <Route 
-        path="/" 
-        element={
-          <ProtectedRoute>
-            <Home />
-          </ProtectedRoute>
-        } 
-      />
-      
-      {/* Ces pages restent publiques */}
-      <Route path="/about" element={<About />} />
-      <Route path="/contact" element={<Contact />} />
-      
-      {/* Si déjà connecté, on redirige vers l'accueil */}
-      <Route 
-        path="/login" 
-        element={user ? <Navigate to="/" replace /> : <Login />} 
-      />
-      
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+	<Routes>
+		<Route 
+			path="/" 
+			element={
+				<ProtectedRoute>
+				<Home />
+				</ProtectedRoute>
+			} 
+		/>
+		<Route 
+  			path="/profile" 
+			element={
+    		<ProtectedRoute>
+    			<Profile />
+    		</ProtectedRoute>
+  			} 
+		/>
+
+	  <Route path="/about" element={<About />} />
+	  <Route path="/contact" element={<Contact />} />
+	  
+	  {/* Si déjà connecté, on redirige vers l'accueil */}
+	  <Route 
+		path="/login" 
+		element={user ? <Navigate to="/" replace /> : <Login />} 
+	  />
+	  
+		<Route path="*" element={<NotFound />} />
+	</Routes>
   )
 }
 
 function App() {
-  return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Navigation />
-        <AppRoutes />
-      </BrowserRouter>
-    </AuthProvider>
-  )
+	return (
+		<AuthProvider>
+			<BrowserRouter>
+				<Navigation />
+				<AppRoutes />
+			</BrowserRouter>
+		</AuthProvider>
+	)
 }
 
 export default App

@@ -1,6 +1,6 @@
 Django==5.2.5
 channels
 daphne
-mysqlclient
+PyMySQL
 djangorestframework==3.17.2
 djangorestframework-simplejwt

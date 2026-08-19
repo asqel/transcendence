@@ -1,7 +1,7 @@
 // src/api.ts
 const API_URL = "/api";
 
-async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T>{
 	// 1. Récupère le token depuis le localStorage
 	const token: string|null = localStorage.getItem("access");
 
@@ -16,24 +16,13 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 	const res = await fetch(`${API_URL}${endpoint}`, {...options, headers});
 
 	// 5. Si le token est expiré (401), on pourrait le refresh ici
-	if (res.status === 401 && localStorage.getItem("refresh")) {
-
-	// Logique de refresh automatique
-		const newTokens = await fetch(`${API_URL}/token/refresh/`, {
-				"method": "POST",
-				"headers": { "Content-Type": "application/json" },
-				"body": JSON.stringify(localStorage.getItem("refresh")),
-		}).then(r => r.json());
-		
-		localStorage.setItem("access", newTokens.access);
-		// Réessaie la requête avec le nouveau token
-		return request(endpoint, options);
-	}
-	
-
+	if (res.status === 204)
+		return null as T;
+	console.log(res.status);
 	if (!res.ok) {
-	const data = await res.json().catch(() => ({}));
-	throw new Error(data.detail || "Erreur réseau");
+		const data = await res.json().catch(() => ({}));
+
+		throw new Error(data.detail || "Error");
 	}
 
 	return res.json();
@@ -44,22 +33,33 @@ export interface TokenResponse {
 	refresh: string;
 }
 
+async function refresh_token() {
+	const newTokens = await fetch(`${API_URL}/token/refresh/`, {
+			"method": "POST",
+			"headers": { "Content-Type": "application/json" },
+			"body": JSON.stringify({"refresh":localStorage.getItem("refresh")}),
+	}).then(r => r.json());
+	
+	localStorage.setItem("access", newTokens.access);
+	// Réessaie la requête avec le nouveau token
+	return newTokens;
+}
 
-function signin(username: string, password: string, email: string) {
+function signup(username: string, password: string, email: string) {
 	let body: Record<string, string> = {
 		"username": username,
 		"password": password,
 		"email": email
 	};
 
-	let res: Promise<TokenResponse> = request<TokenResponse>(
+	let res: Promise<null> = request<null>(
 			"/account/create",
 			{"method": "POST", "body": JSON.stringify(body)}
 		);
 	return res
 }
 
-function login(username: string, password: string) {
+function signin(username: string, password: string) {
 	let body: Record<string, string> = {
 		"username": username,
 		"password": password
@@ -69,18 +69,50 @@ function login(username: string, password: string) {
 			"/token/",
 			{method: "POST", body: JSON.stringify(body)}
 		);
+	
 	return res;
 }
 
 
 export const authApi = {
-	"signin": signin,
-	"login": login,
+	"signup": signup,
+	"signin": signin
 };
 
-// Exemple d'appel protégé
+
+
+export interface UserResponse {
+	username: string;
+	email: string;
+}
+
+function get_user() {
+	let res: Promise<UserResponse> = request<UserResponse>(
+		"/account/profile?username=/self",
+		{method: "GET"}
+	)
+	return res
+}
+
+function delete_account() {
+	let res: Promise<null> = request<null>(
+		"/account/delete",
+		{method: "POST"}
+	)
+	return res
+}
+
+function change_password() {
+	let res: Promise<UserResponse> = request<UserResponse>(
+		"/account/profile?username=/self",
+		{method: "POST"}
+	)
+	return res
+}
+
+
 export const userApi = {
-	getProfile() {
-	return request<{ username: string; email: string }>("/user/profile/");
-	},
+	"get_user" : get_user,
+	"delete_account" : delete_account,
+	"change_password" : change_password
 };

@@ -8,9 +8,7 @@ volumes:
 services:
   backend:
     container_name: backend
-    image: python:3.12
-    depends_on:
-      - db 
+    image: ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
     volumes:
       - ./backend:/app
@@ -38,8 +36,6 @@ services:
   frontend:
     container_name: frontend
     image: nginx:alpine
-    depends_on:
-      - backend
 
     volumes:
         - ./frontend:/app

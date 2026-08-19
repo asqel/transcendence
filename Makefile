@@ -6,6 +6,9 @@ all: run-background
 run-background:
 	$(DOCK_CMD) up -d
 
+frontend:
+	$(DOCK_CMD) up frontend -d
+
 run-foreground:
 	$(DOCK_CMD) up --abort-on-container-exit
 
