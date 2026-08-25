@@ -30,7 +30,6 @@ def create(request):
 		Profile.objects.create(user=user, bio="", country="")
 		Stats.objects.create(user=user)
 
-
 	except IntegrityError:
 		return common.error("Username already taken", 409)
 		

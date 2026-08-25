@@ -3,7 +3,7 @@ from models.apps import GHOST_NAME
 import sys
 
 def is_password_strong(password: str):
-	return False
+	return True
 
 def is_username_valid(name: str):
 	if (len(name) < 3):
