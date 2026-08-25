@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
 from models.apps import GHOST_NAME
+import sys
 
 def is_password_strong(password: str):
-	# !TODO check that
 	return True
 
 def is_username_valid(name: str):
@@ -17,3 +17,6 @@ def is_username_valid(name: str):
 
 def get_ghost():
 	return User.objects.get(username=GHOST_NAME)
+
+def log(*args, **kwargs):
+	print(*args, file=sys.stderr, **kwargs)

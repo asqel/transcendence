@@ -22,10 +22,13 @@ stats:
 	
 """
 
+BIO_MAX_CHAR = 1000
+COUNTRY_MAX_CHAR = 2
+
 class Profile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
-	bio = models.CharField(max_length=1000, blank=True)
-	country = models.CharField(max_length=2, blank=True)
+	bio = models.CharField(max_length=BIO_MAX_CHAR, blank=True)
+	country = models.CharField(max_length=COUNTRY_MAX_CHAR, blank=True)
 	join_date = models.DateTimeField(default=timezone.now)
 
 class Game(models.Model):
