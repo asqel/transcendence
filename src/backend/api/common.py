@@ -1,5 +1,6 @@
 from functools import wraps
 import json
+import sys
 
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
@@ -7,11 +8,19 @@ from django.http import JsonResponse
 from django.http import HttpResponse
 
 def error(msg: str, status: int):
-	return JsonResponse({"error": msg}, status=status)
+	if (type(msg) != str):
+		raise TypeError("msg must be a string")
+	if (type(status) != int):
+		raise TypeError("status must be a status")
+	return JsonResponse({"detail": msg}, status=status)
 
 def success(msg: str, status: int):
 	if not msg:
 		return HttpResponse(status=204)
+	if (type(msg) != str):
+		raise TypeError("msg must be a string")
+	if (type(status) != int):
+		raise TypeError("status must be a status")
 	return JsonResponse({"message": msg}, status=status)
 
 def endpoint(*methods, need_json=True):
@@ -37,4 +46,3 @@ def endpoint(*methods, need_json=True):
 
 		return wrapper
 	return decorator
-

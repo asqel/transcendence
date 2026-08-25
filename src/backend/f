@@ -1,1 +1,0 @@
-curl -k -X POST https://localhost/api/account/delete -d {} -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzg2OTc0MTczLCJpYXQiOjE3ODY5NzM4NzMsImp0aSI6IjdhNmM5OTljYWQ2NjQ3Nzg5MjU4ZTc0OTMzZDc4ODVjIiwidXNlcl9pZCI6IjEifQ.RORogAeggy4geDqIvYsxyR0L7KYpCIAzBl9hslZGzc8" -H "Content-Type: application/json"

@@ -15,7 +15,7 @@ def loop():
 		time.sleep(60)
 
 class config(AppConfig):
-    name = "test1"
+    name = "apps"
 
     def ready(self):
         if os.environ.get("RUN_MAIN") != "true":

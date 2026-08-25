@@ -41,8 +41,9 @@ INSTALLED_APPS = [
 	'django.contrib.staticfiles',
 	'channels',
 	'rest_framework',
-	'test1.apps.config',
-	'models.apps.config'
+	'rest_framework_simplejwt.token_blacklist',
+	'models.apps.config',
+	'apps.config.config',
 ]
 ASGI_APPLICATION = "config.asgi.application"
 
@@ -136,3 +137,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
+
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+}

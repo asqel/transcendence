@@ -26,9 +26,6 @@ logs:
 status:
 	$(DOCK_CMD) ps
 
-build:
-	$(DOCK_CMD) build
-
 re:
 	$(DOCK_CMD) down
 	$(DOCK_CMD) up --build -d
