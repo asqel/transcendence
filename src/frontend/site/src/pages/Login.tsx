@@ -2,136 +2,126 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { authApi } from "../api";
+import { useTranslation } from 'react-i18next';
+import './Login.css'
 
-export default function Login() {
-  // État pour basculer entre les deux modes
-  const [mode, setMode] = useState<'signin' | 'register'>('signin')
+function Login() {
 
-  // Champs partagés / spécifiques
-  const [username, setUsername] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+	const {t} = useTranslation()
 
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+	const [mode, setMode] = useState<'signin' | 'register'>('signin')
 
-  const { signin, signup } = useAuth()
-  const navigate = useNavigate()
+	const [username, setUsername] = useState('')
+	const [email, setEmail] = useState('')
+	const [password, setPassword] = useState('')
+	const [confirmPassword, setConfirmPassword] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+	const [error, setError] = useState('')
+	const [loading, setLoading] = useState(false)
 
-    try {
-      if (mode === 'signin') {
-        await signin(username, password)
-        navigate('/')
-      }
-      else {
-        // Inscription
-        if (password !== confirmPassword) {
-          throw new Error('Les mots de passe ne correspondent pas')
-        }
-        await signup(username, password, email)
-        await signin(username, password)
-        navigate('/')
-      }
-    } catch (err) {
-      setError((err as Error).message)
-    } finally {
-      setLoading(false)
-    }
-  }
+	const { signin } = useAuth()
+	const navigate = useNavigate()
 
-  return (
-    <div>
-      <h1>{mode === 'signin' ? 'Connexion' : 'Inscription'}</h1>
+	async function handleSubmit (e: React.SubmitEvent<HTMLFormElement>) {
+	e.preventDefault()
+	setError('')
+	setLoading(true)
 
-      {/* Boutons pour basculer entre les modes */}
-      <div style={{ marginBottom: '16px' }}>
-        <button
-          type="button"
-          onClick={() => setMode('signin')}
-          style={{
-            marginRight: '8px',
-            fontWeight: mode === 'signin' ? 'bold' : 'normal',
-            background: mode === 'signin' ? '#007bff' : '#ccc',
-            color: mode === 'signin' ? 'white' : 'black',
-            padding: '8px 16px',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-          }}
-        >
-          Se connecter
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode('register')}
-          style={{
-            fontWeight: mode === 'register' ? 'bold' : 'normal',
-            background: mode === 'register' ? '#007bff' : '#ccc',
-            color: mode === 'register' ? 'white' : 'black',
-            padding: '8px 16px',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-          }}
-        >
-          S'inscrire
-        </button>
-      </div>
+	try {
+		if (mode === 'signin') {
+			await signin(username, password)
+		}
+		else {
+			if (password !== confirmPassword)
+				throw new Error(t("error.pass_not_match"))
+			await authApi.create_account(username, password, email)
+			await signin(username, password)
+		}
+		navigate('/')
+	}
+	catch (err) {
+		if (err === 409)
+			setError(t("error.username_already_used"))
+		else if (err === 460)
+			setError(t("error.incorrect_username"))
+		else if (err === 461)
+			setError(t("error.pass_weak"))
+		else
+			setError(t("error.wrong"))
+	}
+	finally {
+		setLoading(false)
+	}
+	}
 
-      <form onSubmit={handleSubmit}>
-        <input
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Nom d'utilisateur"
-          style={{ display: 'block', marginBottom: '8px' }}
-        />
-        {mode === 'register' && (
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            required
-            style={{ display: 'block', marginBottom: '8px' }}
-          />
-        )}
+	return (
+	<div>
+		<h1>{mode === 'signin' ? t("text.signin") : t("text.signup")}</h1>
 
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Mot de passe"
-          required
-          style={{ display: 'block', marginBottom: '8px' }}
-        />
+		<div className="mode-switch">
+		<button
+			type="button"
+			onClick={() => setMode('signin')}
+			className={mode === 'signin' ? 'active' : ''}
+		>
+			{t("text.signin")}
+		</button>
+		<button
+			type="button"
+			onClick={() => setMode('register')}
+			className={mode === 'register' ? 'active' : ''}
+		>
+			{t("text.signup")}
+		</button>
+		</div>
 
-        {mode === 'register' && (
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirmer le mot de passe"
-            required
-            style={{ display: 'block', marginBottom: '8px' }}
-          />
-        )}
+		<form onSubmit={handleSubmit} className="login-form">
+			<input
+				value={username}
+				onChange={(e) => setUsername(e.target.value)}
+				placeholder="Nom d'utilisateur"
+			/>
+			{mode === 'register' && (
+				<input
+					type="email"
+					value={email}
+					onChange={(e) => setEmail(e.target.value)}
+					placeholder={t("text.mail")}
+					required
+				/>
+			)}
 
-        <button type="submit" disabled={loading}>
-          {loading
-            ? '...'
-            : mode === 'signin'
-            ? 'Se connecter'
-            : "S'inscrire"}
-        </button>
+			<input
+				type="password"
+				value={password}
+				onChange={(e) => setPassword(e.target.value)}
+				placeholder={t("text.password")}
+				required
+			/>
 
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-      </form>
-    </div>
-  )
+			{mode === 'register' && (
+				<input
+				type="password"
+				value={confirmPassword}
+				onChange={(e) => setConfirmPassword(e.target.value)}
+				placeholder={t("text.confirm_password")}
+				required
+				/>
+			)}
+
+			<button type="submit" disabled={loading}>
+				{loading
+				? '...'
+				: mode === 'signin'
+				? t("text.signin")
+				: t("text.signup")}
+			</button>
+
+			{error && <p className="login-error">{error}</p>}
+		</form>
+	</div>
+	)
 }
+
+export default Login

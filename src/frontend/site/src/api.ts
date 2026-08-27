@@ -1,31 +1,46 @@
 // src/api.ts
 const API_URL = "/api";
 
-async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T>{
-	// 1. Récupère le token depuis le localStorage
-	const token: string|null = localStorage.getItem("access");
+async function request<T>(endpoint: string, method: string, body: string = "", options_extra: RequestInit = {}): Promise<T> {
+	const token: string | null = localStorage.getItem("access");
 
-	// 2. Construit les headers
-	const headers = {
-		"Content-Type": "application/json",
-		...(token ? {"Authorization": `Bearer ${token}`} : {}),
-		...options.headers,
+	const config: RequestInit = {
+		...options_extra,
+		method,
+		...(method === "POST" ? {body} : {}),
+		headers: {
+			"Content-Type": "application/json",
+			...(token ? { "Authorization": `Bearer ${token}` } : {}),
+			...options_extra.headers,
+		},
 	};
 
-	// 4. Envoie la requête
-	const res = await fetch(`${API_URL}${endpoint}`, {...options, headers});
+	const res = await fetch(`${API_URL}${endpoint}`, config);
 
-	// 5. Si le token est expiré (401), on pourrait le refresh ici
-	if (res.status === 204)
-		return null as T;
-	console.log(res.status);
-	if (!res.ok) {
-		const data = await res.json().catch(() => ({}));
 
-		throw new Error(data.detail || "Error");
+	if (res.status === 401) {
+		refresh_token();
+		const config: RequestInit  = {
+			...options_extra,
+			method,
+			...(method === "POST" ? {body} : {}),
+			headers: {
+				"Content-Type": "application/json",
+				...(token ? { "Authorization": `Bearer ${token}` } : {}),
+				...options_extra.headers,
+			},
+		};
+		const res = await fetch(`${API_URL}${endpoint}`, config);
+		if (!res.ok) {
+			throw res.status;
+		}
+		return res.json().catch(() => {return {};});
 	}
 
-	return res.json();
+	if (!res.ok) {
+		throw res.status;
+	}
+	return res.json().catch(() => {return {};});
 }
 
 export interface TokenResponse {
@@ -33,50 +48,46 @@ export interface TokenResponse {
 	refresh: string;
 }
 
-async function refresh_token() {
-	const newTokens = await fetch(`${API_URL}/token/refresh/`, {
-			"method": "POST",
-			"headers": { "Content-Type": "application/json" },
-			"body": JSON.stringify({"refresh":localStorage.getItem("refresh")}),
-	}).then(r => r.json());
-	
-	localStorage.setItem("access", newTokens.access);
-	// Réessaie la requête avec le nouveau token
-	return newTokens;
+async function refresh_token(): Promise<void> {
+	const refreshToken: string | null = localStorage.getItem("refresh")
+	if (!refreshToken)
+		return;
+	const body: Record<string, string> = {
+		"access": refreshToken
+	};
+	const res: TokenResponse = await request<TokenResponse>("/token/refresh", "POST", JSON.stringify(body));
+	if (!res)
+		return;
+	localStorage.setItem("access", res.access);
+	localStorage.setItem("refresh", res.refresh);
 }
 
-function signup(username: string, password: string, email: string) {
-	let body: Record<string, string> = {
+async function create_account(username: string, password: string, email: string): Promise<void> {
+	const body: Record<string, string> = {
 		"username": username,
 		"password": password,
 		"email": email
 	};
 
-	let res: Promise<null> = request<null>(
-			"/account/create",
-			{"method": "POST", "body": JSON.stringify(body)}
-		);
-	return res
+	await request<null>("/account/create", "POST", JSON.stringify(body));
 }
 
-function signin(username: string, password: string) {
+async function get_token(username: string, password: string): Promise<void> {
 	let body: Record<string, string> = {
 		"username": username,
 		"password": password
 	};
 
-	let res: Promise<TokenResponse> = request<TokenResponse>(
-			"/token/",
-			{method: "POST", body: JSON.stringify(body)}
-		);
-	
-	return res;
+	const res: TokenResponse = await request<TokenResponse>("/token/", "POST", JSON.stringify(body));
+	localStorage.setItem("access", res.access);
+	localStorage.setItem("refresh", res.refresh);
 }
 
 
 export const authApi = {
-	"signup": signup,
-	"signin": signin
+	"create_account": create_account,
+	"get_token": get_token,
+	"refresh_token": refresh_token
 };
 
 
@@ -84,30 +95,22 @@ export const authApi = {
 export interface UserResponse {
 	username: string;
 	email: string;
+	join_date: string
+};
+
+function get_user(user: string = "/self"): Promise<UserResponse> {
+	let res: Promise<UserResponse> = request<UserResponse>(`/account/profile?username=${user}`, "GET")
+	return res;
 }
 
-function get_user() {
-	let res: Promise<UserResponse> = request<UserResponse>(
-		"/account/profile?username=/self",
-		{method: "GET"}
-	)
-	return res
+function delete_account(): Promise<null> {
+	let res: Promise<null> = request<null>("/account/delete", "POST")
+	return res;
 }
 
-function delete_account() {
-	let res: Promise<null> = request<null>(
-		"/account/delete",
-		{method: "POST"}
-	)
-	return res
-}
-
-function change_password() {
-	let res: Promise<UserResponse> = request<UserResponse>(
-		"/account/profile?username=/self",
-		{method: "POST"}
-	)
-	return res
+function change_password(): Promise<UserResponse> {
+	let res: Promise<UserResponse> = request<UserResponse>("/account/profile?username=/self", "POST")
+	return res;
 }
 
 
@@ -115,4 +118,8 @@ export const userApi = {
 	"get_user" : get_user,
 	"delete_account" : delete_account,
 	"change_password" : change_password
+};
+
+export const globalApi = {
+	"get_user" : get_user,
 };

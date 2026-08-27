@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom'
-import type { ReactNode } from 'react' // ✅ CORRECTION 1 : import séparé du type
+import type { ReactNode } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Home from './pages/Home.tsx'
 import About from './pages/About.tsx'
@@ -7,7 +7,10 @@ import Contact from './pages/Contact.tsx'
 import NotFound from './pages/NotFound.tsx'
 import Login from './pages/Login.tsx'
 import Profile from './pages/Profile.tsx'
+import PlayerPages from './pages/PlayerPages.tsx'
+import PlayerSearch from './pages/PlayerSearch.tsx'
 
+import './App.css'
 
 
 // Navigation avec affichage conditionnel
@@ -19,7 +22,7 @@ function Navigation() {
 	  <Link to="/">Accueil</Link>
 	  <Link to="/about">À propos</Link>
 	  <Link to="/contact">Contact</Link>
-	  
+	  <Link to="/PlayerSearch">PlayerSearch</Link>
 	  {user ? (
 		<>
 			<Link to="/profile">Profile</Link>
@@ -41,7 +44,8 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
   
   if (loading)
 	return <div>Chargement...</div>
-  if (!user) return <Navigate to="/login" replace />
+  if (!user) 
+	return <Navigate to="/login" replace />
   
   return <>{children}</>
 }
@@ -68,10 +72,10 @@ function AppRoutes() {
     		</ProtectedRoute>
   			} 
 		/>
-
-	  <Route path="/about" element={<About />} />
-	  <Route path="/contact" element={<Contact />} />
-	  
+		<Route path="/profile/:username" element={<PlayerPages />} />
+		<Route path="/about" element={<About />} />
+		<Route path="/contact" element={<Contact />} />
+		<Route path="/PlayerSearch" element={<PlayerSearch />} />
 	  {/* Si déjà connecté, on redirige vers l'accueil */}
 	  <Route 
 		path="/login" 

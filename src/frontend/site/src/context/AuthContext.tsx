@@ -1,21 +1,20 @@
 // src/context/AuthContext.tsx
 import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
-import { authApi, userApi,  type UserResponse, type TokenResponse} from "../api";
+import { authApi, userApi} from "../api";
 
 interface User {
 	username: string;
-	email: string;
 }
 
 interface AuthContextType {
 	user: User | null;
 	loading: boolean;
 	signin: (username: string, password: string) => Promise<void>;
-	signup: (username: string, password: string, email: string) => Promise<void>;
-	delete_account: () => void;
 	logout: () => void;
 }
+
+
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -23,36 +22,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true);
 
-	function useEffect_func() {
-		async function async_part() {
+	async function get_name() {
 		const token = localStorage.getItem("access");
 		if (token){
 			try {
 			const data = await userApi.get_user();
-			setUser({ username: data.username, email: data.email });
+			setUser({ username: data.username  });
 			}
 			catch (error) {
-				setUser({ username: String(error), email: "" })
+				setUser({ username: String(error) })
 			}
 		}
 		setLoading(false);
-		}
-		async_part();
 	}
 
-	useEffect(useEffect_func, []);
+	useEffect(() => {get_name()}, [])
+	
+	async function set_user() {
+		try {
+			const data = await userApi.get_user();
+			setUser({ username: data.username });
+		}
+		catch (error) {
+			setUser({ username: String(error) })
+		}
+	}
 
-	async function signin(username: string, password: string) {
-		let data: TokenResponse|UserResponse = await authApi.signin(username, password);
-		localStorage.setItem("access", data.access);
-		localStorage.setItem("refresh", data.refresh);
-
-		data = await userApi.get_user();
-		setUser({ username: data.username, email: data.email });
-	};
-
-	async function signup(username: string, password: string, email: string) {
-		await authApi.signup(username, password, email);
+	async function signin(username: string, password: string): Promise<void> {
+		await authApi.get_token(username, password);
+		await set_user();
 	};
 
 
@@ -62,14 +60,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		setUser(null);
 	};
 
-
-	async function delete_account() {
-		await userApi.delete_account();
-		logout();
-	};
-
 	return (
-		<AuthContext.Provider value={{user, loading, signin, signup, delete_account, logout}}>
+		<AuthContext.Provider value={{user, loading, signin, logout}}>
 			{children}
 		</AuthContext.Provider>
 	);

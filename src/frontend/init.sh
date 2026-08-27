@@ -17,7 +17,7 @@ mkdir -p /var/www/
 
 
 apk add --no-cache nodejs npm
-npm --prefix ./site install
+npm --prefix ./site install --legacy-peer-deps
 npm --prefix ./site run build
 cp -r site/dist /var/www/html/
 
