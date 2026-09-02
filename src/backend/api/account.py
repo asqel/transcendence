@@ -1,5 +1,6 @@
 import api.common as common
 import api.utils as utils
+import api.tmp as tmp_info
 import sys
 from models.apps import GHOST_NAME
 from django.contrib.auth.models import User
@@ -20,10 +21,11 @@ def create(request):
 		if (infos[i] is None or type(infos[i]) != str):
 			return common.error(f"Missing element {i} or is not a string", 400)
 
-	if (not utils.is_username_valid(infos["username"])):
+	if (not utils.is_username_valid(infos["username"], info)):
 		return common.error("Username invalid", 460)
-	if (not utils.is_password_strong(infos["password"])):
-		return common.error("Password to weak", 461)
+	password_response = utils.is_password_strong(infos["password"])
+	if (password_response):
+		return common.error(password_response, 461)
 
 	try:
 		user = User.objects.create_user(**infos);
@@ -40,7 +42,10 @@ def delete(request):
 	if (not request.user.is_authenticated):
 		return common.error("Not authentified", 403)
 	
-	# !TODO check if the user is player if so disconnect them
+	websocket = tmp_info.get(user, "websocket")
+	if (websocket):
+		websocket.close(close_code=1000)
+	tmp_info.remove(user)
 	
 	ghost = utils.get_ghost()
 	Game.objects.filter(user1=request.user).update(user1=ghost)
@@ -49,8 +54,8 @@ def delete(request):
 	Profile.objects.filter(user=request.user).delete()
 	Stats.objects.filter(user=request.user).delete()
 
-
 	request.user.delete()
+	
 	return common.success("", 0);
 
 @common.endpoint("GET", need_json=False)

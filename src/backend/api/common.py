@@ -8,10 +8,10 @@ from django.http import JsonResponse
 from django.http import HttpResponse
 
 def error(msg: str, status: int):
-	if (type(msg) != str):
-		raise TypeError("msg must be a string")
+	if (type(msg) not in (str, list)):
+		raise TypeError("msg must be a string or a list")
 	if (type(status) != int):
-		raise TypeError("status must be a status")
+		raise TypeError("status must be an int")
 	return JsonResponse({"detail": msg}, status=status)
 
 def success(msg: str, status: int):

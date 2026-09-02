@@ -1,26 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-
-"""
-profile:
-	bio: 1k char
-	country: 2 char (FR/US/...) alpha-2 ? je crois
-	join_date: ???
-
-game:
-	user1: str
-	user2: str
-	who_win: int (0: None, 1, 2)
-	time length: ???
-	date: ???
-
-stats:
-	number_win: int
-	number_loose: int
-	number_placed: int
-	
-"""
+from django.db.models import Q
 
 BIO_MAX_CHAR = 1000
 COUNTRY_MAX_CHAR = 2
@@ -47,3 +28,21 @@ class Stats(models.Model):
 	number_win = models.IntegerField(default=0)
 	number_loss = models.IntegerField(default=0)
 	number_placed = models.IntegerField(default=0) # ++ when placing a coin
+	achievement = models.CharField(max_length=100, default=""*100)
+
+class Friends(models.Model):
+	lesser = models.ForeignKey(User, on_delete=models.CASCADE, related_name="friend_lesser")
+	greater = models.ForeignKey(User, on_delete=models.CASCADE, related_name="friend_greater")
+	since_when = models.DateTimeField(default=timezone.now)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(fields=["lesser", "greater"], name="unique_friend"),
+			models.CheckConstraint(condition=Q(lesser__lt=models.F("greater")), name="lesser_id_smaller_than_greater_id")
+		]
+	
+class FriendRequests(models.Model):
+	from_who = models.ForeignKey(User, on_delete=models.CASCADE, related_name="from_who")
+	to_who = models.ForeignKey(User, on_delete=models.CASCADE, related_name="to_who")
+	sent_date = models.DateTimeField(default=timezone.now)
+	is_rejected = models.BooleanField(default=False)
