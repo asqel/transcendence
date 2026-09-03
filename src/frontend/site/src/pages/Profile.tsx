@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { userApi, type UserResponse } from "../api";
+import { userApi, type SelfUserResponse } from "../api";
 import { useTranslation } from 'react-i18next';
 
 
@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 	const { logout } = useAuth()
 	const navigate = useNavigate()
 
-	const [user, setUser] = useState<UserResponse | null>(null)
+	const [user, setUser] = useState<SelfUserResponse | null>(null)
 	//const [newPassword, setNewPassword] = useState('')
 	//const [confirmPassword, setConfirmPassword] = useState('')
 	//const [message, setMessage] = useState<string | null>(null)
@@ -24,12 +24,11 @@ import { useTranslation } from 'react-i18next';
 	async function fetchProfile() {
 	try {
 		setLoadingProfile(true)
-		setError(null)
 		const data = await userApi.get_user()
 		setUser(data)
 	}
 	catch (err) {
-		if (err === "401")
+		if (err === 401)
 			logout()
 		setError(t("error.loading_profile"))
 	}
@@ -91,11 +90,11 @@ import { useTranslation } from 'react-i18next';
 	useEffect(() => {fetchProfile()}, [])
 
 	if (loadingProfile) {
-	return <div style={{ maxWidth: 480, margin: '40px auto' }}>{t("text.loading_profile")}</div>
+		return <div style={{ maxWidth: 480, margin: '40px auto' }}>{t("text.loading_profile")}</div>
 	}
 
 	if (error || !user) {
-	return <div style={{ maxWidth: 480, margin: '40px auto', color: 'red' }}>{error}</div>
+		return <div style={{ maxWidth: 480, margin: '40px auto', color: 'red' }}>{error}</div>
 	}
 
 	return (

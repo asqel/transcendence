@@ -9,6 +9,8 @@ import Login from './pages/Login.tsx'
 import Profile from './pages/Profile.tsx'
 import PlayerPages from './pages/PlayerPages.tsx'
 import PlayerSearch from './pages/PlayerSearch.tsx'
+import Play from './pages/Play.tsx'
+import Achivments from './pages/Achivments.tsx'
 
 import './App.css'
 
@@ -22,7 +24,7 @@ function Navigation() {
 	  <Link to="/">Accueil</Link>
 	  <Link to="/about">À propos</Link>
 	  <Link to="/contact">Contact</Link>
-	  <Link to="/PlayerSearch">PlayerSearch</Link>
+	  <Link to="/playerSearch">PlayerSearch</Link>
 	  {user ? (
 		<>
 			<Link to="/profile">Profile</Link>
@@ -60,27 +62,35 @@ function AppRoutes() {
 			path="/" 
 			element={
 				<ProtectedRoute>
-				<Home />
+					<Home />
 				</ProtectedRoute>
 			} 
 		/>
 		<Route 
   			path="/profile" 
 			element={
-    		<ProtectedRoute>
-    			<Profile />
-    		</ProtectedRoute>
+    			<ProtectedRoute>
+    				<Profile />
+    			</ProtectedRoute>
+  			} 
+		/>
+		<Route 
+  			path="/achivments" 
+			element={
+    			//<ProtectedRoute>
+    				<Achivments />
+    			//</ProtectedRoute>
   			} 
 		/>
 		<Route path="/profile/:username" element={<PlayerPages />} />
 		<Route path="/about" element={<About />} />
 		<Route path="/contact" element={<Contact />} />
-		<Route path="/PlayerSearch" element={<PlayerSearch />} />
-	  {/* Si déjà connecté, on redirige vers l'accueil */}
-	  <Route 
-		path="/login" 
-		element={user ? <Navigate to="/" replace /> : <Login />} 
-	  />
+		<Route path="/playerSearch" element={<PlayerSearch />} />
+		<Route path="/play/:partId?" element={<Play />} />
+		<Route 
+			path="/login" 
+			element={user ? <Navigate to="/" replace /> : <Login />} 
+		/>
 	  
 		<Route path="*" element={<NotFound />} />
 	</Routes>
