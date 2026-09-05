@@ -12,14 +12,24 @@ export interface TokenResponse {
 	refresh: string;
 }
 
-export interface SelfUserResponse {
+export interface SelfResponse {
 	username: string;
 	email: string;
+	email_confirmed: boolean
 }
 
-export interface OtUserResponse {
-	username: string;
+export interface UserResponse {
+	bio: string;
+	country: string;
 	join_date: string;
+	win_count: number;
+	loss_count: number;
+	placed: number;
+	streak: number;
+}
+
+export interface SkinResponse {
+	skin: number;
 }
 
 
@@ -149,6 +159,30 @@ async function get_token(username: string, password: string): Promise<void> {
 // User
 // ============================================================
 
+function send_confirm_mail(): Promise<null> {
+	return request<null>("/account/confirm-ask", "GET");
+}
+
+function confirm_mail(token: string, username: string): Promise<null> {
+	return request<null>(`/account/confirm?token=${token}&username=${username}`, "GET")
+}
+
+function change_bio(bio: string): Promise<null> {
+	const body = JSON.stringify({
+		"field": "bio",
+		"value": bio,
+	});
+	return request<null>(`/account/set-info`, "POST", body)
+}
+
+function change_country(country: string): Promise<null> {
+	const body = JSON.stringify({
+		"field": "country",
+		"value": country,
+	});
+	return request<null>(`/account/set-info`, "POST", body)
+}
+
 function delete_account(): Promise<null> {
 	return request<null>("/account/delete", "POST");
 }
@@ -160,18 +194,29 @@ function change_password(): Promise<null> {
 
 
 function get_achivments(): Promise<Array<boolean>> {
-	return request<Array<boolean>>("/account/achivments", "GET");
+	return request<Array<boolean>>("/achievements", "GET");
+}
+
+function set_skin(id: number): Promise<null> {
+	const body = JSON.stringify({
+		"skin": id,
+	});
+	return request<null>("/account/set-skin", "POST", body);
+}
+
+function get_skin(): Promise<SkinResponse> {
+	return request<SkinResponse>("/account/get-skin", "GET");
 }
 
 // ============================================================
 // Global
 // ============================================================
 
-function get_user(): Promise<SelfUserResponse>;
-function get_user(user: string): Promise<OtUserResponse>;
+function get_user(): Promise<SelfResponse>;
+function get_user(user: string): Promise<UserResponse>;
 
-function get_user(user: string = "/self",): Promise<SelfUserResponse | OtUserResponse> {
-	return request<SelfUserResponse | OtUserResponse>(`/account/profile?username=${user}`, "GET");
+function get_user(user: string = "/self",): Promise<SelfResponse | UserResponse> {
+	return request<SelfResponse | UserResponse>(`/account/profile?username=${user}`, "GET");
 }
 
 // ============================================================
@@ -187,9 +232,15 @@ export const authApi = {
 
 export const userApi = {
 	get_user,
+	confirm_mail,
+	send_confirm_mail,
+	change_bio,
+	change_country,
 	delete_account,
 	change_password,
 	get_achivments,
+	set_skin,
+	get_skin,
 };
 
 

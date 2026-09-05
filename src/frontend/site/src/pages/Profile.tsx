@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { userApi, type SelfUserResponse } from "../api";
+import { userApi, type SelfResponse, type UserResponse } from "../api";
 import { useTranslation } from 'react-i18next';
-
+import { countries, getEmojiFlag, type TCountryCode } from "countries-list"
+import "./Profile.css"
 
  function Profile() {
 	const {t} = useTranslation()
@@ -11,60 +12,70 @@ import { useTranslation } from 'react-i18next';
 	const { logout } = useAuth()
 	const navigate = useNavigate()
 
-	const [user, setUser] = useState<SelfUserResponse | null>(null)
-	//const [newPassword, setNewPassword] = useState('')
-	//const [confirmPassword, setConfirmPassword] = useState('')
-	//const [message, setMessage] = useState<string | null>(null)
+	const [self, setSelf] = useState<SelfResponse | null>(null);
+	const [user, setUser] = useState<UserResponse | null>(null);
+	const [bio, setBio] = useState<string>("");
+	const [country, setCountry] = useState<string>("");
 	const [error, setError] = useState<string | null>(null)
-	const [loadingProfile, setLoadingProfile] = useState<boolean>(true)
-	//const [loadingPassword, setLoadingPassword] = useState(false)
-	const [loadingDelete, setLoadingDelete] = useState<boolean>(false)
+	const [loadingProfile, setLoadingProfile] = useState<boolean>(true);
+	const [loadingDelete, setLoadingDelete] = useState<boolean>(false);
 
+	const myCountries = {
+		...countries,
+		LG: {
+			name: "Listenbourg",
+			native: "Listenbourg",
+		},
+	}
 
 	async function fetchProfile() {
-	try {
-		setLoadingProfile(true)
-		const data = await userApi.get_user()
-		setUser(data)
+		try {
+			setLoadingProfile(true)
+			const rec_self = await userApi.get_user()
+			setSelf(rec_self)
+			const rec_user = await userApi.get_user(rec_self.username)
+			setUser(rec_user);
+			setBio(rec_user.bio);
+			setCountry(rec_user.country);
+		}
+		catch (err) {
+			setError(t("error.loading_profile"))
+		}
+		finally {
+			setLoadingProfile(false)
+		}
 	}
-	catch (err) {
-		if (err === 401)
-			logout()
-		setError(t("error.loading_profile"))
-	}
-	finally {
-		setLoadingProfile(false)
-	}
-	}
-	
 
-//	const handlePasswordChange = async (e: React.FormEvent) => {
-//		e.preventDefault()
-//		setMessage(null)
-//		setError(null)
-//
-//		if (newPassword.length < 6) {
-//			setError('Le mot de passe doit contenir au moins 6 caractères.')
-//			return
-//		}
-//		if (newPassword !== confirmPassword) {
-//			setError('Les mots de passe ne correspondent pas.')
-//			return
-//		}
-//
-//		try {
-//			setLoadingPassword(true)
-//			// 🔧 À adapter selon ton backend / AuthContext
-//			await useAuthChangePassword(newPassword)
-//			setMessage('Mot de passe mis à jour avec succès.')
-//			setNewPassword('')
-//			setConfirmPassword('')
-//		} catch (err) {
-//			setError("Impossible de changer le mot de passe. Réessaie plus tard.")
-//		} finally {
-//			setLoadingPassword(false)
-//		}
-//	}
+	async function handleSendMail() {
+			await userApi.send_confirm_mail()
+	}
+
+	
+	async function handleBioKeyDown(
+		e: React.KeyboardEvent<HTMLTextAreaElement>
+	) {
+		if (e.key === "Enter") {
+			e.preventDefault()
+			try {
+				await userApi.change_bio(bio);
+
+			}
+			catch {
+
+			}
+		}
+	}
+
+	async function handleCountryChange(e: React.ChangeEvent<HTMLSelectElement>) {
+		const newCountry = e.target.value
+		
+		try {
+			await userApi.change_country(newCountry)
+			setCountry(newCountry)
+		}
+		catch {
+		}
+	}
 
 	async function handleDeleteAccount() {
 		const confirmed = window.confirm(
@@ -93,7 +104,7 @@ import { useTranslation } from 'react-i18next';
 		return <div style={{ maxWidth: 480, margin: '40px auto' }}>{t("text.loading_profile")}</div>
 	}
 
-	if (error || !user) {
+	if (error || !self || !user) {
 		return <div style={{ maxWidth: 480, margin: '40px auto', color: 'red' }}>{error}</div>
 	}
 
@@ -102,41 +113,29 @@ import { useTranslation } from 'react-i18next';
 		<h1>Mon profil</h1>
 
 		<section style={{ marginBottom: 32 }}>
-		<p><strong>Pseudo :</strong> {user.username}</p>
-		<p><strong>Email :</strong> {user.email}</p>
-		</section>
-{/*
-		<section style={{ marginBottom: 32 }}>
-		<h2>Changer le mot de passe</h2>
-		<form onSubmit={handlePasswordChange}>
-			<div style={{ marginBottom: 12 }}>
-			<label htmlFor="newPassword">Nouveau mot de passe</label><br />
-			<input
-				id="newPassword"
-				type="password"
-				value={newPassword}
-				onChange={(e) => setNewPassword(e.target.value)}
-				style={{ width: '100%', padding: 8 }}
+			<p><strong>Pseudo :</strong> {self.username}</p>
+			<p><strong>Email :</strong> {self.email}</p>
+			{!self.email_confirmed && <button onClick={handleSendMail}>Confirmer le mail</button>}
+			<p><strong>Bio :</strong></p>
+			<textarea
+				value={bio}
+				onChange={(e) => setBio(e.target.value)}
+				onKeyDown={handleBioKeyDown}
+				maxLength={100}
 			/>
-			</div>
-			<div style={{ marginBottom: 12 }}>
-			<label htmlFor="confirmPassword">Confirmer le mot de passe</label><br />
-			<input
-				id="confirmPassword"
-				type="password"
-				value={confirmPassword}
-				onChange={(e) => setConfirmPassword(e.target.value)}
-				style={{ width: '100%', padding: 8 }}
-			/>
-			</div>
-			<button type="submit" disabled={loadingPassword}>
-			{loadingPassword ? 'Mise à jour...' : 'Mettre à jour le mot de passe'}
-			</button>
-		</form>
-		{message && <p style={{ color: 'green' }}>{message}</p>}
-		{error && <p style={{ color: 'red' }}>{error}</p>}
+			<p>{bio.length} / 100</p>
+			<select
+				value={country}
+				onChange={handleCountryChange}
+			>
+				{Object.entries(myCountries).sort((a, b) => a[1].name.localeCompare(b[1].name)).map(([code, country]) => (
+					<option key={code} value={code}>
+						{code === "LG" ? getEmojiFlag("FR") : getEmojiFlag(code as TCountryCode)}{" "}
+						{country.name} ({code})
+					</option>
+				))}
+			</select>
 		</section>
-*/}
 		<section>
 		<h2>Zone dangereuse</h2>
 		<button

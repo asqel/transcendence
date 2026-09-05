@@ -1,9 +1,9 @@
 
 import { useState, useEffect } from "react";
 import { userApi} from "../api";
-import "./Achivments.css"
+import "./Achievements.css"
 
-const achievements = [
+export const achievements = [
 	{
 		image: "/assets/coin/coin.png",
 		name: "The begining",
@@ -31,12 +31,12 @@ const achievements = [
 	},
 	{
 		image: "/assets/coin/sun.png",
-		name: "",
+		name: "Sunny day",
 		description: "win a game during the day",
 	},
 	{
 		image: "/assets/coin/butterfly.png",
-		name: "Surpassed",
+		name: "Fake win",
 		description: "win a game to a forfeit",
 	},
 	{
@@ -56,7 +56,7 @@ const achievements = [
 	},
 	{
 		image: "/assets/coin/poop.png",
-		name: "Looser",
+		name: "It's ok",
 		description: "have 5 loose streak",
 	},
 	{
@@ -71,56 +71,89 @@ const achievements = [
 	},
 	{
 		image: "/assets/coin/cloud.png ",
-		name: "Fair",
+		name: "Fair play",
 		description: "send GG in the chat after loosing",
 	},
 	{
 		image: "/assets/coin/dots.png ",
-		name: "Unbeatable",
+		name: "You can rest now  ",
 		description: "have all the achivements",
 	},
 ]
 
-function Achivments() {
-	const [achievementList, setAchievementList] = useState<Array<boolean>>([])
+function Achievements() {
+	const [achievementList, setAchievementList] = useState<boolean[]>([])
+	const [selectedSkin, setSelectedSkin] = useState(0)
+
+	const [loadingSkin, setLoadingSkin] = useState<number | null>(null)
+
+	async function handleSelectSkin(index: number) {
+		if (!achievementList[index])
+			return
+		try {
+			setLoadingSkin(index)
+			await userApi.set_skin(index)
+			setSelectedSkin(index)
+		}
+		catch (error) {
+			console.error(error)
+		}
+		finally {
+			setLoadingSkin(null)
+		}
+	}
 
 	async function loadAchievements() {
-			try {
-				const data = await userApi.get_achivments()
-				setAchievementList(data)
-			}
-			catch (error) {
-				console.error(error)
-			}
+		try {
+			const list = await userApi.get_achivments();
+			setAchievementList(list);
+			const skin = await userApi.get_skin();
+			setSelectedSkin(skin.skin);
 		}
+		catch (error) {
+			console.error(error)
+		}
+	}
 
 	useEffect(() => {loadAchievements()}, [])
 
 	return (
 		<div className="achievements">
 			{achievements.map((achievement, index) => {
-			const unlocked = achievementList[index]
+				const unlocked = achievementList[index]
+				const selected = index === selectedSkin
+			
+				return (
+					<button
+						key={index}
+						type="button"
+						className={`achievement
+							${selected ? "achievement-selected" : ""}
+							${!unlocked ? "achievement-locked" : ""}
 
-		return (
-			<div
-				key={index}
-				className={`achievement ${unlocked ? "" : "achievement-locked"}`}
-			>
-				<img
-					src={achievement.image}
-					alt={achievement.name}
-					className="achievement-image"
-				/>
+						`}
+						onClick={() => handleSelectSkin(index)}
+						disabled={!unlocked || loadingSkin !== null}
+					>
+						<img
+							src={achievement.image}
+							alt={achievement.name}
+							className="achievement-image"
+						/>
 
-				<div className="achievement-info">
-					<h3>{achievement.name}</h3>
-					<p>{achievement.description}</p>
-				</div>
-			</div>
-		)
-	})}
-</div>
+						<div className="achievement-info">
+							<h3>{achievement.name}</h3>
+							<p>{achievement.description}</p>
+						</div>
+						
+						{selected && (
+							<span className="achievement-check">✓</span>
+						)}
+					</button>
+				)
+			})}
+		</div>
 	)
 }
 
-export default Achivments
+export default Achievements

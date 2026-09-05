@@ -14,7 +14,8 @@
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.1.0",
     "i18next": "^26.4.0",
-    "react-i18next": "^17.0.12"
+    "react-i18next": "^17.0.12",
+    "countries-list": "^3.0.6"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

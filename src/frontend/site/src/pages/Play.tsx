@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react"
-import { useParams, useNavigate} from "react-router-dom"
+import { useParams } from "react-router-dom"
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next';
+import { achievements } from "./Achievements";
 import "./Play.css"
 
 const OPC_AUTH = 0xff
@@ -9,7 +10,7 @@ const OPC_AUTH = 0xff
 const OPC_CREATE = 0xf0
 const OPC_JOIN = 0xf1
 const OPC_JOINED = 0xf2
-//const OPC_LEAVE = 0xf3
+const OPC_LEAVE = 0xf3
 const OPC_SEND = 0xfa
 const OPC_TEXT = 0xfb
 
@@ -20,17 +21,11 @@ const OPC_WIN = 0x12
 const OPC_WIN_SPEC = 0x14
 const OPC_REMATCH = 0x13
 
-const coinSkins: string[] = [
-	"poop",
-	"sun",
-	"infinity",
-	"moon",
-	"cloud",
-]
+const OPC_ACHI = 0xe0
 
 function Play() {
 	const {t} = useTranslation()
-	const navigate = useNavigate()
+	//const navigate = useNavigate()
 	const { user } = useAuth()
 
 	const wsRef = useRef<WebSocket | null>(null)
@@ -54,15 +49,19 @@ function Play() {
 
 	const self = useRef<1|2>(1);
 	const opponent = useRef<1|2>(2);
-	const selfSkin = useRef<number>(1);
-	const opponentSkin = useRef<number>(1);
+	const selfSkin = useRef<number>(0);
+	const opponentSkin = useRef<number>(0);
+	const [opLeft, setOpLeft] = useState<boolean>(false);
 	const [winer, setWiner] = useState<string>(user?.username ?? "");
-	const [currentPlayer, setCurrentPlayer] = useState<1|2>(1)
-	const currentPlayerRef = useRef<1|2>(1)
-	const startPlayerRef = useRef<1|2>(1)
-	const [gameState, setGameState] = useState<"won" | "lose" | "draw" | null>(null)
-	const [rematchSelf, setRemathSelf] = useState<0|1>(0)
-	const [rematchOp, setRemathOp] = useState<0|1>(0)
+	const [currentPlayer, setCurrentPlayer] = useState<1|2>(1);
+	const currentPlayerRef = useRef<1|2>(1);
+	const startPlayerRef = useRef<1|2>(1);
+	const [gameState, setGameState] = useState<"won" | "lose" | "draw" | null>(null);
+	const [rematchSelf, setRemathSelf] = useState<0|1>(0);
+	const [rematchOp, setRemathOp] = useState<0|1>(0);
+	const turnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const [opAkf, setOpAkf] = useState<boolean>(false);
+	const [achievementPopup, setAchievementPopup] = useState<string | null>(null);
 
 	function sender(nb: number, val: string | number | null = null) {
 		const bytes: Array<number> = [];
@@ -86,6 +85,8 @@ function Play() {
 		if (bytes[0] === OPC_AUTH) {
 			if (bytes[1] === 0)
 				autentified.current = true;
+			else
+				console.log(bytes[1]);
 		}
 		else if (bytes[0] === OPC_CREATE) {
 			const decoder = new TextDecoder();
@@ -93,11 +94,28 @@ function Play() {
 			setpartId(str);
 		}
 		else if (bytes[0] === OPC_JOIN) {
+			console.log(bytes);
 			if (bytes[1] === 0) {
 				selfSkin.current = bytes[2];
+				console.log("selfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", bytes[2])
 			}
 			else
 				setpartId(null);
+		}
+		else if (bytes[0] === OPC_JOINED) {
+			const decoder = new TextDecoder();
+			opponentSkin.current = bytes[1];
+			const str = decoder.decode(bytes.subarray(2));
+			setChatMessages((prev) => [...prev, str + t("joining_string")]);
+		}
+		else if (bytes[0] === OPC_REMATCH) {
+			setRemathOp(1);
+			if (!autentified.current) {
+				setRemathSelf(1);
+			}
+		}
+		else if (bytes[0] === OPC_LEAVE) {
+			setOpLeft(true);
 		}
 		else if (bytes[0] === OPC_TEXT) {
 			const decoder = new TextDecoder();
@@ -124,12 +142,6 @@ function Play() {
 			playColumn(column, player)
 			console.log("euuuuu")
 		}
-		else if (bytes[0] === OPC_JOINED) {
-			const decoder = new TextDecoder();
-			opponentSkin.current = bytes[1];
-			const str = decoder.decode(bytes.subarray(2));
-			setChatMessages((prev) => [...prev, str + t("joining_string")]);
-		}
 		else if (bytes[0] === OPC_WIN) {
 			if (bytes[1] === self.current)
 				setGameState("won")
@@ -144,11 +156,9 @@ function Play() {
 			setWiner(str);
 			setGameState("won");
 		}
-		else if (bytes[0] === OPC_REMATCH) {
-			setRemathOp(1);
-			if (!autentified.current) {
-				setRemathSelf(1);
-			}
+		else if (bytes[0] === OPC_ACHI) {
+			showAchievement(achievements[bytes[1]].name);
+			console.log(achievements[bytes[1]].name)
 		}
 	}
 
@@ -158,14 +168,6 @@ function Play() {
 		self.current = 1;
 		opponent.current = 2
 	}
-
-	function handleSpectate() {
-		if (!codeInput.trim())
-			return
-		sender(OPC_JOIN, codeInput.trim());
-		setpartId(codeInput.trim());
-	}
-
 	function handleJoin() {
 		if (!codeInput.trim())
 			return
@@ -176,6 +178,21 @@ function Play() {
 		opponent.current = 1
 	}
 
+	function handleSpectate() {
+		if (!codeInput.trim())
+			return
+		sender(OPC_JOIN, codeInput.trim());
+		setpartId(codeInput.trim());
+	}
+
+	function handleRematch() {
+		setRemathSelf(1);
+		sender(0x13);
+	}
+
+	function handleQuit() {
+		window.location.href = "/play";
+	}
 
 	function handleSendChat() {
 		if (!chatInput.trim())
@@ -184,10 +201,13 @@ function Play() {
 		setChatInput("")
 	}
 
-
 	function changePlayer(player: 1 | 2) {
 		currentPlayerRef.current = player
 		setCurrentPlayer(player)
+		if (player === opponent.current)
+			startTurnTimer()
+		else
+			stopTurnTimer()
 	}
 
 	function handleColumnClick(column: number) {
@@ -219,18 +239,34 @@ function Play() {
 		else
 			skin = opponentSkin.current;
 
-		return `/assets/coin/${coinSkins[skin]}.png`
-	}
-
-	function handleRematch() {
-		setRemathSelf(1);
-		sender(0x13);
+		return achievements[skin].image
 	}
 
 	
-	function handleQuit() {
-		navigate("/play");
+	function startTurnTimer() {
+		if (turnTimerRef.current !== null) {
+			clearTimeout(turnTimerRef.current)
+		}
+
+		turnTimerRef.current = setTimeout(() => {
+			setOpAkf(true);
+		}, 20 * 1000)
 	}
+
+	function stopTurnTimer() {
+		if (turnTimerRef.current !== null) {
+			clearTimeout(turnTimerRef.current)
+			turnTimerRef.current = null
+		}
+	}
+
+	function showAchievement(name: string) {
+	setAchievementPopup(name)
+
+	setTimeout(() => {
+		setAchievementPopup(null)
+	}, 4000)
+}
 
 	useEffect(() => {
 		const ws = new WebSocket(`wss://${window.location.host}/ws/api/`);
@@ -295,6 +331,17 @@ function Play() {
 
 	return (
 		<div className="page">
+			{achievementPopup && (
+				<div className="achievement-popup">
+					<div className="achievement-popup-title">
+						🏆 Achievement débloqué !
+					</div>
+
+					<div className="achievement-popup-name">
+						{achievementPopup}
+					</div>
+				</div>
+			)}
 			{!partId && (
 				<>
 				<h1>Play</h1>
@@ -326,87 +373,88 @@ function Play() {
 				</div>
 				</>
 			)}
+
+
+
 			{partId && (
-			<>
-			<h1>{partId}</h1>
+				<div className="game-layout">
+					<h1>{partId}</h1>
+					<div className="puissance4">
+						{gameState && (
+							<div className="game-result-overlay">
+								<div className="game-result">
+									{gameState === "won" && (winer ? winer + t("as_won") : t("victory"))}
+									{gameState === "lose" && t("defeat")}
+									{gameState === "draw" && t("draw")}
+								</div>
+								{autentified.current && !opLeft && (
+									<button
+										onClick={handleRematch}
+										disabled={rematchSelf === 1}
+									>
+										{t("rematch")} {rematchSelf + rematchOp} / 2
+									</button>
 
-			<div className="game-layout">
-				<div className="puissance4">
-					{gameState && (
-						<div className="game-result-overlay">
-							<div className="game-result">
-								{gameState === "won" && (winer ? winer + t("as_won") : t("victory"))}
-								{gameState === "lose" && t("defeat")}
-								{gameState === "draw" && t("draw")}
+								)}
+
+								<button onClick={handleQuit}>
+									{t("quit")}
+								</button>
 							</div>
-							{autentified.current && (
-								<button
-									onClick={handleRematch}
-									disabled={rematchSelf === 1}
-								>
-									t("rematch") {rematchSelf + rematchOp} / 2
-								</button>
-
-							)}
-								
-							<button onClick={handleQuit}>
-								t("rematch");
-							</button>
-						</div>
-					)}
-					{autentified.current && (
-						<div className="puissance4-buttons">
-							{Array.from({ length: 7 }).map((_, column) => (
-								<button
-									key={column}
-									className="puissance4-column-button"
-									onClick={() => handleColumnClick(column)}
-									disabled={currentPlayer != self.current}
-								>
-									↓
-								</button>
+						)}
+						{autentified.current && (
+							<div className="puissance4-buttons">
+								{Array.from({ length: 7 }).map((_, column) => (
+									<button
+										key={column}
+										className="puissance4-column-button"
+										onClick={() => handleColumnClick(column)}
+										disabled={currentPlayer != self.current}
+									>
+										↓
+									</button>
+								))}
+							</div>
+						)}
+						<div className="puissance4-board">
+							{board.map((player, index) => (
+								<div key={index} className="puissance4-cell">
+									{player !== 0 && (
+										<img src={getCoinImage(player as 1|2)} alt="token" className={`puissance4-piece player-${player}`}/>
+									)}
+								</div>
 							))}
 						</div>
-					)}
-					<div className="puissance4-board">
-						{board.map((player, index) => (
-							<div key={index} className="puissance4-cell">
-								{player !== 0 && (
-									<img src={getCoinImage(player as 1|2)} alt="token" className={`puissance4-piece player-${player}`}/>
-								)}
-							</div>
-						))}
 					</div>
-				</div>
+					{!gameState && <button onClick={handleQuit}>{!opAkf ? "Forfait" : "Quitter"}</button>}
 
-				<div className="chatbox">
-					<div className="chatbox-messages" ref={messagesContainerRef}>
-						{chatMessages.length === 0 && (
-							<p className="chatbox-empty">Aucun message pour l'instant.</p>
-						)}
-						{chatMessages.map((msg, i) => (
-							<p key={i} className="chatbox-message">{msg}</p>
-						))}
-					</div>
-					<div className="chatbox-input-row">
-						<input
-							type="text"
-							value={chatInput}
-							onChange={(e) => setChatInput(e.target.value)}
-							onKeyDown={(e) => {
-								if (e.key === "Enter") handleSendChat()
-							}}
-							placeholder="Écrire un message..."
-							className="input"
-							disabled={!connected}
-						/>
-						<button onClick={handleSendChat} disabled={!connected}>
-							Envoyer
-						</button>
+					<div className="chatbox">
+						<div className="chatbox-messages" ref={messagesContainerRef}>
+							{chatMessages.length === 0 && (
+								<p className="chatbox-empty">Aucun message pour l'instant.</p>
+							)}
+							{chatMessages.map((msg, i) => (
+								<p key={i} className="chatbox-message">{msg}</p>
+							))}
+						</div>
+						<div className="chatbox-input-row">
+							<input
+								type="text"
+								value={chatInput}
+								onChange={(e) => setChatInput(e.target.value)}
+								onKeyDown={(e) => {
+									if (e.key === "Enter") handleSendChat()
+								}}
+								placeholder="Écrire un message..."
+								className="input"
+								disabled={!connected}
+							/>
+							<button onClick={handleSendChat} disabled={!connected}>
+								Envoyer
+							</button>
+						</div>
 					</div>
 				</div>
-			</div>
-			</>
 			)}
 		</div>
 	)
