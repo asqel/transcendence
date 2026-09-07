@@ -100,21 +100,17 @@ async function request<T>(endpoint: string, method: string, body: string = "", o
 		};
 	}
 
-	// Première requête
 	let res = await fetch(`${API_URL}${endpoint}`, makeConfig(accessToken));
 
-	// Access token expiré
 	if (res.status === 401) {
 
 		const refreshed = await refresh_token();
-
-		// Impossible de rafraîchir le token
 		if (refreshed) {
-			accessToken = localStorage.getItem("access");
-
+			accessToken = localStorage.getItem("access")
 			res = await fetch(`${API_URL}${endpoint}`, makeConfig(accessToken));
 		}
-
+		else
+			window.dispatchEvent(new Event("auth:logout"));
 	}
 
 	if (!res.ok) {

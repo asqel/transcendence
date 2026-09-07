@@ -8,17 +8,18 @@ import "./Play.css"
 const OPC_AUTH = 0xff
 
 const OPC_CREATE = 0xf0
-const OPC_JOIN = 0xf1
-const OPC_JOINED = 0xf2
+const OPC_JOIN = 0xf1 //(id, skin)
+const OPC_JOINED = 0xf2 //(id, skin, name)
 const OPC_LEAVE = 0xf3
-const OPC_SEND = 0xfa
-const OPC_TEXT = 0xfb
+const OPC_CHAT = 0xfa
 
+
+const OPC_TURN = 0x16 //(id)
 const OPC_PLACE = 0x10
-const OPC_PLACED = 0x11
-const OPC_PLACED_SPEC = 0x15
-const OPC_WIN = 0x12
-const OPC_WIN_SPEC = 0x14
+//const OPC_PLACED = 0x11 //(colon)
+const OPC_PLACED_PLAYER = 0x15 //(id, colon)
+const OPC_WIN = 0x12 //(id)
+const OPC_WIN_SPEC = 0x14 //(name)
 const OPC_REMATCH = 0x13
 
 const OPC_ACHI = 0xe0
@@ -32,7 +33,6 @@ function Play() {
 	const [wsError, setWsError] = useState(false)
 
 	const [connected, setConnected] = useState(false)
-	//const [autentified, setAutentified] = useState(false)
 	const autentified = useRef(false);
 	const [partId, setpartId] = useState<string | null>(null)
 
@@ -42,7 +42,6 @@ function Play() {
 
 	const [chatMessages, setChatMessages] = useState<string[]>([])
 	const [chatInput, setChatInput] = useState("")
-	
 	const messagesContainerRef = useRef<HTMLDivElement | null>(null)
 
 	const [board, setBoard] = useState<number[]>(Array(42).fill(0))
@@ -54,8 +53,6 @@ function Play() {
 	const [opLeft, setOpLeft] = useState<boolean>(false);
 	const [winer, setWiner] = useState<string>(user?.username ?? "");
 	const [currentPlayer, setCurrentPlayer] = useState<1|2>(1);
-	const currentPlayerRef = useRef<1|2>(1);
-	const startPlayerRef = useRef<1|2>(1);
 	const [gameState, setGameState] = useState<"won" | "lose" | "draw" | null>(null);
 	const [rematchSelf, setRemathSelf] = useState<0|1>(0);
 	const [rematchOp, setRemathOp] = useState<0|1>(0);
@@ -89,23 +86,30 @@ function Play() {
 				console.log(bytes[1]);
 		}
 		else if (bytes[0] === OPC_CREATE) {
-			const decoder = new TextDecoder();
-			const str = decoder.decode(bytes.subarray(1));
-			setpartId(str);
-		}
-		else if (bytes[0] === OPC_JOIN) {
-			console.log(bytes);
 			if (bytes[1] === 0) {
-				selfSkin.current = bytes[2];
-				console.log("selfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", bytes[2])
+				const decoder = new TextDecoder();
+				const str = decoder.decode(bytes.subarray(2));
+				setpartId(str);
 			}
 			else
+				console.log("create_error: ", bytes[1]);
+			
+		}
+		else if (bytes[0] === OPC_JOIN) {
+			if (bytes[1] === 0) {
+				self.current = bytes[2] as 1|2;
+				selfSkin.current = bytes[3];
+			}
+			else {
+				console.log("join_error: ", bytes[1]);
 				setpartId(null);
+			}
 		}
 		else if (bytes[0] === OPC_JOINED) {
+			opponent.current = bytes[1] as 1|2;
+			opponentSkin.current = bytes[2];
 			const decoder = new TextDecoder();
-			opponentSkin.current = bytes[1];
-			const str = decoder.decode(bytes.subarray(2));
+			const str = decoder.decode(bytes.subarray(3));
 			setChatMessages((prev) => [...prev, str + t("joining_string")]);
 		}
 		else if (bytes[0] === OPC_REMATCH) {
@@ -117,30 +121,31 @@ function Play() {
 		else if (bytes[0] === OPC_LEAVE) {
 			setOpLeft(true);
 		}
-		else if (bytes[0] === OPC_TEXT) {
-			const decoder = new TextDecoder();
-			const str = decoder.decode(bytes.subarray(1));
-			setChatMessages((prev) => [...prev, str]);
+		else if (bytes[0] === OPC_CHAT) {
+			if (bytes[1] === 0) {
+				const decoder = new TextDecoder();
+				const str = decoder.decode(bytes.subarray(2));
+				setChatMessages((prev) => [...prev, str]);
+			}			
+		}
+
+		else if (bytes[0] === OPC_TURN) {
+			const player = bytes[1] as (1|2);
+			setCurrentPlayer(player);
+			if (player === opponent.current)
+				startTurnTimer();
+			else
+				stopTurnTimer();
 		}
 		else if (bytes[0] === OPC_PLACE) {
-			console.log("error:" + bytes[1]);
+			if (bytes[1] !== 0)
+				console.log("placed_error:" + bytes[1]);
 		}
-		else if (bytes[0] === OPC_PLACED) {
-			const column = bytes[1] | (bytes[2] << 8)
 
-			const player = currentPlayerRef.current
-			playColumn(column, player)
-			if (player === self.current)
-				changePlayer(opponent.current)
-			else if (player === opponent.current)
-				changePlayer(self.current)
-		}
-		else if (bytes[0] === OPC_PLACED_SPEC) {
-			const column = bytes[1] | (bytes[2] << 8)
-
-			const player = bytes[3] as (1|2);
-			playColumn(column, player)
-			console.log("euuuuu")
+		else if (bytes[0] === OPC_PLACED_PLAYER) {
+			const player = bytes[1] as (1|2);
+			const column = bytes[2] | (bytes[3] << 8)
+			playColumn(column, player);
 		}
 		else if (bytes[0] === OPC_WIN) {
 			if (bytes[1] === self.current)
@@ -168,6 +173,7 @@ function Play() {
 		self.current = 1;
 		opponent.current = 2
 	}
+
 	function handleJoin() {
 		if (!codeInput.trim())
 			return
@@ -187,27 +193,19 @@ function Play() {
 
 	function handleRematch() {
 		setRemathSelf(1);
-		sender(0x13);
+		sender(OPC_REMATCH);
 	}
 
 	function handleQuit() {
+		sender(OPC_LEAVE);
 		window.location.href = "/play";
 	}
 
 	function handleSendChat() {
 		if (!chatInput.trim())
 			return
-		sender(OPC_SEND, chatInput.trim())
+		sender(OPC_CHAT, chatInput.trim())
 		setChatInput("")
-	}
-
-	function changePlayer(player: 1 | 2) {
-		currentPlayerRef.current = player
-		setCurrentPlayer(player)
-		if (player === opponent.current)
-			startTurnTimer()
-		else
-			stopTurnTimer()
 	}
 
 	function handleColumnClick(column: number) {
@@ -297,11 +295,6 @@ function Play() {
 		if (rematchSelf === 1 && rematchOp === 1) {
 			setGameState(null)
 
-			startPlayerRef.current =
-				startPlayerRef.current === 1 ? 2 : 1
-
-			changePlayer(startPlayerRef.current)
-
 			setBoard(Array(42).fill(0))
 
 			setRemathSelf(0)
@@ -318,17 +311,6 @@ function Play() {
 			</div>
 		)
 	}
-
-	if (partId && !autentified.current && 0) {
-		return (
-			<div className="page">
-				<p className="ws-error">
-					Impossible de s'autentifier
-				</p>
-			</div>
-		)
-	}
-
 	return (
 		<div className="page">
 			{achievementPopup && (
@@ -342,6 +324,9 @@ function Play() {
 					</div>
 				</div>
 			)}
+
+
+
 			{!partId && (
 				<>
 				<h1>Play</h1>

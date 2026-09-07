@@ -6,8 +6,7 @@ import About from './pages/About.tsx'
 import Contact from './pages/Contact.tsx'
 import NotFound from './pages/NotFound.tsx'
 import Login from './pages/Login.tsx'
-import Profile from './pages/Profile.tsx'
-import PlayerPages from './pages/PlayerPages.tsx'
+import Profile from './pages/PrProfile.tsx'
 import PlayerSearch from './pages/PlayerSearch.tsx'
 import Play from './pages/Play.tsx'
 import Achievements from './pages/Achievements.tsx'
@@ -88,7 +87,7 @@ function AppRoutes() {
 					//</ProtectedRoute>
 				} 
 		/>
-		<Route path="/profile/:username" element={<PlayerPages />} />
+		<Route path="/profile/:username?" element={<Profile />} />
 		<Route path="/about" element={<About />} />
 		<Route path="/contact" element={<Contact />} />
 		<Route path="/playerSearch" element={<PlayerSearch />} />
