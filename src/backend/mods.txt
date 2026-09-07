@@ -1,0 +1,13 @@
+2: framework front+back
+2: Implement realtime feature using websock
+1: ORM for database
+1: Support multi lang (3 lang)
+1: support additional browser(firefox, chrom, safari)
+1: Game stats and match history (!TODO faire un leaderbord)
+2: Introduce an AI Opponent
+2: Implement a complete web-base game
+### 2: Remote Players - Enable players... (missing: reconnection logic)
+1: A gamification system to reward (achivement, reward(skin from achievment), leaderboard)
+	## leaderboard = elo
+1: Implement spectator mode for games
+1: GDPR

@@ -7,9 +7,9 @@ class Consumer(WebsocketConsumer):
 
 	def connect(self):
 		self.accept()
-		self.user = None
+		self.player = None
 		self.game = None
-		api.utils.log("AAAAAAAAAAAA")
+		self.user = None
 
 	def disconnect(self, close_code):
 		api.game.on_disco(self, close_code)

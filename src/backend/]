@@ -1,7 +1,6 @@
 import api
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from models.models import BIO_MAX_CHAR, Profile, Stats, EmailConfirm
-import models.models as models
+from models.models import Game, BIO_MAX_CHAR, Profile, Stats, EmailConfirm
 import secrets
 import threading
 from django.utils import timezone
@@ -113,16 +112,33 @@ def on_recv(ws, data: bytes):
 		return place(ws, data)
 	if (data[0] == OPC_AGAIN):
 		return do_again(ws, data)
-	if (data[0] == OPC_LEAVE):
-		return do_leave(ws, data)
 
 	ws.send(bytes_data=data)
 
 AFK_TIME = timedelta(seconds=20)
 
-def do_leave(ws, data):
-	if (ws.user):
-		ws.user.asked_leave = True
+def handle_forfeit(game, who_quit):
+	who_stay = 1
+	if (who_quit == 1):
+		who_stay = 2
+	
+	turn = 1
+	if (game["state"] == STATE_TURN2):
+		turn = 2
+	
+	if (who_quit == turn):
+		if (api.ach.gain(game[f"player{who_stay}"].user, api.ach.ACH_FORF)):
+			send(game[f"player{who_stay}"], OPC_ACH, "b", api.ach.ACH_FORF)
+		send(game[f"player{who_stay}"], OPC_WIN, "b", who_stay)
+		add_win(game[f"player{who_stay}"].user, game[f"player{who_quit}"].user)
+	else:
+		if (game["last_move"] + timedelta(seconds=20) < timezone.now()):
+			api.ach.gain(game[f"player{who_quit}"].user, api.ach.ACH_FORF)
+			send(game[f"player{who_stay}"], OPC_WIN, "b", who_quit)
+			add_win(game[f"player{who_quit}"].user, game[f"player{who_stay}"].user)
+		else:
+			send(game[f"player{who_stay}"], OPC_WIN, "b", who_stay)
+			add_win(game[f"player{who_stay}"].user, game[f"player{who_quit}"].user)
 
 def on_disco(ws, close_code):
 	if (ws.game):
@@ -146,23 +162,18 @@ def ws_auth_user(ws, data: bytes):
 
 def create_game(ws, data):
 	global games
-	api.utils.log(ws, data, ws.game, ws.user)
 	if (len(data) < 3):
 		return send(ws, OPC_CREATE, "b", OPC_ERR_GENERAL)
 	if (ws.user is None):
 		return send(ws, OPC_CREATE, "b", OPC_ERR_NEED_AUTH)
 	if (ws.game is not None):
 		return send(ws, OPC_CREATE, "b", OPC_ERR_ALREADY)
-	try:
-		password = data[3:].decode(STR_ENCODING)
-	except:
-		return send(ws, OPC_CREATE, "b", OPC_ERR_GENERAL)
 	
 	game_type = int.from_bytes(data[1:3], "little")
 	game_id = new_game_id()
 	if (game_id is None):
 		return send(ws, OPC_CREATE, "b", OPC_ERR_GENERAL)
-	game = Game(game_type, game_id, password)
+	game = Game(game_type, game_id, data[3:])
 	games[game_id] = game
 
 	ws.game = game
@@ -170,7 +181,7 @@ def create_game(ws, data):
 	game.player_1 = ws.player
 	game.player_1.game = game
 
-	send(ws, OPC_CREATE, "bs", OPC_ERR_OK, game_id)
+	send(ws, OPC_CREATE, "s", game_id)
 	stats = Stats.objects.filter(user=ws.user).first()
 	send(ws, OPC_JOIN, "bbb", OPC_ERR_OK, 1, stats.used_skin)
 
@@ -189,13 +200,14 @@ def join_game(ws, data):
 		return send(ws, OPC_JOIN, "b", OPC_ERR_GENERAL)
 
 	game = games.get(game_id, None)
-	if (game is None or game.state != STATE_WAIT):
+	if (game.state not in (STATE_TURN1, STATE_TURN2)):
 		return send(ws, OPC_JOIN, "b", OPC_ERR_NOFOUND)
-	if (game.state in (STATE_TURN1, STATE_TURN2) and (game.player_1.ws is None or game.player_2.ws is None)):
+	if (game.player_1.ws is None or (game.player_2 and game.player_2.ws is None)):
 		return game.reconnect(ws)
+	if (game is None or game["state"] != STATE_WAIT):
+		return send(ws, OPC_JOIN, "b", OPC_ERR_NOFOUND)
 
 	with game.lock:
-		api.utils.log(game.password, password, game.type)
 		if (game.type == 1 or game.password != password):
 			return send(ws, OPC_JOIN, "b", OPC_ERR_NOFOUND)
 
@@ -231,7 +243,7 @@ def place(ws, data):
 		return send(ws, OPC_PLACE, "b", OPC_ERR_GENERAL)
 	x = int.from_bytes(x, "little")
 
-	send(ws, OPC_PLACE, "b", ws.game.on_place(ws, x))
+	self.game.on_place(ws, x)
 
 def do_again(ws, data):
 	if (ws.game is None):
@@ -260,7 +272,6 @@ class Player:
 		self.idx = idx
 		self.game = None
 		self.number_placed = 0
-		self.asked_leave = False
 	
 	def send(self, *args, **kwargs):
 		if self.ws is not None:
@@ -288,7 +299,7 @@ class Game:
 		ws.player = Player(ws, ws.user, 2)
 		ws.game = self
 		self.player_2 = ws.player
-		ws.player.game = self
+		ws.player.game = game
 
 		stats = Stats.objects.filter(user=ws.user).first()
 		self.player_2.send(OPC_JOIN, "bbb", OPC_ERR_OK, 2, stats.used_skin)
@@ -296,8 +307,8 @@ class Game:
 		self.state = STATE_TURN1
 		stats1 = Stats.objects.filter(user=self.player_1.user).first()
 		stats2 = Stats.objects.filter(user=self.player_2.user).first()
-		self.player_1.send(OPC_JOIN2, "bbs", 2, stats2.used_skin, self.player_2.user.username)
-		self.player_2.send(OPC_JOIN2, "bbs", 1, stats1.used_skin, self.player_1.user.username)
+		self.player_1.send(OPC_JOIN2, "bs", 2, stats2.used_skin, self.player_2.user.username)
+		self.player_2.send(OPC_JOIN2, "bs", 1, stats1.used_skin, self.player_1.user.username)
 
 		self.to_spectators(OPC_JOIN2, "bbs", 1, stats1.used_skin, self.player_1.user.username)
 		self.to_spectators(OPC_JOIN2, "bbs", 2, stats2.used_skin, self.player_2.user.username)
@@ -317,26 +328,24 @@ class Game:
 		if (self.player_1 and self.player_2):
 			stats1 = Stats.objects.filter(user=self.player_1.user).first()
 			stats2 = Stats.objects.filter(user=self.player_2.user).first()
-			send(ws, OPC_JOIN2, "bbs", 1, stats1.used_skin, self.player_1.user.username)
-			send(ws, OPC_JOIN2, "bbs", 2, stats2.used_skin, self.player_2.user.username)
+			send(ws, OPC_JOIN2, "bs", stats1.used_skin, self.player_1.user.username)
+			send(ws, OPC_JOIN2, "bs", stats2.used_skin, self.player_2.user.username)
 
 		for x in range(self.width):
 			for y in range(self.height):
 				if (board[y][x]):
-					send(ws, OPC_PLACE3, "bw", board[y][x], x)
+					send(ws, OPC_PLACE3, "wb", x, board[y][x])
 			
 	
 	def get_other_player(self, player: Player) -> Player:
-		if (player is None):
-			return None
 		if (player.idx == 1):
 			return self.player_2
 		return self.player_1
 	
 	def get_player_from_idx(self, idx) -> Player:
-		if (idx == 1):
+		if (self.idx == 1):
 			return self.player_1
-		if (idx == 2):
+		if (self.idx == 2):
 			return self.player_2
 	
 	def get_player_from_ws(self, ws) -> Player | None:
@@ -354,57 +363,57 @@ class Game:
 	
 	def is_again(self, idx = 0) -> bool:
 		if (idx == 0):
-			return self.again_state == 0b11
-		return bool(self.again_state & (1 << (idx - 1)))
-	
-	def clear_board(self):
-		for line in self.board:
-			for i in range(len(line)):
-				line[i] = 0
+			return self.again_state & ((1 << 1) | (1 << 2))
+		return self.again_state & (1 << idx)
 	
 	def do_again(self, ws):
 		with self.lock:
 			player = self.get_player_from_ws(ws)
-			api.utils.log(self, ws, self.again_state, player)
 			if (player is None):
 				return 
 			if (self.state != STATE_END):
 				return 
 
-			if (self.is_again(player.idx)):
-				return
-			self.set_again(player.idx)
-			self.get_other_player(player).send(OPC_AGAIN, "")
+			if (is_again(self, player.idx) == 0):
+				self.set_again(player.idx)
+				self.get_other_player(player).send(OPC_AGAIN, "")
 
-			if (not self.is_again()):
-				return ;
+			if (self.is_again()):
+				self.to_spectators(OPC_AGAIN, "")
+				self.clear_again(1)
+				self.clear_again(2)
+				self.clear_board()
+				if (self.who_start == 1):
+					self.who_start = 2
+					self.state = STATE_TURN2
+				else:
+					self.who_start = 1
+					self.state = STATE_TURN1
 
-			self.to_spectators(OPC_AGAIN, "")
-			self.again_state = 0
-			self.clear_board()
-			if (self.who_start == 1):
-				self.who_start = 2
-				self.state = STATE_TURN2
-			else:
-				self.who_start = 1
-				self.state = STATE_TURN1
-
-			self.player_1.send(OPC_SET_TURN, "b", self.state)
-			self.player_2.send(OPC_SET_TURN, "b", self.state)
-
-			self.again_count += 1
-			if (self.again_count == 5):
-				if (api.ach.gain(self.player_1.user, api.ach.ACH_INF)):
-					self.player_1.send(OPC_ACH, api.ach.ACH_INF)
-				if (api.ach.gain(self.player_2.user, api.ach.ACH_INF)):
-					self.player_2.send(OPC_ACH, api.ach.ACH_INF)
-				self.reset_afk()
+				self.again_count += 1
+				if (self.again_count == 5):
+					if (api.ach.gain(self.player_1.user, api.ach.ACH_INF)):
+						self.player_1.send(OPC_ACH, api.ach.ACH_INF)
+					if (api.ach.gain(self.player_2.user, api.ach.ACH_INF)):
+						self.player_2.send(OPC_ACH, api.ach.ACH_INF)
+					self.reset_afk()
+	
+	def get_turn(self) -> int:
+		if (self.state == STATE_TURN1):
+			return 1
+		if (self.state == STATE_TURN2):
+			return 2
+		return 0
 	
 	def is_turn(self, player: Player) -> bool:
-		if (self.state == STATE_TURN1 and player.idx == 1):
-			return True
-		if (self.state == STATE_TURN2 and player.idx == 2):
-			return True
+		if (self.who_start == 1):
+			return self.get_turn() == player.idx
+		else:
+			turn = self.get_turn()
+			if (turn == 1 and player.idx == 2):
+				return True
+			if (turn == 2 and player.idx == 1):
+				return True
 
 		return False
 	
@@ -436,9 +445,9 @@ class Game:
 			self.board[y][x] = player.idx
 			player.number_placed += 1
 
-			self.get_other_player(player).send(OPC_PLACE3, "bw", player.idx, x)
-			player.send(OPC_PLACE3, "bw", player.idx, x)
-			self.to_spectators(OPC_PLACE3, "bw", x, player.idx)
+			self.get_other_player(player).send(OPC_PLACE3, "bw", self.state, x)
+			player.send(OPC_PLACE2, "w", x)
+			self.to_spectators(OPC_PLACE3, "wb", x, player.idx)
 			self.change_turn()
 			self.check_win(player, x, y)
 
@@ -461,13 +470,16 @@ class Game:
 			if (api.ach.gain(player.user, api.ach.ACH_VERT)):
 				player.send(OPC_ACH, "b", api.ach.ACH_VERT)
 
-		if (is_win >= 2 and api.ach.gain(player.user, api.ach.ACH_SECRET)):
+		if (is_wind >= 2 and api.ach.gain(player.user, api.ach.ACH_SECRET)):
 			player.send(OPC_ACH, "b", api.ach.ACH_SECRET)
 
 		if (is_win):
 			self.player_1.send(OPC_WIN, "b", player.idx)
 			self.player_2.send(OPC_WIN, "b", player.idx)
 			self.to_spectators(OPC_WIN2, "s", player.user.username)
+
+			self.add_win(player)
+			self.add_loss(self.get_other_player(player))
 
 			self.state = STATE_END
 			self.register_win(player.idx)
@@ -485,53 +497,46 @@ class Game:
 			self.state = STATE_END
 			self.register_win(0)
 
-	def register_win(self, who: int):
-		models.Game.objects.create(user1=self.player_1.user, user2=self.player_2.user, winner=who)
+	def register_win(who: int):
+		Game.objects.create(user1=self.player_1.user, user2=self.player_2.user, winner=who)
 
-		if (who != 0):
-			winner = self.get_player_from_idx(who)
-			looser = self.get_other_player(winner)
+		winner = self.get_player_from_idx(who)
+		looser = self.get_other_player(winner)
 
-			winner_stats = Stats.objects.filter(user=winner.user).first()
-			looser_stats = Stats.objects.filter(user=looser.user).first()
+		winner_stats = Stats.objects.get(winner.user)
+		looser_stats = Stats.objects.get(looser.user)
 
-			winner_stats.number_win += 1
-			winner_stats.number_placed += winner.number_placed
-			if (winner_stats.streak < 0):
-				winner_stats.streak = 1
-			else:
-				winner_stats.streak += 1
-
-			looser_stats.number_loss += 1
-			looser_stats.number_placed += looser.number_placed
-			if (looser_stats.streak > 0):
-				looser_stats.streak = -1
-			else:
-				looser_stats.streak -= 1
-				
-			winner_stats.elo, looser_stats.elo = compute_elo(winner_stats.elo, looser_stats.elo, 1)
-
-			winner_stats.save()
-			looser_stats.save()
+		winner_stats.number_win += 1
+		winner_stats.number_placed += winner.number_placed
+		if (winner.streak < 0):
+			winner.streak = 1
 		else:
-			stats1 = Stats.objects.filter(user=self.player_1).filter()
-			stats2 = Stats.objects.filter(user=self.player_2).filter()
+			winner.streak += 1
 
-			stats1.streak = 0
-			stats2.streak = 0
-			stats1.number_placed += self.player_1.number_placed
-			stats2.number_placed += self.player_2.number_placed
-			stat1.elo, stats2.elo = compute_elo(stats1.elo, stats2.elo, 0)
-			stats1.save()
-			stats2.save()
+		looser_stats.number_loss += 1
+		looser_stats.number_placed += looser.number_placed
+		if (looser_stats.streak > 0):
+			looser_stats.streak = -1
+		else:
+			looser_stats.streak -= 1
+			
+		if (who == 0):
+			new_elo_winner, new_elo_looser = compute_elo(winner_stats.elo, looser_stats.elo, 0)
+		else:
+			new_elo_winner, new_elo_looser = compute_elo(winner_stats.elo, looser_stats.elo, 1)
 
+		winner_stats.elo = new_elo_winner
+		looser_stats.elo = new_elo_looser
+
+		winner_stats.save()
+		looser_stats.save()
 		winner.number_placed = 0
 		looser.number_placed = 0
 	
 	def reset_afk(self):
 		self.last_played = timezone.now()
 	
-	def handle_text(self, player: Player | None, message: str):
+	def handle_text(player: Player | None, message: str):
 		if (player):
 			if (message.upper() == 'GG' and self.state == STATE_END):
 				if (api.ach.gain(player.user, api.ach.ACH_GG)):
@@ -554,7 +559,8 @@ class Game:
 		global games
 		with self.lock:
 			if (ws.user is not None):
-				api.tmp.set(ws.user, "websocket", None)
+				api.tmp.set(ws.user, None)
+
 				ws.user = None
 				api.tmp
 				
@@ -573,9 +579,7 @@ class Game:
 				return
 
 			if (self.state == STATE_END):
-				opponent = self.get_other_player(player)
-				if (opponent):
-					opponent.send(OPC_LEAVE, "s", player.user.username)
+				self.get_other_player(player).send(OPC_LEAVE, "s", player.user.username)
 				if (player.idx == 1):
 					self.player_1 = None
 				else:
@@ -623,7 +627,7 @@ class Game:
 		for x in range(self.width):
 			for y in range(self.height):
 				if (board[y][x]):
-					who.send(OPC_PLACE3, "bw", board[y][x], x)
+					who.send(OPC_PLACE3, "wb", x, board[y][x])
 		who.ws = ws
 		ws.game = self
 		ws.player = who
