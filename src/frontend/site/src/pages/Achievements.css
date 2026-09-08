@@ -1,0 +1,64 @@
+.achievements {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 16px;
+	width: 100%;
+	max-width: 900px;
+}
+
+.achievement {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+
+	width: 100%;
+	padding: 16px;
+
+	border: 2px solid transparent;
+	border-radius: 12px;
+
+	background-color: #1a1c22;
+	color: #f5f5f5;
+
+	text-align: left;
+	cursor: pointer;
+
+	transition:
+		border-color 0.2s ease,
+		background-color 0.2s ease,
+		transform 0.2s ease;
+}
+
+.achievement-image {
+	width: 72px;
+	height: 72px;
+	object-fit: contain;
+	flex-shrink: 0;
+}
+
+.achievement-info h3 {
+	margin: 0 0 6px;
+	font-size: 16px;
+}
+
+.achievement-info p {
+	margin: 0;
+	font-size: 13px;
+	color: #8b8f98;
+}
+
+.achievement-locked {
+	filter: grayscale(100%);
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.achievement-selected {
+	border-color: #2563eb;
+	background-color: #1e293b;
+}
+
+.achievement:hover:not(:disabled) {
+	background-color: #22252d;
+	transform: translateY(-2px);
+}

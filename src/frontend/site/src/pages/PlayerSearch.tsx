@@ -24,6 +24,9 @@ export default function UserSearchPage() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearch()
+              }}
               placeholder={t("text.player_name")}
               className="input"
             />

@@ -22,6 +22,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true);
 
+	useEffect(() => {
+	window.addEventListener("auth:logout", logout);
+
+	return () => {
+			window.removeEventListener("auth:logout", logout);
+		};
+	}, []);
+
 	async function get_name() {
 		const token = localStorage.getItem("access");
 		if (token){
