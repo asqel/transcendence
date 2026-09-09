@@ -1,5 +1,7 @@
 YML = src/docker-compose.yaml
+YML_DEV = src/docker-compose-dev.yaml
 DOCK_CMD = docker compose -f $(YML)
+DOCK_CMD_DEV = docker compose -f $(YML) -f $(YML_DEV)
 
 all: run-background
 
@@ -11,6 +13,9 @@ frontend:
 
 run-foreground:
 	$(DOCK_CMD) up --abort-on-container-exit
+
+dev:
+	$(DOCK_CMD_DEV) up --abort-on-container-exit
 
 build:
 	$(DOCK_CMD) build
@@ -36,4 +41,4 @@ re:
 	$(DOCK_CMD) down
 	$(DOCK_CMD) up --build -d
 
-.PHONY: all run-background run-foreground stop clean logs status build re block
+.PHONY: all run-background run-foreground stop clean logs status build re block dev

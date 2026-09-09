@@ -83,7 +83,7 @@ function Play() {
 			if (bytes[1] === 0)
 				autentified.current = true;
 			else
-				console.log(bytes[1]);
+				console.log("auth_error: ", bytes[1]);
 		}
 		else if (bytes[0] === OPC_CREATE) {
 			if (bytes[1] === 0) {
@@ -119,6 +119,9 @@ function Play() {
 			}
 		}
 		else if (bytes[0] === OPC_LEAVE) {
+			console.log("leave_log");
+			if (!autentified.current)
+				window.location.href = "/play";
 			setOpLeft(true);
 		}
 		else if (bytes[0] === OPC_CHAT) {
