@@ -121,8 +121,8 @@ def on_recv(ws, data: bytes):
 AFK_TIME = timedelta(seconds=20)
 
 def do_leave(ws, data):
-	if (ws.user):
-		ws.user.asked_leave = True
+	if (ws.player):
+		ws.player.asked_leave = True
 
 def on_disco(ws, close_code):
 	if (ws.game):
@@ -189,23 +189,17 @@ def join_game(ws, data):
 		return send(ws, OPC_JOIN, "b", OPC_ERR_GENERAL)
 
 	game = games.get(game_id, None)
-	if (game is None or game.state != STATE_WAIT):
+	if (game is None or game.password != password):
 		return send(ws, OPC_JOIN, "b", OPC_ERR_NOFOUND)
-	if (game.state in (STATE_TURN1, STATE_TURN2) and (game.player_1.ws is None or game.player_2.ws is None)):
-		return game.reconnect(ws)
-
+	if (ws.user is None):
+		return game.join_spectator(ws)
 	with game.lock:
-		api.utils.log(game.password, password, game.type)
-		if (game.type == 1 or game.password != password):
-			return send(ws, OPC_JOIN, "b", OPC_ERR_NOFOUND)
-
-		if (ws.user):
-			if (game.player_2 is not None):
-				return send(ws, OPC_JOIN, "b", OPC_ERR_FULL)
+		if (game.state == STATE_WAIT):
 			game.join(ws)
-
+		elif (game.state in (STATE_TURN1, STATE_TURN2)):
+			game.reconnect(ws)
 		else:
-			game.join_spectator(ws)
+			return send(ws, OPC_JOIN, "b", OPC_ERR_NOFOUND)
 	
 def handle_text(ws, data):
 	if (ws.game is None):
@@ -283,6 +277,7 @@ class Game:
 		self.id = game_id
 		self.lock = threading.Lock()
 		self.last_played = timezone.now()
+		self.is_remove = False
 	
 	def join(self, ws):
 		ws.player = Player(ws, ws.user, 2)
@@ -308,22 +303,23 @@ class Game:
 		self.reset_afk()
 	
 	def join_spectator(self, ws):
-		if (len(self.spectators) >= 100):
-			return send(ws, OPC_JOIN, "b", OPC_ERR_FULL)
+		with self.lock:
+			if (len(self.spectators) >= 100):
+				return send(ws, OPC_JOIN, "b", OPC_ERR_FULL)
 
-		self.spectators.append(ws)
-		ws.game = self
-		send(ws, OPC_JOIN, "b", OPC_ERR_OK)
-		if (self.player_1 and self.player_2):
-			stats1 = Stats.objects.filter(user=self.player_1.user).first()
-			stats2 = Stats.objects.filter(user=self.player_2.user).first()
-			send(ws, OPC_JOIN2, "bbs", 1, stats1.used_skin, self.player_1.user.username)
-			send(ws, OPC_JOIN2, "bbs", 2, stats2.used_skin, self.player_2.user.username)
+			self.spectators.append(ws)
+			ws.game = self
+			send(ws, OPC_JOIN, "b", OPC_ERR_OK)
+			if (self.player_1 and self.player_2):
+				stats1 = Stats.objects.filter(user=self.player_1.user).first()
+				stats2 = Stats.objects.filter(user=self.player_2.user).first()
+				send(ws, OPC_JOIN2, "bbs", 1, stats1.used_skin, self.player_1.user.username)
+				send(ws, OPC_JOIN2, "bbs", 2, stats2.used_skin, self.player_2.user.username)
 
-		for x in range(self.width):
-			for y in range(self.height):
-				if (board[y][x]):
-					send(ws, OPC_PLACE3, "bw", board[y][x], x)
+			for x in range(self.width):
+				for y in range(self.height):
+					if (board[y][x]):
+						send(ws, OPC_PLACE3, "bw", board[y][x], x)
 			
 	
 	def get_other_player(self, player: Player) -> Player:
@@ -553,65 +549,87 @@ class Game:
 	def on_disco(self, ws):
 		global games
 		with self.lock:
-			if (ws.user is not None):
-				api.tmp.set(ws.user, "websocket", None)
-				ws.user = None
-				api.tmp
-				
-			player = self.get_player_from_ws(ws)
-			if (not player):
-				if (ws in self.spectators):
-					self.spectators.remove(ws)
-				return
+			if (ws.game.state == STATE_WAIT):
+				player = self.get_player_from_ws(ws)
+				if (not player):
+					return self.remove_spectator(ws)
 
-			opponent = self.get_other_player(player)
-			if (opponent and opponent.ws):
-				opponent.send(OPC_LEAVE, "")
+				self.to_spectators(OPC_LEAVE, "")
+				self.clear_spectators()
 
-			if (not player):
-				self.spectators.remove(ws)
-				return
+				if (ws.user is not None):
+					api.tmp.set(ws.user, "websocket", None)
 
-			if (self.state == STATE_END):
-				opponent = self.get_other_player(player)
-				if (opponent):
-					opponent.send(OPC_LEAVE, "s", player.user.username)
-				if (player.idx == 1):
-					self.player_1 = None
-				else:
-					self.player_2 = None
-				del games[self.id]
-				return
-			if (self.state == STATE_WAIT):
 				del games[self.id]
 				return 
 
+			if (ws.game.state == STATE_END):
+				player = self.get_player_from_ws(ws)
+				if (not player):
+					return self.remove_spectator(ws)
+
+				opponent = self.get_other_player(player)
+				if (opponent):
+					opponent.send(OPC_LEAVE, "")
+
+				self.to_spectators(OPC_LEAVE, "")
+				self.clear_spectators()
+
+				self.remove_player(player.idx, True)
+				if (ws.user is not None):
+					api.tmp.set(ws.user, "websocket", None)
+
+				if (not self.is_remove):
+					del games[self.id]
+					self.is_remove = True
+				return
+
+			player = self.get_player_from_ws(ws)
+			if (not player):
+				return self.remove_spectator(ws)
+
 			opponent = self.get_other_player(player)
-			if (self.is_turn(player) and player.asked_leave):
+			if (not player.asked_leave):
+				player.ws = None
+				if (opponent.ws is None):
+					del games[self.id]
+					self.to_spectators(OPC_LEAVE, "")
+					self.clear_spectators()
+				return 
+
+			if (self.is_turn(player)):
 				if (api.ach.gain(opponent.user, api.ach.ACH_FORF)):
 					opponent.send(OPC_ACH, "b", api.ach.ACH_FORF)
+				opponent.send(OPC_LEAVE, "")
 				opponent.send(OPC_WIN, "b", opponent.idx)
-				self.register_win(opponent.idx)
+				self.register_win(opponent.idx);
+				return 
+
+			if (self.last_played + AFK_TIME < timezone.now()):
+				if (api.ach.gain(player.user, api.ach.ACH_FORF)):
+					player.send(OPC_ACH, "b", api.ach.ACH_FORF)
+				opponent.send(OPC_WIN, "b", player.idx)
+				opponent.send(OPC_LEAVE, "")
+				self.register_win(player.idx)
+				self.state = STATE_END
 				self.remove_player(player.idx, True)
-
-			elif (self.is_turn(opponent) and player.asked_leave):
-				who_win = opponent
-				if (self.last_played + AFK_TIME < timezone.now()):
-					who_win = player
-				if (api.ach.gain(who_win.user, api.ach.ACH_FORF)):
-					who_win.send(OPC_WIN, "b", who_win.idx)
-
-				self.remove_player(player.idx, True)
-
-			elif (not player.asked_leave):
-				self.remove_player(player.idx, False)
-
-			if (self.player_1 is None or self.player_2 is None):
+				self.is_remove = True
 				del games[self.id]
-			elif (self.player_1.ws is None and self.player_2.ws is None):
-				del games[self.id]
+				return 
+
+			if (api.ach.gain(opponent.user, api.ach.ACH_FORF)):
+				opponent.send(OPC_ACH, "b", api.ach.ACH_FORF)
+			opponent.send(OPC_LEAVE, "");
+			opponent.send(OPC_WIN, "b", opponent.idx)
+			self.register_win(opponent.idx)
+			self.state = STATE_END
+			self.remove_player(player.idx, True)
+			self.is_remove = True
+			del games[self.id]
 	
 	def reconnect(self, ws):
+		if (self.player_1.ws is not None or self.player_2.ws is not None):
+			return send(ws, OPC_JOIN, "b", OPC_ERR_FULL)
 		who = None
 		if (self.player_1.user.username == ws.user.username):
 			who = self.player_1
@@ -644,3 +662,13 @@ class Game:
 			self.player_1 = None
 		elif (full and idx == 2):
 			self.player_2 = None
+	def remove_spectator(self, ws):
+		try:
+			self.spectators.remove(ws)
+		except:
+			...
+	
+	def clear_spectators(self):
+		for i in self.spectators:
+			i.game = None
+		self.spectators = []
