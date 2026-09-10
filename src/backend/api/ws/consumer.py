@@ -4,12 +4,16 @@ import api
 
 
 class Consumer(WebsocketConsumer):
-	is_authenticated = False
 
 	def connect(self):
 		self.accept()
+		self.player = None
+		self.game = None
+		self.user = None
+		api.utils.log("websocket has opened")
 
 	def disconnect(self, close_code):
+		api.utils.log("websocket has closed")
 		api.game.on_disco(self, close_code)
 
 	def receive(self, text_data=None, bytes_data=None):

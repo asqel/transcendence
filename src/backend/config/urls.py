@@ -29,4 +29,9 @@ urlpatterns = [
 	path("api/account/delete", api.account.delete),
 	path("api/account/profile", api.account.profile),
 	path("api/account/set-info", api.account.set_info),
+	path("api/achievements", api.ach.get),
+	path("api/account/set-skin", api.ach.set_skin),
+	path("api/account/get-skin", api.ach.get_skin),
+	path("api/account/confirm-ask", api.account.ask_confirm_email),
+	path("api/account/confirm", api.account.confirm_email),
 ]
