@@ -315,11 +315,10 @@ class Game:
 				stats2 = Stats.objects.filter(user=self.player_2.user).first()
 				send(ws, OPC_JOIN2, "bbs", 1, stats1.used_skin, self.player_1.user.username)
 				send(ws, OPC_JOIN2, "bbs", 2, stats2.used_skin, self.player_2.user.username)
-
 			for x in range(self.width):
 				for y in range(self.height):
-					if (board[y][x]):
-						send(ws, OPC_PLACE3, "bw", board[y][x], x)
+					if (self.board[y][x]):
+						send(ws, OPC_PLACE3, "bw", self.board[y][x], x)
 			
 	
 	def get_other_player(self, player: Player) -> Player:
@@ -391,9 +390,9 @@ class Game:
 			self.again_count += 1
 			if (self.again_count == 5):
 				if (api.ach.gain(self.player_1.user, api.ach.ACH_INF)):
-					self.player_1.send(OPC_ACH, api.ach.ACH_INF)
+					self.player_1.send(OPC_ACH, "b", api.ach.ACH_INF)
 				if (api.ach.gain(self.player_2.user, api.ach.ACH_INF)):
-					self.player_2.send(OPC_ACH, api.ach.ACH_INF)
+					self.player_2.send(OPC_ACH, "b", api.ach.ACH_INF)
 				self.reset_afk()
 	
 	def is_turn(self, player: Player) -> bool:
@@ -549,6 +548,8 @@ class Game:
 	def on_disco(self, ws):
 		global games
 		with self.lock:
+			if (ws.user is not None):
+				api.tmp.set(ws.user, "websocket", None)
 			if (ws.game.state == STATE_WAIT):
 				player = self.get_player_from_ws(ws)
 				if (not player):
@@ -556,9 +557,6 @@ class Game:
 
 				self.to_spectators(OPC_LEAVE, "")
 				self.clear_spectators()
-
-				if (ws.user is not None):
-					api.tmp.set(ws.user, "websocket", None)
 
 				del games[self.id]
 				return 
@@ -576,8 +574,6 @@ class Game:
 				self.clear_spectators()
 
 				self.remove_player(player.idx, True)
-				if (ws.user is not None):
-					api.tmp.set(ws.user, "websocket", None)
 
 				if (not self.is_remove):
 					del games[self.id]
@@ -667,7 +663,7 @@ class Game:
 			self.spectators.remove(ws)
 		except:
 			...
-	
+
 	def clear_spectators(self):
 		for i in self.spectators:
 			i.game = None
