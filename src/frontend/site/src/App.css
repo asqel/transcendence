@@ -1,3 +1,4 @@
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;
@@ -180,5 +181,96 @@
   &::after {
     right: 0;
     border-right-color: var(--border);
+  }
+}
+
+
+ /* =========================
+    ÉLÉMENTS COMMUNS
+    ========================= */
+
+nav a {
+  padding: 9px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text);
+  background: var(--social-bg);
+  border: 1px solid var(--border);
+}
+
+nav a:hover {
+  color: white;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+
+/* =========================
+   DESKTOP
+   ========================= */
+
+@media (min-width: 769px) {
+
+  .navbar-desktop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+  }
+
+  .nav-left,
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .navbar-mobile {
+    display: none;
+  }
+}
+
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 768px) {
+
+  .navbar-desktop {
+    display: none;
+  }
+
+  /* Navbar mobile */
+  .navbar-mobile {
+    display: flex;
+    position: relative;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 15px 20px;
+  }
+
+  /* Bouton hamburger */
+  .hamburger {
+    font-size: 28px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* Menu déroulant */
+  .mobile-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+
+    padding: 20px;
+
+    background-color: grey;
   }
 }

@@ -16,7 +16,6 @@ export default function UserSearchPage() {
 
 
   return (
-    <div className="page">
       <div className="container">
         <h1 className="title">{t("text.find_player")}</h1>
           <div className="search-wrapper">
@@ -32,7 +31,6 @@ export default function UserSearchPage() {
             />
             <button onClick={handleSearch}>{t("text.find")}</button>
           </div>
-      </div>
     </div>
   );
 }

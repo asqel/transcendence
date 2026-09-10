@@ -272,15 +272,19 @@ function Play() {
 	useEffect(() => {
 		const ws = new WebSocket(`wss://${window.location.host}/ws/api/`);
 		ws.binaryType = "arraybuffer";
-		ws.onopen = () => setConnected(true);
+		ws.onopen = () => {setConnected(true); setWsError(false);};
 		ws.onclose = () => setConnected(false);
 		ws.onerror = () => setWsError(true);
 		ws.onmessage = handleMessage
 		wsRef.current = ws;
 		return () => {
-			ws.close()
-			wsRef.current = null
-		}
+			if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+				ws.close();
+			}
+			if (wsRef.current === ws) {
+				wsRef.current = null;
+			}
+  		};
 	}, [])	
 
 	useEffect(() => {
@@ -305,7 +309,7 @@ function Play() {
 		}
 	}, [rematchSelf, rematchOp])
 
-	if (wsError || !connected) {
+	if ((wsError || !connected) && 0) {
 		return (
 			<div className="page">
 				<p className="ws-error">
@@ -330,7 +334,7 @@ function Play() {
 
 
 
-			{!partId && (
+			{partId && (
 				<>
 				<h1>Play</h1>
 
@@ -364,7 +368,7 @@ function Play() {
 
 
 
-			{partId && (
+			{!partId && (
 				<div className="game-layout">
 					<h1>{partId}</h1>
 					<div className="puissance4">
@@ -390,28 +394,32 @@ function Play() {
 								</button>
 							</div>
 						)}
-						{autentified.current && (
-							<div className="puissance4-buttons">
-								{Array.from({ length: 7 }).map((_, column) => (
-									<button
-										key={column}
-										className="puissance4-column-button"
-										onClick={() => handleColumnClick(column)}
-										disabled={currentPlayer != self.current}
-									>
-										↓
-									</button>
-								))}
-							</div>
-						)}
 						<div className="puissance4-board">
-							{board.map((player, index) => (
-								<div key={index} className="puissance4-cell">
-									{player !== 0 && (
-										<img src={getCoinImage(player as 1|2)} alt="token" className={`puissance4-piece player-${player}`}/>
-									)}
-								</div>
-							))}
+						  {Array.from({ length: 7 }).map((_, column) => (
+						    <button
+								className="puissance4-column"
+								key={column}
+								onClick={() => handleColumnClick(column)}
+								disabled={currentPlayer != self.current}
+						    >
+						      {Array.from({ length: 6 }).map((_, row) => {
+						        const index = row * 7 + column;
+						        const player = board[index];
+							
+						        return (
+						          <div key={index} className="puissance4-cell">
+						            {player !== 0 && (
+						              <img
+						                src={getCoinImage(player as 1 | 2)}
+						                alt="token"
+						                className={`puissance4-piece player-${player}`}
+						              />
+						            )}
+						          </div>
+						        );
+						      })}
+						    </button>
+						  ))}
 						</div>
 					</div>
 					{!gameState && <button onClick={handleQuit}>{!opAkf ? "Forfait" : "Quitter"}</button>}

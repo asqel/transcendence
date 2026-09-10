@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation, } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
@@ -18,32 +19,52 @@ import './App.css'
 
 // Navigation avec affichage conditionnel
 function Navigation() {
-	const location = useLocation()
 	const { user, logout } = useAuth()
-	
-	if (location.pathname === "/confirm-mail") {
-		return null
-	}
+  const [menuOpen, setMenuOpen] = useState(false);
 
-	return (
-	<nav>
-		<Link to="/">Accueil</Link>
-		<Link to="/about">À propos</Link>
-		<Link to="/contact">Contact</Link>
-		<Link to="/playerSearch">PlayerSearch</Link>
-		{user ? (
+  return (
 		<>
-			<Link to="/profile">Profile</Link>
-			<span style={{ marginLeft: 20 }}>Bonjour, {user.username}</span>
-			<button onClick={logout} style={{ marginLeft: 10 }}>
-				Déconnexion
-			</button>
+		<nav className="navbar-desktop">
+			<div className="nav-left">
+    		    <Link to="/">Accueil</Link>
+    		    <Link to="/about">À propos</Link>
+    		    <Link to="/contact">Contact</Link>
+    		    <Link to="/playerSearch">PlayerSearch</Link>
+    		</div>
+    		<div className="nav-right">
+    		    {user ? (
+    		    	<>
+    		    	<Link to="/profile">Profile</Link>
+    		    	<span>Bonjour, {user.username}</span>
+    		    	<button onClick={logout}>Déconnexion</button>
+    		    	</>
+    		    ) : (
+    		    	<Link to="/login">Connexion</Link>
+    		    )}
+    		</div>
+		</nav>
+    	<nav className="navbar-mobile">
+  			<button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>☰</button>
+    		{menuOpen && (
+    	    	<div className="mobile-menu">
+    	    		<Link to="/" onClick={() => setMenuOpen(false)}>Accueil</Link>
+    	    		<Link to="/about" onClick={() => setMenuOpen(false)}>À propos</Link>
+    	    		<Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
+    	    		<Link to="/playerSearch" onClick={() => setMenuOpen(false)}>PlayerSearch</Link>
+    	    		{user ? (
+    	    			<>
+    	    			<Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
+    	    			<span>Bonjour, {user.username}</span>
+    	    			<button onClick={() => {logout(); setMenuOpen(false)}}>Déconnexion</button>
+    	    			</>
+					) : (
+    	    			<Link to="/login" onClick={() => setMenuOpen(false)}>Connexion</Link>
+    	    		)}
+				</div>
+			)}
+		</nav>
 		</>
-		) : (
-		<Link to="/login" style={{ marginLeft: 20 }}>Connexion</Link>
-		)}
-	</nav>
-	)
+	);
 }
 
 // Composant pour protéger les routes
