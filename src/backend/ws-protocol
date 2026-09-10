@@ -1,0 +1,44 @@
+message:
+	1B: OPCODE
+	...: data
+
+normal response:
+	1B: OPCODE (same as message)
+	1B: reason (0: Ok, 1: General error, ...)
+
+
+client -> server:
+	create game:
+		OPCODE = 0xf0
+		2B: type (0: public, 1: password, 2:solo)
+		if (type == 1)
+			...: password
+
+	join game:
+		OPCODE = 0xf1
+		...: password (if no password: leave empty)
+		
+	place coin:
+		OPCODE = 0x20
+		2B: position (u16 little)
+	
+	quit:
+		OPCODE = 0x2F
+		// this will disconnect the socket
+	
+	send text:
+		OPCODE = 0x10
+		...: text (utf-8)
+	
+	ping:
+		OPCODE = 0xAA
+		...: ignored data
+
+server -> client:
+	incomming text:
+		OPCODE = 0x11
+		...: text (utf-8)
+	
+	ping response:
+		OPCODE = 0x10
+	

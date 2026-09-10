@@ -4,3 +4,4 @@ daphne
 PyMySQL
 djangorestframework==3.17.2
 djangorestframework-simplejwt
+pycountry
