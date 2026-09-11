@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next';
 import { achievements } from "./Achievements";
@@ -26,7 +26,7 @@ const OPC_ACHI = 0xe0
 
 function Play() {
 	const {t} = useTranslation()
-	//const navigate = useNavigate()
+	const navigate = useNavigate()
 	const { user } = useAuth()
 
 	const wsRef = useRef<WebSocket | null>(null)
@@ -51,7 +51,7 @@ function Play() {
 	const selfSkin = useRef<number>(0);
 	const opponentSkin = useRef<number>(0);
 	const [opLeft, setOpLeft] = useState<boolean>(false);
-	const [winer, setWiner] = useState<string>(user?.username ?? "");
+	const [winer, setWiner] = useState<string>("");
 	const [currentPlayer, setCurrentPlayer] = useState<1|2>(1);
 	const [gameState, setGameState] = useState<"won" | "lose" | "draw" | null>(null);
 	const [rematchSelf, setRemathSelf] = useState<0|1>(0);
@@ -74,7 +74,12 @@ function Play() {
 			bytes.push(val & 0xff);
 			bytes.push((val >> 8) & 0xff)
 		}
-		wsRef.current?.send(new Uint8Array(bytes));
+		try {
+			wsRef.current?.send(new Uint8Array(bytes));
+		}
+		catch {
+			console.log("sender error");
+		}
 	}
 
 	function handleMessage(event: MessageEvent<any>) {
@@ -135,6 +140,7 @@ function Play() {
 		else if (bytes[0] === OPC_TURN) {
 			const player = bytes[1] as (1|2);
 			setCurrentPlayer(player);
+			console.log("turn: ", player);
 			if (player === opponent.current)
 				startTurnTimer();
 			else
@@ -170,6 +176,12 @@ function Play() {
 		}
 	}
 
+	function handleCopy() {
+		if (partId) {
+			navigator.clipboard.writeText(partId.toString());
+		}
+	}
+
 	function handleCreateGame() {
 		sender(OPC_AUTH, localStorage.getItem("access"));
 		sender(OPC_CREATE, 0);
@@ -201,7 +213,16 @@ function Play() {
 
 	function handleQuit() {
 		sender(OPC_LEAVE);
-		window.location.href = "/play";
+		autentified.current = false;
+		setpartId(null);
+		setGameState(null);
+		setBoard(Array(42).fill(0));
+		setRemathSelf(0);
+		setRemathOp(0);
+		setWiner("");
+		setChatMessages([]);
+		setOpAkf(false);
+		navigate('/play/')
 	}
 
 	function handleSendChat() {
@@ -269,23 +290,41 @@ function Play() {
 	}, 4000)
 }
 
+
 	useEffect(() => {
-		const ws = new WebSocket(`wss://${window.location.host}/ws/api/`);
-		ws.binaryType = "arraybuffer";
-		ws.onopen = () => {setConnected(true); setWsError(false);};
-		ws.onclose = () => setConnected(false);
-		ws.onerror = () => setWsError(true);
-		ws.onmessage = handleMessage
-		wsRef.current = ws;
-		return () => {
-			if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
-				ws.close();
-			}
-			if (wsRef.current === ws) {
-				wsRef.current = null;
-			}
-  		};
-	}, [])	
+        if (wsRef.current) {
+            return;
+        }
+
+        const ws = new WebSocket(`wss://${window.location.host}/ws/game/`);
+        ws.binaryType = "arraybuffer";
+        
+        ws.onopen = () => {
+            setConnected(true);
+            setWsError(false);
+        };
+        
+        ws.onclose = () => {
+            setConnected(false);
+            wsRef.current = null;
+        };
+        
+        ws.onerror = (error) => {
+            setWsError(true);
+            console.error('WebSocket error:', error);
+            wsRef.current = null;
+        };
+        
+        ws.onmessage = handleMessage;
+        wsRef.current = ws;
+        
+        return () => {
+            if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+                wsRef.current.close();
+            }
+            wsRef.current = null;
+        };
+    }, [])
 
 	useEffect(() => {
 		if (partId)
@@ -309,7 +348,7 @@ function Play() {
 		}
 	}, [rematchSelf, rematchOp])
 
-	if ((wsError || !connected) && 0) {
+	if ((wsError || !connected)) {
 		return (
 			<div className="page">
 				<p className="ws-error">
@@ -332,12 +371,9 @@ function Play() {
 				</div>
 			)}
 
-
-
-			{partId && (
+			{!partId && (
 				<>
 				<h1>Play</h1>
-
 				<div className="content">
 					<div className="join-section">
 						<input
@@ -347,18 +383,18 @@ function Play() {
 							placeholder="Code de la partie"
 							className="input"
 						/>
-						<button onClick={handleSpectate} disabled={!connected}>
+						<button onClick={handleSpectate}>
 							Spectate
 						</button>
 						{user && (
-							<button onClick={handleJoin} disabled={!connected}>
+							<button onClick={handleJoin}>
 								Join
 							</button>
 						)}
 					</div>
 
 					{user && (
-						<button onClick={handleCreateGame} disabled={!connected}>
+						<button onClick={handleCreateGame}>
 							Créer une partie
 						</button>
 					)}
@@ -368,9 +404,10 @@ function Play() {
 
 
 
-			{!partId && (
+			{partId && (
 				<div className="game-layout">
-					<h1>{partId}</h1>
+					<button onClick={handleCopy}>Copy</button>
+					{!gameState && <button onClick={handleQuit}>{!opAkf ? "Forfait" : "Quitter"}</button>}
 					<div className="puissance4">
 						{gameState && (
 							<div className="game-result-overlay">
@@ -395,34 +432,34 @@ function Play() {
 							</div>
 						)}
 						<div className="puissance4-board">
-						  {Array.from({ length: 7 }).map((_, column) => (
-						    <button
-								className="puissance4-column"
-								key={column}
-								onClick={() => handleColumnClick(column)}
-								disabled={currentPlayer != self.current}
-						    >
-						      {Array.from({ length: 6 }).map((_, row) => {
-						        const index = row * 7 + column;
-						        const player = board[index];
-							
-						        return (
-						          <div key={index} className="puissance4-cell">
-						            {player !== 0 && (
-						              <img
-						                src={getCoinImage(player as 1 | 2)}
-						                alt="token"
-						                className={`puissance4-piece player-${player}`}
-						              />
-						            )}
-						          </div>
-						        );
-						      })}
-						    </button>
-						  ))}
+							{Array.from({ length: 7 }).map((_, column) => (
+						    	<button
+									className="puissance4-column"
+									key={column}
+									onClick={() => handleColumnClick(column)}
+									disabled={currentPlayer != self.current}
+						    	>
+						    		{Array.from({ length: 6 }).map((_, row) => {
+						    			const index = row * 7 + column;
+						    			const player = board[index];
+										
+						    			return (
+						    				<div key={index} className="puissance4-cell">
+						    					{player !== 0 && (
+						    						<img
+						    						  src={getCoinImage(player as 1 | 2)}
+						    						  alt="token"
+						    						  className={`puissance4-piece player-${player}`}
+						    						/>
+						    					)}
+						    				</div>
+						    			);
+						    		})}
+						    	</button>
+							))}
 						</div>
 					</div>
-					{!gameState && <button onClick={handleQuit}>{!opAkf ? "Forfait" : "Quitter"}</button>}
+					
 
 					<div className="chatbox">
 						<div className="chatbox-messages" ref={messagesContainerRef}>
@@ -443,9 +480,8 @@ function Play() {
 								}}
 								placeholder="Écrire un message..."
 								className="input"
-								disabled={!connected}
 							/>
-							<button onClick={handleSendChat} disabled={!connected}>
+							<button onClick={handleSendChat}>
 								Envoyer
 							</button>
 						</div>

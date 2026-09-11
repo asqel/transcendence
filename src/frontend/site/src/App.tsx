@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BrowserRouter, Routes, Route, Link, Navigate, useLocation, } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link, Navigate, } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Home from './pages/Home.tsx'
@@ -11,16 +11,15 @@ import PrProfile from './pages/PrProfile.tsx'
 import PbProfile from './pages/PbProfile.tsx'
 import PlayerSearch from './pages/PlayerSearch.tsx'
 import Play from './pages/Play.tsx'
+import Friends from './pages/Friends.tsx'
 import Achievements from './pages/Achievements.tsx'
 import ConfirmMail from './pages/ConfirmMail.tsx'
-
+import Popups from './popups.tsx'
 import './App.css'
 
-
-// Navigation avec affichage conditionnel
 function Navigation() {
 	const { user, logout } = useAuth()
-  const [menuOpen, setMenuOpen] = useState(false);
+	const [menuOpen, setMenuOpen] = useState(false);
 
   return (
 		<>
@@ -30,6 +29,9 @@ function Navigation() {
     		    <Link to="/about">À propos</Link>
     		    <Link to="/contact">Contact</Link>
     		    <Link to="/playerSearch">PlayerSearch</Link>
+				<Link to="/play">Play</Link>
+				<Link to="/achievements">Achievements</Link>
+				<Link to="/friends">Friends</Link>
     		</div>
     		<div className="nav-right">
     		    {user ? (
@@ -46,20 +48,22 @@ function Navigation() {
     	<nav className="navbar-mobile">
   			<button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>☰</button>
     		{menuOpen && (
-    	    	<div className="mobile-menu">
-    	    		<Link to="/" onClick={() => setMenuOpen(false)}>Accueil</Link>
-    	    		<Link to="/about" onClick={() => setMenuOpen(false)}>À propos</Link>
-    	    		<Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
-    	    		<Link to="/playerSearch" onClick={() => setMenuOpen(false)}>PlayerSearch</Link>
-    	    		{user ? (
-    	    			<>
-    	    			<Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
-    	    			<span>Bonjour, {user.username}</span>
-    	    			<button onClick={() => {logout(); setMenuOpen(false)}}>Déconnexion</button>
-    	    			</>
+				<div className="mobile-menu">
+					<Link to="/" onClick={() => setMenuOpen(false)}>Accueil</Link>
+					<Link to="/about" onClick={() => setMenuOpen(false)}>À propos</Link>
+					<Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
+					<Link to="/playerSearch" onClick={() => setMenuOpen(false)}>PlayerSearch</Link>
+					<Link to="/play" onClick={() => setMenuOpen(false)}>Play</Link>
+					<Link to="/achievements" onClick={() => setMenuOpen(false)}>Achievements</Link>
+					{user ? (
+						<>
+						<Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
+						<span>Bonjour, {user.username}</span>
+						<button onClick={() => {logout(); setMenuOpen(false)}}>Déconnexion</button>
+						</>
 					) : (
-    	    			<Link to="/login" onClick={() => setMenuOpen(false)}>Connexion</Link>
-    	    		)}
+						<Link to="/login" onClick={() => setMenuOpen(false)}>Connexion</Link>
+					)}
 				</div>
 			)}
 		</nav>
@@ -109,6 +113,14 @@ function AppRoutes() {
 					//</ProtectedRoute>
 				} 
 		/>
+		<Route 
+				path="/friends" 
+			element={
+					//<ProtectedRoute>
+						<Friends />
+					//</ProtectedRoute>
+				} 
+		/>
 		<Route path="/profile/:username?" element={<PbProfile />} />
 		<Route path="/about" element={<About />} />
 		<Route path="/contact" element={<Contact />} />
@@ -129,11 +141,18 @@ function App() {
 	return (
 		<AuthProvider>
 			<BrowserRouter>
-				<Navigation />
-				<AppRoutes />
+				<div className="app">
+					<Navigation />
+					<Popups />
+
+					<main className="app-content">
+						<AppRoutes />
+					</main>
+				</div>
 			</BrowserRouter>
 		</AuthProvider>
 	)
 }
+
 
 export default App
