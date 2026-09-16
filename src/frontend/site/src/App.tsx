@@ -30,8 +30,13 @@ function Navigation() {
     		    <Link to="/contact">Contact</Link>
     		    <Link to="/playerSearch">PlayerSearch</Link>
 				<Link to="/play">Play</Link>
-				<Link to="/achievements">Achievements</Link>
-				<Link to="/friends">Friends</Link>
+				{user && (
+					<>
+					<Link to="/achievements">Achievements</Link>
+					<Link to="/friends">Friends</Link>
+					</>
+				)}
+				
     		</div>
     		<div className="nav-right">
     		    {user ? (
@@ -54,9 +59,11 @@ function Navigation() {
 					<Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
 					<Link to="/playerSearch" onClick={() => setMenuOpen(false)}>PlayerSearch</Link>
 					<Link to="/play" onClick={() => setMenuOpen(false)}>Play</Link>
-					<Link to="/achievements" onClick={() => setMenuOpen(false)}>Achievements</Link>
+					
 					{user ? (
 						<>
+						<Link to="/achievements" onClick={() => setMenuOpen(false)}>Achievements</Link>
+						<Link to="/friends" onClick={() => setMenuOpen(false)}>Friends</Link>
 						<Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
 						<span>Bonjour, {user.username}</span>
 						<button onClick={() => {logout(); setMenuOpen(false)}}>Déconnexion</button>
@@ -108,17 +115,17 @@ function AppRoutes() {
 		<Route 
 				path="/achievements" 
 			element={
-					//<ProtectedRoute>
+					<ProtectedRoute>
 						<Achievements />
-					//</ProtectedRoute>
+					</ProtectedRoute>
 				} 
 		/>
 		<Route 
 				path="/friends" 
 			element={
-					//<ProtectedRoute>
+					<ProtectedRoute>
 						<Friends />
-					//</ProtectedRoute>
+					</ProtectedRoute>
 				} 
 		/>
 		<Route path="/profile/:username?" element={<PbProfile />} />

@@ -348,11 +348,21 @@ function Play() {
 		}
 	}, [rematchSelf, rematchOp])
 
-	if ((wsError || !connected)) {
+
+	if (wsError) {
 		return (
 			<div className="page">
 				<p className="ws-error">
 					Impossible de se connecter au serveur. Réessaie plus tard.
+				</p>
+			</div>
+		)
+	}
+	if (!connected) {
+		return (
+			<div className="page">
+				<p>
+					Loading
 				</p>
 			</div>
 		)
