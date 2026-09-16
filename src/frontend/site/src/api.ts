@@ -188,7 +188,7 @@ function change_password(): Promise<null> {
 	return request<null>("/account/profile?username=/self", "POST");
 }
 
-
+	
 function get_achivments(): Promise<Array<boolean>> {
 	return request<Array<boolean>>("/achievements", "GET");
 }

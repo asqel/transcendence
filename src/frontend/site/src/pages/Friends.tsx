@@ -4,20 +4,18 @@ import "./Friends.css"
 
 const OPC_AUTH = 0x01
 const OPC_ADD = 0x02
-const OPC_REQUEST = 0x03
+const OPC_REQUEST_LIST = 0x03
 const OPC_REQUEST_RESPONSE = 0x04
 const OPC_FRIENDS = 0x05
 const OPC_FRIENDS_CHAT = 0x06
 const OPC_CHAT = 0x07
+const OPC_DELETE = 0x08
 
 function Friends() {
 	const [connected, setConnected] = useState<boolean>(false);
 	const [wsError, setWsError] = useState<boolean>(false);
 	const wsRef = useRef<WebSocket | null>(null);
 	
-	const [chatMessages, setChatMessages] = useState<string[]>([]);
-	const [chatInput, setChatInput] = useState("");
-	const messagesContainerRef = useRef<HTMLDivElement | null>(null);
 
 	const [friendsList, setFriendsList] = useState<string[]>([]);
 	const [loadingFriendsList, setLoadingFriendsList] = useState<boolean>(false);
@@ -31,6 +29,11 @@ function Friends() {
 	const [requests, setRequests] = useState<string[]>([]);
 	const [requestsError, setRequestsError] = useState<string>("");
 	const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
+
+	const [selected, setSelected] = useState<string>("");
+	const [chatMessages, setChatMessages] = useState<string[]>([]);
+	const [chatInput, setChatInput] = useState("");
+	const messagesContainerRef = useRef<HTMLDivElement | null>(null);
 
 	function sender(nb: number, val: string | number | null = null) {
 		const bytes: Array<number> = [];
@@ -80,7 +83,7 @@ function Friends() {
 			setLoadingAddFriends(false);
 			setShowRequestPopup(false);
 		}
-		else if (bytes[0] === OPC_REQUEST) {
+		else if (bytes[0] === OPC_REQUEST_LIST) {
 			if (bytes[1] === 0) {
 				const decoder = new TextDecoder();
 				const str = decoder.decode(bytes.subarray(2));
@@ -93,6 +96,7 @@ function Friends() {
 				setLoadingRequest(false);
 			}
 		}
+
 		else if (bytes[0] === OPC_REQUEST_RESPONSE) {
 			if (bytes[1] !== 0) {
 				console.log("request error: ", bytes[1]);
@@ -103,6 +107,8 @@ function Friends() {
 				const str = decoder.decode(bytes.subarray(2));
 				if (str)
 					setFriendsList(str.split("/"));
+				else
+					setFriendsList([]);
 				setLoadingFriendsList(false);
 		}
 		else if (bytes[0] === OPC_CHAT) {
@@ -111,6 +117,15 @@ function Friends() {
 				const str = decoder.decode(bytes.subarray(2));
 				setChatMessages((prev) => [...prev, str]);
 			}
+		}
+		else if (bytes[0] === OPC_DELETE) {
+			if (bytes[1] === 0) {
+				setLoadingFriendsList(true);
+				setSelected("");
+				sender(OPC_FRIENDS);
+			}
+			else
+				console.log("delete_error: ",bytes[1]);
 		}
 	}
 
@@ -139,7 +154,7 @@ function Friends() {
 		}
 		else if (type === "request"){
 			setShowRequestPopup(true);
-			sender(OPC_REQUEST);
+			sender(OPC_REQUEST_LIST);
 			setLoadingRequest(true);
 		}
 	}
@@ -166,51 +181,59 @@ function Friends() {
 	function handleRequestFriends(val: number, name: string) {
 		sender(OPC_REQUEST_RESPONSE, val + name);
 		setLoadingRequest(true);
-		sender(OPC_REQUEST);
+		sender(OPC_REQUEST_LIST);
 		sender(OPC_FRIENDS);
 	}
 
+	function handleDeleteFriend() {
+		if (selected) {
+			const name = selected;
+			sender(OPC_DELETE, name);
+		}
+	}
+
 	function handleChatFriend(friend: string) {
-		sender(OPC_FRIENDS_CHAT, friend)
+		setSelected(friend);
+		sender(OPC_FRIENDS_CHAT, friend);
+	}
+
+	function handleAddedFriends () {
+		sender(OPC_FRIENDS);
 	}
 
 	useEffect(() => {
-		if (wsRef.current) {
+		if (wsRef.current)
 			return;
-		}
-
 		const ws = new WebSocket(`wss://${window.location.host}/ws/friend-chat/`);
 		ws.binaryType = "arraybuffer";
-
 		ws.onopen = () => {
 			setConnected(true);
 			setWsError(false);
 			sendAuth();
 		};
-
 		ws.onclose = () => {
 			setConnected(false);
 			wsRef.current = null;
 		};
-
 		ws.onerror = (error) => {
 			setWsError(true);
 			console.log('WebSocket error:', error);
 			wsRef.current = null;
 		};
-		
 		ws.onmessage = handleMessage;
 		wsRef.current = ws;
-		
+
+		window.addEventListener("friends:addedFriends", handleAddedFriends);
 		return () => {
 			if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
 				wsRef.current.close();
 			}
 			wsRef.current = null;
+			window.removeEventListener("friends:addedFriends", handleAddedFriends);
 		};
 	}, [])
 
-	// Vérifie que le composant est toujours monté avant de mettre à jour l'état
+
 	useEffect(() => {
 		if (messagesContainerRef.current) {
 			messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
@@ -232,6 +255,9 @@ function Friends() {
 			<div className="friendslist">
 				<button onClick={() => openPopup("add")}>add friends</button>
 				<button onClick={() => openPopup("request")}>Show request</button>
+				{selected && (
+					<button onClick={handleDeleteFriend}>delete</button>
+				)}
 				{loadingFriendsList && (
 					<p>Loading...</p>
 				)}
@@ -243,6 +269,7 @@ function Friends() {
 				))}
 			</div>
 			<div className="chatbox">
+				
 				<div className="chatbox-messages" ref={messagesContainerRef}>
 					{chatMessages.length === 0 && (
 						<p className="chatbox-empty">Aucun message pour l'instant.</p>

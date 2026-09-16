@@ -31,6 +31,9 @@ function Popups() {
         else if (bytes[0] === 0xFF) {
             showAchievement("FAIl");
         }
+        else if (bytes[0] === 0x00){
+            window.dispatchEvent(new Event("friends:addedFriends"));
+        }
     }
 
     function sendAuth() {
