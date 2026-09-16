@@ -37,3 +37,19 @@ class EmailConfirm(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="email_confirm")
 	token = models.CharField(max_length=100, default="")
 	expires_at = models.DateTimeField(default=timezone.now)
+
+class Friendness(models.Model):
+	lesser = models.ForeignKey(User, on_delete=models.CASCADE, related_name="lesser")
+	greater = models.ForeignKey(User, on_delete=models.CASCADE, related_name="greater")
+	since_when = models.DateTimeField(default=timezone.now)
+
+class FriendRequest(models.Model):
+	from_who = models.ForeignKey(User, on_delete=models.CASCADE, related_name="from_who")
+	to_who = models.ForeignKey(User, on_delete=models.CASCADE, related_name="to_who")
+	state = models.IntegerField(default=0, choices=[(0, "pending"), (1, "rejected")])
+	
+class FriendMessage(models.Model):
+	lesser = models.ForeignKey(User, on_delete=models.CASCADE, related_name="message_lesser")
+	greater = models.ForeignKey(User, on_delete=models.CASCADE, related_name="message_greater")
+	is_from_leser = models.BooleanField(default=True)
+	message = models.CharField(max_length=100, default="")

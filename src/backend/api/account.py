@@ -1,6 +1,7 @@
 import api.common as common
 import api.utils as utils
 import api.tmp as tmp_info
+import api
 import sys
 from models.apps import GHOST_NAME
 from django.contrib.auth.models import User
@@ -117,6 +118,8 @@ def set_info(request):
 	elif (key == "country"):
 		if (len(value) > 2 and (value == "LG" or pycountry.countries.get(alpha_2=value) is not None)):
 			return common.error("Country identifier too long", 400)
+		if (value == "LG"):
+			api.ach.gain(request.user, api.ach.ACH_FOUNTAIN)
 		Profile.objects.filter(user=request.user).update(country=value)
 	else:
 		return common.error("Unknown field", 400)

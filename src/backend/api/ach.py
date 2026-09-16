@@ -42,6 +42,7 @@ ACH_COUNT = 15
 
 import api.common as common
 import api.utils as utils
+import api
 from models.apps import GHOST_NAME
 
 from models.models import Stats
@@ -133,9 +134,11 @@ def gain(user, ach_id):
 	if (stats.achievement[ach_id] == '1'):
 		return False
 	
+	api.notif.send_ach(user, ach_id)
 	stats.achievement = stats.achievement[:ach_id] + '1' + stats.achievement[ach_id + 1:]
 	if (stats.achievement.startswith('1' * (ACH_COUNT - 1))):
 		stats.achievement = '1' * ACH_COUNT
+		api.notif.send_ach(user, ACH_ALL)
 	stats.save()
 	return True
 	

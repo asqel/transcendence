@@ -11,7 +11,6 @@ auth = JWTAuthentication()
 
 OPC_AUTH = 0xff
 OPC_ISAUTH = 0xfe
-OPC_ACH = 0xe0
 
 OPC_CREATE = 0xf0
 OPC_JOIN = 0xf1
@@ -123,10 +122,18 @@ AFK_TIME = timedelta(seconds=20)
 def do_leave(ws, data):
 	if (ws.player):
 		ws.player.asked_leave = True
+	if (ws.game):
+		ws.game.on_disco(ws)
+		ws.game = None
+		ws.player = None
+		ws.user = None
 
 def on_disco(ws, close_code):
 	if (ws.game):
 		ws.game.on_disco(ws)
+
+	if (ws.user is not None):
+		api.tmp.set(ws.user, "websocket", None)
 
 def ws_auth_user(ws, data: bytes):
 	if (ws.user is not None or ws.game is not None):
@@ -389,10 +396,8 @@ class Game:
 
 			self.again_count += 1
 			if (self.again_count == 5):
-				if (api.ach.gain(self.player_1.user, api.ach.ACH_INF)):
-					self.player_1.send(OPC_ACH, "b", api.ach.ACH_INF)
-				if (api.ach.gain(self.player_2.user, api.ach.ACH_INF)):
-					self.player_2.send(OPC_ACH, "b", api.ach.ACH_INF)
+				api.ach.gain(self.player_1.user, api.ach.ACH_INF)
+				api.ach.gain(self.player_2.user, api.ach.ACH_INF)
 				self.reset_afk()
 	
 	def is_turn(self, player: Player) -> bool:
@@ -453,11 +458,10 @@ class Game:
 			is_win += 1
 		if (api.board.do_win_vert(self.board, player.idx, x, y)):
 			is_win += 1
-			if (api.ach.gain(player.user, api.ach.ACH_VERT)):
-				player.send(OPC_ACH, "b", api.ach.ACH_VERT)
+			api.ach.gain(player.user, api.ach.ACH_VERT)
 
-		if (is_win >= 2 and api.ach.gain(player.user, api.ach.ACH_SECRET)):
-			player.send(OPC_ACH, "b", api.ach.ACH_SECRET)
+		if (is_win >= 2):
+			api.ach.gain(player.user, api.ach.ACH_SECRET)
 
 		if (is_win):
 			self.player_1.send(OPC_WIN, "b", player.idx)
@@ -472,10 +476,8 @@ class Game:
 			self.player_2.send(OPC_WIN, "b", 3)
 			self.to_spectators(OPC_WIN2, "s", "")
 
-			if (api.ach.gain(self.player_1.user, api.ach.ACH_TIE)):
-				self.player_1.send(OPC_ACH, "b", api.ach.ACH_TIE)
-			if (api.ach.gain(self.player_2.user, api.ach.ACH_TIE)):
-				self.player_2.send(OPC_ACH, "b", api.ach.ACH_TIE)
+			api.ach.gain(self.player_1.user, api.ach.ACH_TIE)
+			api.ach.gain(self.player_2.user, api.ach.ACH_TIE)
 
 			self.state = STATE_END
 			self.register_win(0)
@@ -496,6 +498,8 @@ class Game:
 				winner_stats.streak = 1
 			else:
 				winner_stats.streak += 1
+				if (winner_stats.streak >= 5):
+					api.ach.gain(winner, api.ach.ACH_WIN_STREAK)
 
 			looser_stats.number_loss += 1
 			looser_stats.number_placed += looser.number_placed
@@ -503,6 +507,13 @@ class Game:
 				looser_stats.streak = -1
 			else:
 				looser_stats.streak -= 1
+				if (looser_stats.streak <= 5):
+					api.ach.gain(looser, api.ach.ACH_POOP)
+
+			if (7 <= timezone.now().hour < 20):
+				api.ach.gain(winner, api.ach.ACH_SUN)
+			else:
+				api.ach.gain(winner, api.ach.ACH_MOON)
 				
 			winner_stats.elo, looser_stats.elo = compute_elo(winner_stats.elo, looser_stats.elo, 1)
 
@@ -529,12 +540,10 @@ class Game:
 	def handle_text(self, player: Player | None, message: str):
 		if (player):
 			if (message.upper() == 'GG' and self.state == STATE_END):
-				if (api.ach.gain(player.user, api.ach.ACH_GG)):
-					player.send(OPC_ACH, "b", api.ach.ACH_GG)
-			if (message == ':3' and api.ach.gain(player.user, api.ach.ACH_CUTE)):
-				player.send(OPC_ACH, "b", api.ach.ACH_CUTE)
-			if (api.ach.gain(player.user, api.ach.ACH_EXCL)):
-				player.send(OPC_ACH, "b", api.ach.ACH_EXCL)
+				api.ach.gain(player.user, api.ach.ACH_GG)
+			if (message == ':3'):
+				api.ach.gain(player.user, api.ach.ACH_CUTE)
+			api.ach.gain(player.user, api.ach.ACH_EXCL)
 
 			message = f"{player.user.username}: {message}"
 			if (self.player_1):
@@ -548,8 +557,6 @@ class Game:
 	def on_disco(self, ws):
 		global games
 		with self.lock:
-			if (ws.user is not None):
-				api.tmp.set(ws.user, "websocket", None)
 			if (ws.game.state == STATE_WAIT):
 				player = self.get_player_from_ws(ws)
 				if (not player):
@@ -594,16 +601,14 @@ class Game:
 				return 
 
 			if (self.is_turn(player)):
-				if (api.ach.gain(opponent.user, api.ach.ACH_FORF)):
-					opponent.send(OPC_ACH, "b", api.ach.ACH_FORF)
+				api.ach.gain(opponent.user, api.ach.ACH_FORF)
 				opponent.send(OPC_LEAVE, "")
 				opponent.send(OPC_WIN, "b", opponent.idx)
 				self.register_win(opponent.idx);
 				return 
 
 			if (self.last_played + AFK_TIME < timezone.now()):
-				if (api.ach.gain(player.user, api.ach.ACH_FORF)):
-					player.send(OPC_ACH, "b", api.ach.ACH_FORF)
+				api.ach.gain(player.user, api.ach.ACH_FORF)
 				opponent.send(OPC_WIN, "b", player.idx)
 				opponent.send(OPC_LEAVE, "")
 				self.register_win(player.idx)
@@ -613,8 +618,7 @@ class Game:
 				del games[self.id]
 				return 
 
-			if (api.ach.gain(opponent.user, api.ach.ACH_FORF)):
-				opponent.send(OPC_ACH, "b", api.ach.ACH_FORF)
+			api.ach.gain(opponent.user, api.ach.ACH_FORF)
 			opponent.send(OPC_LEAVE, "");
 			opponent.send(OPC_WIN, "b", opponent.idx)
 			self.register_win(opponent.idx)
@@ -624,7 +628,7 @@ class Game:
 			del games[self.id]
 	
 	def reconnect(self, ws):
-		if (self.player_1.ws is not None or self.player_2.ws is not None):
+		if (self.player_1.ws is not None and self.player_2.ws is not None):
 			return send(ws, OPC_JOIN, "b", OPC_ERR_FULL)
 		who = None
 		if (self.player_1.user.username == ws.user.username):
@@ -634,13 +638,14 @@ class Game:
 		else:
 			send(ws, OPC_JOIN, "b", OPC_ERR_FULL)
 
-		for x in range(self.width):
-			for y in range(self.height):
-				if (board[y][x]):
-					who.send(OPC_PLACE3, "bw", board[y][x], x)
 		who.ws = ws
 		ws.game = self
 		ws.player = who
+
+		for x in range(self.width):
+			for y in range(self.height):
+				if (self.board[y][x]):
+					who.send(OPC_PLACE3, "bw", self.board[y][x], x)
 
 		opponent = self.get_other_player(who)
 		stats = Stats.objects.filter(user=opponent.user).first()
