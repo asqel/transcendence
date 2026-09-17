@@ -2,6 +2,7 @@
   width: 100%;
   padding: 40px 20px;
   box-sizing: border-box;
+  background: transparent !important;
 }
 
 .container {
@@ -9,10 +10,9 @@
   margin: 0 auto;
   padding: 35px;
   box-sizing: border-box;
-  background: rgba(31, 32, 40, 0.85);
-  border: 1px solid #3a3b48;
-  border-radius: 16px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .title {
