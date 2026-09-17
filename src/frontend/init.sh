@@ -10,12 +10,18 @@ fi
 mkdir -p /etc/nginx/ssl/
 cp secrets/* /etc/nginx/ssl/
 
+<<<<<<< Updated upstream
 # copy conf + site
+=======
+>>>>>>> Stashed changes
 cp nginx/nginx.conf /etc/nginx/
 rm -rf /var/www/html/
 mkdir -p /var/www/
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 apk add --no-cache nodejs npm
 npm --prefix ./site install --legacy-peer-deps
 npm --prefix ./site run build
