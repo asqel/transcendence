@@ -1,336 +1,109 @@
-<<<<<<< Updated upstream
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
-
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-}
-
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
-}
-
-#center {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
-}
-
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
-}
-
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
-}
-
-.ticks {
-  position: relative;
-  width: 100%;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
-
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
-}
-
-nav {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 15px 20px;
-}
-
-nav a {
-  padding: 9px 16px;
-  border-radius: 8px;
-  text-decoration: none;
-  color: var(--text);
-  background: var(--social-bg);
-  border: 1px solid var(--border);
-}
-
-nav a:hover {
-  color: white;
-  background: var(--accent);
-  border-color: var(--accent);
-}
-
-nav a:last-child {
-  margin-left: auto !important;
-}
-=======
 /* =========================
-   STRUCTURE DE L'APPLICATION
-   ========================= */
+STRUCTURE DE L'APPLICATION
+========================= */
 
 .app {
-  width: 100%;
-  min-width: 0;
-  min-height: 100svh;
+	width: 100%;
+	min-width: 0;
+	min-height: 100svh;
 
-  display: flex;
-  flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
 .app-content {
-  flex: 1;
-  min-width: 0;
+	flex: 1;
+	min-width: 0;
 }
 
 
 
 /* =========================
-   NAVIGATION
-   ========================= */
+NAVIGATION
+========================= */
 
 nav a {
-  padding: 9px 16px;
-  border-radius: 8px;
-  text-decoration: none;
-  color: var(--text);
-  background: var(--social-bg);
-  border: 1px solid var(--border);
+	padding: 9px 16px;
+	border-radius: 8px;
+	text-decoration: none;
+	color: var(--text);
+	background: var(--social-bg);
+	border: 1px solid var(--border);
 }
 
 nav a:hover {
-  color: white;
-  background: var(--accent);
-  border-color: var(--accent);
+	color: white;
+	background: var(--accent);
+	border-color: var(--accent);
 }
 
 
 /* =========================
-   DESKTOP
-   ========================= */
+	 DESKTOP
+	 ========================= */
 
 @media (min-width: 769px) {
-  .navbar-desktop {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 30px;
-  }
+	.navbar-desktop {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 15px 30px;
+	}
 
-  .nav-left,
-  .nav-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
+	.nav-left,
+	.nav-right {
+		display: flex;
+		align-items: center;
+		gap: 20px;
+	}
 
-  .navbar-mobile {
-    display: none;
-  }
+	.navbar-mobile {
+		display: none;
+	}
 }
 
 
 /* =========================
-   MOBILE
-   ========================= */
+	 MOBILE
+	 ========================= */
 
 @media (max-width: 768px) {
-  .navbar-desktop {
-    display: none;
-  }
+	.navbar-desktop {
+		display: none;
+	}
 
-  .navbar-mobile {
-    display: flex;
-    position: relative;
-    z-index: 1000;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 15px 20px;
-  }
+	.navbar-mobile {
+		display: flex;
+		position: relative;
+		z-index: 1000;
+		justify-content: flex-end;
+		align-items: center;
+		padding: 15px 20px;
+	}
 
 
 
-  .hamburger {
-    font-size: 28px;
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
+	.hamburger {
+		font-size: 28px;
+		background: none;
+		border: none;
+		cursor: pointer;
+	}
 
-  .mobile-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+	.mobile-menu {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
 
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
 
-    padding: 20px;
+		padding: 20px;
 
-    z-index: 10;
+		z-index: 10;
 
-    background-color: grey;
-  }
+		background-color: grey;
+	}
 }
-
-.privacy-link {
-	display: block;
-	margin-top: 30px;
-	text-align: center;
-	font-size: 12px;
-	color: var(--text);
-	text-decoration: none;
-}
-
-.privacy-link:hover {
-	color: var(--accent);
-	text-decoration: underline;
-}
->>>>>>> Stashed changes

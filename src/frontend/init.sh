@@ -1,25 +1,87 @@
 #!/bin/sh
 set -e
 
-if [ ! -f "secrets/server.key" ] || [ ! -f "secrets/server.crt" ] ; then
-	echo "Error: Missing frontend server certificat or key" >&2
-	exit 1
+if [ ! -f "secrets/server.key" ] || [ ! -f "secrets/server.crt" ]; then
+    echo "Error: Missing frontend server certificat or key" >&2
+    exit 1
 fi
 
-# copy ssl things
 mkdir -p /etc/nginx/ssl/
 cp secrets/* /etc/nginx/ssl/
 
-# copy conf + site
-cp nginx/nginx.conf /etc/nginx/
-rm -rf /var/www/html/
-mkdir -p /var/www/
+MODE=${MODE:-prod}
+echo "=== Starting frontend in $MODE mode ==="
 
+# --- bloc "location /" qui change selon le mode ---
+if [ "$MODE" = "dev" ]; then
+    LOCATION_ROOT='location / {
+            proxy_pass http://127.0.0.1:5173;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto https;
+        }'
+else
+    LOCATION_ROOT='location / {
+            try_files $uri $uri/ /index.html;
+        }'
+fi
+
+# --- génère le nginx.conf final ---
+cat > /etc/nginx/nginx.conf <<NGINX_EOF
+events {}
+http {
+    include mime.types;
+    default_type application/octet-stream;
+    server {
+        listen 443 ssl;
+        server_name localhost;
+        ssl_certificate /etc/nginx/ssl/server.crt;
+        ssl_certificate_key /etc/nginx/ssl/server.key;
+        root /var/www/html;
+
+        $LOCATION_ROOT
+        location /api/ {
+            proxy_pass https://10.18.170.78;
+            proxy_http_version 1.1;
+            proxy_set_header Host \$host;
+            proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto https;
+        }
+        location /ws/ {
+            proxy_pass https://10.18.170.78;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade \$http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host \$host;
+            proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto https;
+        }
+        location /assets/ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
+    }
+}
+NGINX_EOF
+
+rm -rf /var/www/html
+mkdir -p /var/www
 apk add --no-cache nodejs npm
 npm --prefix ./site install --legacy-peer-deps
-npm --prefix ./site run build
-cp -r site/dist /var/www/html/
+
+# --- build statique OU serveur de dev, selon le mode ---
+if [ "$MODE" = "dev" ]; then
+    npm --prefix ./site run dev -- --host 0.0.0.0 --port 5173 &
+else
+    npm --prefix ./site run build
+    cp -r site/dist /var/www/html
+fi
 
 mkdir -p /run/nginx
-
 nginx -g "daemon off;"
