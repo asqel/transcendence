@@ -57,7 +57,7 @@ function Login() {
 
 	return (
 	<div>
-		<h1>{mode === 'signin' ? t("text.signin") : t("text.signup")}</h1>
+		<h1>{mode === 'signin' ? t("signin") : t("signup")}</h1>
 
 		<div className="mode-switch">
 		<button
@@ -65,14 +65,14 @@ function Login() {
 			onClick={() => setMode('signin')}
 			className={mode === 'signin' ? 'active' : ''}
 		>
-			{t("text.signin")}
+			{t("signin")}
 		</button>
 		<button
 			type="button"
 			onClick={() => setMode('register')}
 			className={mode === 'register' ? 'active' : ''}
 		>
-			{t("text.signup")}
+			{t("signup")}
 		</button>
 		</div>
 
@@ -80,14 +80,14 @@ function Login() {
 			<input
 				value={username}
 				onChange={(e) => setUsername(e.target.value)}
-				placeholder="Nom d'utilisateur"
+				placeholder={t("username")}
 			/>
 			{mode === 'register' && (
 				<input
 					type="email"
 					value={email}
 					onChange={(e) => setEmail(e.target.value)}
-					placeholder={t("text.mail")}
+					placeholder={t("email")}
 					required
 				/>
 			)}
@@ -96,7 +96,7 @@ function Login() {
 				type="password"
 				value={password}
 				onChange={(e) => setPassword(e.target.value)}
-				placeholder={t("text.password")}
+				placeholder={t("password")}
 				required
 			/>
 
@@ -105,7 +105,7 @@ function Login() {
 				type="password"
 				value={confirmPassword}
 				onChange={(e) => setConfirmPassword(e.target.value)}
-				placeholder={t("text.confirm_password")}
+				placeholder={t("confirm_password")}
 				required
 				/>
 			)}
@@ -114,8 +114,8 @@ function Login() {
 				{loading
 				? '...'
 				: mode === 'signin'
-				? t("text.signin")
-				: t("text.signup")}
+				? t("signin")
+				: t("signup")}
 			</button>
 
 			{error && <p className="login-error">{error}</p>}

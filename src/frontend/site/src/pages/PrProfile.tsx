@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { userApi, type SelfResponse, type UserResponse } from "../api";
 import { useTranslation } from 'react-i18next';
-//import { countries, getEmojiFlag, type TCountryCode } from "countries-list"
 import countries from "../data/countries.json";
 import "./PrProfile.css"
 function Profile() {
@@ -97,10 +96,7 @@ function Profile() {
 		try {
 			setLoadingDelete(true)
 			setDeleteError(null)
-
-			// Adapte cette ligne à la méthode de ton API
 			await userApi.delete_account()
-
 			logout()
 		}
 		catch (err) {

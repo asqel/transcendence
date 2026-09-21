@@ -2,7 +2,7 @@
    ACHIEVEMENT POPUP
    ========================= */
 
-.achievement-popup {
+.popup {
   position: fixed;
   top: 24px;
   right: 24px;
@@ -20,12 +20,12 @@
   animation: achievement-popup-in 0.3s ease-out;
 }
 
-.achievement-popup-title {
+.popup-title {
   font-weight: 700;
   font-size: 15px;
 }
 
-.achievement-popup-name {
+.popup-text {
   margin-top: 4px;
   font-size: 14px;
   color: #aaa;

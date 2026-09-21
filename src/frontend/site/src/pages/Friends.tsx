@@ -1,36 +1,45 @@
 import { useState, useEffect, useRef } from "react"
+import { useTranslation } from 'react-i18next';
 import "./Friends.css"
+import { useAuth } from "../context/AuthContext"
 
 
 const OPC_AUTH = 0x01
-const OPC_ADD = 0x02
-const OPC_REQUEST_LIST = 0x03
+const OPC_ADD_FRIENDS = 0x02
+const OPC_LIST_REQUEST = 0x03
 const OPC_REQUEST_RESPONSE = 0x04
-const OPC_FRIENDS = 0x05
-const OPC_FRIENDS_CHAT = 0x06
+const OPC_GET_FRIENDS_LIST = 0x05
+const OPC_SELECT_FRIENDS = 0x06
 const OPC_CHAT = 0x07
-const OPC_DELETE = 0x08
+const OPC_REQUEST_CHAT = 0x9
+const OPC_DELETE_FRIENDS = 0x08
 
 function Friends() {
+	const {t} = useTranslation()
+
+	const { user } = useAuth()
+
 	const [connected, setConnected] = useState<boolean>(false);
 	const [wsError, setWsError] = useState<boolean>(false);
 	const wsRef = useRef<WebSocket | null>(null);
 	
 
-	const [friendsList, setFriendsList] = useState<string[]>([]);
-	const [loadingFriendsList, setLoadingFriendsList] = useState<boolean>(false);
 
-	const [addFriendsPopup, setAddFriendsPopups] = useState<boolean>(false);
+
+	const [showAddFriendsPopup, setShowAddFriendsPopups] = useState<boolean>(false);
 	const [addFriends, setAddFriends] = useState<string>("");
 	const [addFriendsError, setAddFriendsError] = useState<string>("");
 	const [loadingAddFriends, setLoadingAddFriends] = useState<boolean>(false);
 
-	const [showRequestPopup, setShowRequestPopup] = useState<boolean>(false);
-	const [requests, setRequests] = useState<string[]>([]);
-	const [requestsError, setRequestsError] = useState<string>("");
-	const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
+	const [showFriendsRequestPopup, setShowFriendsRequestPopup] = useState<boolean>(false);
+	const [friendsRequests, setFriendsRequests] = useState<string[]>([]);
+	const [friendsRequestsError, setFriendsRequestsError] = useState<string>("");
+	const [loadingFriendsRequest, setLoadingFriendsRequest] = useState<boolean>(false);
 
-	const [selected, setSelected] = useState<string>("");
+	const [friendsList, setFriendsList] = useState<string[]>([]);
+	const [loadingFriendsList, setLoadingFriendsList] = useState<boolean>(false);
+	const selectedFriend = useRef<string>("");
+
 	const [chatMessages, setChatMessages] = useState<string[]>([]);
 	const [chatInput, setChatInput] = useState("");
 	const messagesContainerRef = useRef<HTMLDivElement | null>(null);
@@ -67,66 +76,152 @@ function Friends() {
 				wsRef.current?.close();
 			}           
 		}
-		else if (bytes[0] === OPC_ADD) {
-			if (bytes[1] === 1) {
-				setAddFriendsError("Error");
+		else if (bytes[0] === OPC_ADD_FRIENDS) {
+			if (bytes[1] === 0) {
+				setLoadingAddFriends(false);
+				setShowAddFriendsPopups(false);
 			}
-			else if (bytes[1] === 2) {
-				setAddFriendsError("Not found");
-			}
-			else if (bytes[1] === 3) {
-				setAddFriendsError("Already send");
-			}
-			else if (bytes[1] === 4) {
-				setAddFriendsError("Already friends");
-			}
-			setLoadingAddFriends(false);
-			setShowRequestPopup(false);
+			else
+				setAddFriendsError(t("req_error." + bytes[1]))
+
 		}
-		else if (bytes[0] === OPC_REQUEST_LIST) {
+		else if (bytes[0] === OPC_LIST_REQUEST) {
 			if (bytes[1] === 0) {
 				const decoder = new TextDecoder();
 				const str = decoder.decode(bytes.subarray(2));
 				if (str)
-					setRequests(str.split("/"));
-				setLoadingRequest(false);
+					setFriendsRequests(str.split("/"));
+				else
+					setFriendsRequests([]);
+				setLoadingFriendsRequest(false);
 			}
 			else {
-				setRequestsError("error");
-				setLoadingRequest(false);
+				setFriendsRequestsError("error");
+				setLoadingFriendsRequest(false);
+				console.log("requestList_error: ", bytes[1]);
 			}
 		}
 
 		else if (bytes[0] === OPC_REQUEST_RESPONSE) {
 			if (bytes[1] !== 0) {
-				console.log("request error: ", bytes[1]);
+				console.log("request_error: ", bytes[1]);
 			}
 		}
-		else if (bytes[0] === OPC_FRIENDS) {
+
+		else if (bytes[0] === OPC_GET_FRIENDS_LIST) {
+			const decoder = new TextDecoder();
+			const str = decoder.decode(bytes.subarray(2));
+			if (str)
+				setFriendsList(str.split("/"));
+			else
+				setFriendsList([]);
+			setLoadingFriendsList(false);
+		}
+		else if (bytes[0] === OPC_SELECT_FRIENDS) {
+			if (bytes[1] === 0) {
+				setChatMessages([]);
+				//messagesContainerRef.current = null;
 				const decoder = new TextDecoder();
 				const str = decoder.decode(bytes.subarray(2));
-				if (str)
-					setFriendsList(str.split("/"));
-				else
-					setFriendsList([]);
-				setLoadingFriendsList(false);
+				selectedFriend.current = str;
+				sender(OPC_REQUEST_CHAT);
+			}
+			if (bytes[1] !== 0)
+				console.log("selectFriend_error: ", bytes[1])
 		}
 		else if (bytes[0] === OPC_CHAT) {
 			if (bytes[1] === 0) {
+				console.log(bytes);
+				let usr: string;
+				if (bytes[2] === 0 && user) {
+					usr = user.username;
+				}
+				if (bytes[2] === 1) {
+					usr = selectedFriend.current;
+				}
 				const decoder = new TextDecoder();
-				const str = decoder.decode(bytes.subarray(2));
-				setChatMessages((prev) => [...prev, str]);
+				const str = decoder.decode(bytes.subarray(3));
+				setChatMessages((prev) => [...prev, usr + ": " + str]);
+			}
+			else {
+				console.log("chat_error: ",bytes[1]);
 			}
 		}
-		else if (bytes[0] === OPC_DELETE) {
+		else if (bytes[0] === OPC_DELETE_FRIENDS) {
 			if (bytes[1] === 0) {
 				setLoadingFriendsList(true);
-				setSelected("");
-				sender(OPC_FRIENDS);
+				selectedFriend.current = "";
+				sender(OPC_GET_FRIENDS_LIST);
 			}
 			else
 				console.log("delete_error: ",bytes[1]);
 		}
+	}
+
+
+	function sendAuth() {
+		const token = localStorage.getItem("access");
+		if (token) {
+			sender(OPC_AUTH, token);
+		}
+		setLoadingFriendsList(true);
+		sender(OPC_GET_FRIENDS_LIST);
+	}
+
+
+	function openPopup(type: string) {
+		if (type === "add") {
+			setAddFriends("");
+			setAddFriendsError("");
+			setShowAddFriendsPopups(true);
+		}
+		else if (type === "request"){
+			setShowFriendsRequestPopup(true);
+			sender(OPC_LIST_REQUEST);
+			setLoadingFriendsRequest(true);
+		}
+	}
+
+	// Ferme la popup
+	function closePopup() {
+		if (loadingAddFriends || loadingFriendsRequest)
+			return;
+		setShowAddFriendsPopups(false);
+		setAddFriends("");
+		setAddFriendsError("");
+
+		setShowFriendsRequestPopup(false);
+		setFriendsRequests([]);
+		setFriendsRequestsError("");
+	}
+
+							
+	function handleAddFriends() {
+		setLoadingAddFriends(true);
+		sender(OPC_ADD_FRIENDS, addFriends);
+	}
+
+	function handleFriendRequestResponse(val: number, name: string) {
+		sender(OPC_REQUEST_RESPONSE, val + name);
+		setLoadingFriendsRequest(true);
+		sender(OPC_LIST_REQUEST);
+		setLoadingFriendsList(true);
+		sender(OPC_GET_FRIENDS_LIST);
+	}
+
+	function handleRequestAccepted () {
+		setLoadingFriendsList(true);
+		sender(OPC_GET_FRIENDS_LIST);
+	}
+
+	function handleDeleteFriend() {
+		if (selectedFriend) {
+			sender(OPC_DELETE_FRIENDS, selectedFriend.current);
+		}
+	}
+
+	function handleSelectFriend(friend: string) {
+		sender(OPC_SELECT_FRIENDS, friend);
 	}
 
 	function handleSendChat() {
@@ -136,70 +231,7 @@ function Friends() {
 		setChatInput("")
 	}
 
-	function sendAuth() {
-		const token = localStorage.getItem("access");
-		if (token) {
-			sender(OPC_AUTH, token);
-		}
-		setLoadingFriendsList(true);
-		sender(OPC_FRIENDS);
-	}
 
-
-	function openPopup(type: string) {
-		if (type === "add") {
-			setAddFriends("");
-			setAddFriendsError("");
-			setAddFriendsPopups(true);
-		}
-		else if (type === "request"){
-			setShowRequestPopup(true);
-			sender(OPC_REQUEST_LIST);
-			setLoadingRequest(true);
-		}
-	}
-
-	// Ferme la popup
-	function closePopup() {
-		if (loadingAddFriends || loadingRequest)
-			return;
-		setAddFriendsPopups(false);
-		setAddFriends("");
-		setAddFriendsError("");
-
-		setShowRequestPopup(false);
-		setRequests([]);
-		setRequestsError("");
-	}
-
-							
-	function handleAddFriends() {
-		setLoadingAddFriends(true);
-		sender(OPC_ADD, addFriends);
-	}
-
-	function handleRequestFriends(val: number, name: string) {
-		sender(OPC_REQUEST_RESPONSE, val + name);
-		setLoadingRequest(true);
-		sender(OPC_REQUEST_LIST);
-		sender(OPC_FRIENDS);
-	}
-
-	function handleDeleteFriend() {
-		if (selected) {
-			const name = selected;
-			sender(OPC_DELETE, name);
-		}
-	}
-
-	function handleChatFriend(friend: string) {
-		setSelected(friend);
-		sender(OPC_FRIENDS_CHAT, friend);
-	}
-
-	function handleAddedFriends () {
-		sender(OPC_FRIENDS);
-	}
 
 	useEffect(() => {
 		if (wsRef.current)
@@ -223,21 +255,21 @@ function Friends() {
 		ws.onmessage = handleMessage;
 		wsRef.current = ws;
 
-		window.addEventListener("friends:addedFriends", handleAddedFriends);
+		window.addEventListener("friends:addedFriends", handleRequestAccepted);
 		return () => {
 			if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
 				wsRef.current.close();
 			}
 			wsRef.current = null;
-			window.removeEventListener("friends:addedFriends", handleAddedFriends);
+			window.removeEventListener("friends:addedFriends", handleRequestAccepted);
 		};
 	}, [])
 
 
 	useEffect(() => {
-		if (messagesContainerRef.current) {
-			messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-		}
+ 		const el = messagesContainerRef.current
+  		if (el)
+			el.scrollTop = el.scrollHeight
 	}, [chatMessages])
 
 	if ((wsError || !connected)) {
@@ -255,7 +287,7 @@ function Friends() {
 			<div className="friendslist">
 				<button onClick={() => openPopup("add")}>add friends</button>
 				<button onClick={() => openPopup("request")}>Show request</button>
-				{selected && (
+				{selectedFriend.current && (
 					<button onClick={handleDeleteFriend}>delete</button>
 				)}
 				{loadingFriendsList && (
@@ -265,7 +297,7 @@ function Friends() {
 					<p>Aucun amis pour le moment</p>
 				)}
 				{friendsList.map((friend, i) => (
-					<button key={i} onClick={() => (handleChatFriend(friend))}>{friend}</button>
+					<button key={i} onClick={() => (handleSelectFriend(friend))} disabled={friend == selectedFriend.current}>{friend}</button>
 				))}
 			</div>
 			<div className="chatbox">
@@ -294,10 +326,10 @@ function Friends() {
 					</button>
 				</div>
 			</div>
-			{(addFriendsPopup || showRequestPopup) && (
+			{(showAddFriendsPopup || showFriendsRequestPopup) && (
 				<div className="popups-overlay" onClick={() => closePopup()}>
 					<div className="popups" onClick={(e) => e.stopPropagation()}>
-						{addFriendsPopup && (
+						{showAddFriendsPopup && (
 							<>
 							<h2>Add friends</h2>
 							<input
@@ -345,23 +377,23 @@ function Friends() {
 							</div>
 							</>
 						)}
-						{showRequestPopup && (
+						{showFriendsRequestPopup && (
 							<>
 							<h2>Pending Friends Requests</h2>
-							{loadingRequest && (
+							{loadingFriendsRequest && (
 								<p>Loading</p>
 							)}
-							{requestsError && (
+							{friendsRequestsError && (
 								<p>Error</p>
 							)}
-							{requests.length === 0 && (
+							{friendsRequests.length === 0 && (
 								<p>No friend request</p>
 							)}
-							{requests.map((name, i) => (
+							{friendsRequests.map((name, i) => (
 								<div key={i}>
 									<p>{name}</p>
-									<button onClick={() => handleRequestFriends(1, name)}>V</button>
-									<button onClick={() => handleRequestFriends(0, name)}>X</button>
+									<button onClick={() => handleFriendRequestResponse(1, name)}>V</button>
+									<button onClick={() => handleFriendRequestResponse(0, name)}>X</button>
 								</div>
 							))}
 							<div className="add-friends-actions">

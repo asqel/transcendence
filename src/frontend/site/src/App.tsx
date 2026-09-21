@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Link, Navigate, } from 'react-router-dom'
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next';
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Home from './pages/Home.tsx'
 import About from './pages/About.tsx'
@@ -20,6 +21,11 @@ import './App.css'
 function Navigation() {
 	const { user, logout } = useAuth()
 	const [menuOpen, setMenuOpen] = useState(false);
+	const { i18n } = useTranslation();
+
+	function handleChangeLang(e: React.ChangeEvent<HTMLSelectElement>) {
+		i18n.changeLanguage(e.target.value);
+	}
 
   return (
 		<>
@@ -48,6 +54,11 @@ function Navigation() {
     		    ) : (
     		    	<Link to="/login">Connexion</Link>
     		    )}
+				<select name="lang" value={i18n.language} onChange={handleChangeLang}>
+					<option value="es">Espagnol</option>
+					<option value="en">English</option>
+					<option value="fr">Francais</option>
+				</select>
     		</div>
 		</nav>
     	<nav className="navbar-mobile">

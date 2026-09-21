@@ -114,6 +114,7 @@ async function request<T>(endpoint: string, method: string, body: string = "", o
 	}
 
 	if (!res.ok) {
+		window.dispatchEvent(new Event("auth:logout"));
 		throw res.status;
 	}
 

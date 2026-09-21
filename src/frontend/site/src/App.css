@@ -1,111 +1,111 @@
 /* =========================
-   STRUCTURE DE L'APPLICATION
-   ========================= */
+STRUCTURE DE L'APPLICATION
+========================= */
 
 .app {
-  width: 100%;
-  min-width: 0;
-  min-height: 100svh;
+	width: 100%;
+	min-width: 0;
+	min-height: 100svh;
 
-  display: flex;
-  flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
 .app-content {
-  flex: 1;
-  min-width: 0;
+	flex: 1;
+	min-width: 0;
 }
 
 
 
 /* =========================
-   NAVIGATION
-   ========================= */
+NAVIGATION
+========================= */
 
 nav a {
-  padding: 9px 16px;
-  border-radius: 8px;
-  text-decoration: none;
-  color: var(--text);
-  background: var(--social-bg);
-  border: 1px solid var(--border);
+	padding: 9px 16px;
+	border-radius: 8px;
+	text-decoration: none;
+	color: var(--text);
+	background: var(--social-bg);
+	border: 1px solid var(--border);
 }
 
 nav a:hover {
-  color: white;
-  background: var(--accent);
-  border-color: var(--accent);
+	color: white;
+	background: var(--accent);
+	border-color: var(--accent);
 }
 
 
 /* =========================
-   DESKTOP
-   ========================= */
+	 DESKTOP
+	 ========================= */
 
 @media (min-width: 769px) {
-  .navbar-desktop {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 30px;
-  }
+	.navbar-desktop {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 15px 30px;
+	}
 
-  .nav-left,
-  .nav-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
+	.nav-left,
+	.nav-right {
+		display: flex;
+		align-items: center;
+		gap: 20px;
+	}
 
-  .navbar-mobile {
-    display: none;
-  }
+	.navbar-mobile {
+		display: none;
+	}
 }
 
 
 /* =========================
-   MOBILE
-   ========================= */
+	 MOBILE
+	 ========================= */
 
 @media (max-width: 768px) {
-  .navbar-desktop {
-    display: none;
-  }
+	.navbar-desktop {
+		display: none;
+	}
 
-  .navbar-mobile {
-    display: flex;
-    position: relative;
-    z-index: 1000;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 15px 20px;
-  }
+	.navbar-mobile {
+		display: flex;
+		position: relative;
+		z-index: 1000;
+		justify-content: flex-end;
+		align-items: center;
+		padding: 15px 20px;
+	}
 
 
 
-  .hamburger {
-    font-size: 28px;
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
+	.hamburger {
+		font-size: 28px;
+		background: none;
+		border: none;
+		cursor: pointer;
+	}
 
-  .mobile-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+	.mobile-menu {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
 
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
 
-    padding: 20px;
+		padding: 20px;
 
-    z-index: 10;
+		z-index: 10;
 
-    background-color: grey;
-  }
+		background-color: grey;
+	}
 }
 
 

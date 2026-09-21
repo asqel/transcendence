@@ -23,42 +23,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-	window.addEventListener("auth:logout", logout);
+		set_name()
+		window.addEventListener("auth:logout", logout);
 
-	return () => {
-			window.removeEventListener("auth:logout", logout);
-		};
+		return () => {
+				window.removeEventListener("auth:logout", logout);
+			};
 	}, []);
 
-	async function get_name() {
+	async function set_name() {
 		const token = localStorage.getItem("access");
 		if (token){
 			try {
-			const data = await userApi.get_user();
-			setUser({ username: data.username  });
+				const data = await userApi.get_user();
+				setUser({ username: data.username  });
 			}
 			catch (error) {
-				setUser({ username: String(error) })
+				console.log("getName_error")
 			}
 		}
 		setLoading(false);
 	}
-
-	useEffect(() => {get_name()}, [])
 	
-	async function set_user() {
-		try {
-			const data = await userApi.get_user();
-			setUser({ username: data.username });
-		}
-		catch (error) {
-			setUser({ username: String(error) })
-		}
-	}
 
 	async function signin(username: string, password: string): Promise<void> {
 		await authApi.get_token(username, password);
-		await set_user();
+		await set_name();
 	};
 
 
