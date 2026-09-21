@@ -5,7 +5,6 @@ function About() {
 	return (
 		<div>
 			<h1>À propos</h1>
-			<h1>À propos</h1>
 
       <p>
 	    Bienvenue sur notre plateforme de Puissance 4 en ligne.
@@ -25,11 +24,6 @@ function About() {
       <Link to="/privacy-policy" className="privacy-link">
 	    Privacy Policy
       </Link>
-
-
-			<Link to="/privacy-policy" className="privacy-link">
-				Privacy Policy
-			</Link>
 		</div>
 	)
 }

@@ -26,7 +26,9 @@ if [ "$MODE" = "dev" ]; then
         }'
 else
     LOCATION_ROOT='location / {
-            try_files $uri $uri/ /index.html;
+            if (!-e \$request_filename) {
+                rewrite ^(.*)$ /index.html break;
+            }
         }'
 fi
 
@@ -72,16 +74,17 @@ NGINX_EOF
 
 rm -rf /var/www/html
 mkdir -p /var/www
-apk add --no-cache nodejs npm
-npm --prefix ./site install --legacy-peer-deps
 
-# --- build statique OU serveur de dev, selon le mode ---
-if [ "$MODE" = "dev" ]; then
-    npm --prefix ./site run dev -- --host 0.0.0.0 --port 5173 &
-else
-    npm --prefix ./site run build
-    cp -r site/dist /var/www/html
+if [ ! -d "site/dist" ]; then
+    echo "Error: site/dist not found. Build locally first:" >&2
+    echo "  cd ./src/frontend/site" >&2
+    echo "  npm install" >&2
+    echo "  npm run build" >&2
+    exit 1
 fi
+
+cp -r site/dist /var/www/html
+echo "Frontend ready. Serving from /var/www/html"
 
 mkdir -p /run/nginx
 nginx -g "daemon off;"

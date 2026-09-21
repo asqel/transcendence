@@ -15,6 +15,7 @@ import Play from './pages/Play.tsx'
 import Friends from './pages/Friends.tsx'
 import Achievements from './pages/Achievements.tsx'
 import ConfirmMail from './pages/ConfirmMail.tsx'
+import PrivacyPolicy from './pages/PrivacyPolicy.tsx';
 import Popups from './popups.tsx'
 import './App.css'
 
@@ -141,6 +142,7 @@ function AppRoutes() {
 		/>
 		<Route path="/profile/:username?" element={<PbProfile />} />
 		<Route path="/about" element={<About />} />
+		<Route path="/privacy-policy" element={<PrivacyPolicy />} />
 		<Route path="/contact" element={<Contact />} />
 		<Route path="/playerSearch" element={<PlayerSearch />} />
 		<Route path="/play/:partId?" element={<Play />} />
