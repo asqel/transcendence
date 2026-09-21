@@ -22,7 +22,6 @@ const OPC_WIN = 0x12 //(id)
 const OPC_WIN_SPEC = 0x14 //(name)
 const OPC_REMATCH = 0x13
 
-const OPC_ACHI = 0xe0
 
 function Play() {
 	const {t} = useTranslation()
@@ -58,7 +57,6 @@ function Play() {
 	const [rematchOp, setRemathOp] = useState<0|1>(0);
 	const turnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const [opAkf, setOpAkf] = useState<boolean>(false);
-	const [achievementPopup, setAchievementPopup] = useState<string | null>(null);
 
 	function sender(nb: number, val: string | number | null = null) {
 		const bytes: Array<number> = [];
@@ -170,10 +168,6 @@ function Play() {
 			setWiner(str);
 			setGameState("won");
 		}
-		else if (bytes[0] === OPC_ACHI) {
-			showAchievement(achievements[bytes[1]].name);
-			console.log(achievements[bytes[1]].name)
-		}
 	}
 
 	function handleCopy() {
@@ -282,13 +276,6 @@ function Play() {
 		}
 	}
 
-	function showAchievement(name: string) {
-	setAchievementPopup(name)
-
-	setTimeout(() => {
-		setAchievementPopup(null)
-	}, 4000)
-}
 
 
 	useEffect(() => {
@@ -368,19 +355,7 @@ function Play() {
 		)
 	}
 	return (
-		<div className="page">
-			{achievementPopup && (
-				<div className="achievement-popup">
-					<div className="achievement-popup-title">
-						🏆 Achievement débloqué !
-					</div>
-
-					<div className="achievement-popup-name">
-						{achievementPopup}
-					</div>
-				</div>
-			)}
-
+		<div className={`${partId ? "game-page" : "join-page"}`}>
 			{!partId && (
 				<>
 				<h1>Play</h1>
@@ -416,9 +391,12 @@ function Play() {
 
 			{partId && (
 				<div className="game-layout">
-					<button onClick={handleCopy}>Copy</button>
-					{!gameState && <button onClick={handleQuit}>{!opAkf ? "Forfait" : "Quitter"}</button>}
-					<div className="puissance4">
+					<div className="game-main">
+						<div className="game-controls">
+							<button onClick={handleCopy}>Copy</button>
+							{!gameState && <button onClick={handleQuit}>{!opAkf ? "Forfait" : "Quitter"}</button>}
+						</div>
+						<div className="puissance4">
 						{gameState && (
 							<div className="game-result-overlay">
 								<div className="game-result">
@@ -467,6 +445,7 @@ function Play() {
 						    		})}
 						    	</button>
 							))}
+						</div>
 						</div>
 					</div>
 					

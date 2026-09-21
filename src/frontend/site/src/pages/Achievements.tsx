@@ -122,7 +122,6 @@ function Achievements() {
 			{achievements.map((achievement, index) => {
 				const unlocked = achievementList[index]
 				const selected = index === selectedSkin
-			
 				return (
 					<button
 						key={index}
@@ -145,7 +144,6 @@ function Achievements() {
 							<h3>{achievement.name}</h3>
 							<p>{achievement.description}</p>
 						</div>
-						
 						{selected && (
 							<span className="achievement-check">✓</span>
 						)}

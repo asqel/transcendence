@@ -285,23 +285,26 @@ function Friends() {
 	return (
 		<div className="page">
 			<div className="friendslist">
-				<button onClick={() => openPopup("add")}>add friends</button>
-				<button onClick={() => openPopup("request")}>Show request</button>
-				{selectedFriend.current && (
-					<button onClick={handleDeleteFriend}>delete</button>
-				)}
-				{loadingFriendsList && (
-					<p>Loading...</p>
-				)}
-				{friendsList.length === 0 && (
-					<p>Aucun amis pour le moment</p>
-				)}
-				{friendsList.map((friend, i) => (
-					<button key={i} onClick={() => (handleSelectFriend(friend))} disabled={friend == selectedFriend.current}>{friend}</button>
-				))}
+				<div className="actions">
+					<button onClick={() => openPopup("add")}>add friends</button>
+					<button onClick={() => openPopup("request")}>Show request</button>
+					{selectedFriend.current && (
+						<button onClick={handleDeleteFriend}>delete</button>
+					)}
+				</div>
+				<div className="list">
+					{loadingFriendsList && (
+						<p>Loading...</p>
+					)}
+					{friendsList.length === 0 && (
+						<p>Aucun amis pour le moment</p>
+					)}
+					{friendsList.map((friend, i) => (
+						<button key={i} onClick={() => (handleSelectFriend(friend))} disabled={friend == selectedFriend.current}>{friend}</button>
+					))}
+				</div>
 			</div>
 			<div className="chatbox">
-				
 				<div className="chatbox-messages" ref={messagesContainerRef}>
 					{chatMessages.length === 0 && (
 						<p className="chatbox-empty">Aucun message pour l'instant.</p>
@@ -354,25 +357,13 @@ function Friends() {
 									{addFriendsError}
 								</p>
 							)}
-							
-							<div className="add-friends-actions">
-								<button
-									className="add-cancel-button"
-									onClick={() => closePopup()}
-									disabled={loadingAddFriends}
-								>
+
+							<div className="popups-actions">
+								<button className="popups-cancel-button" onClick={() => closePopup()} disabled={loadingAddFriends}>
 									Annuler
 								</button>
-								<button
-									className="add-confirm-button"
-									onClick={handleAddFriends}
-									disabled={loadingAddFriends}
-								>
-									{loadingAddFriends ?
-										("Adding...")
-										:
-										("Add friends")
-									}
+								<button className="popups-confirm-button" onClick={handleAddFriends} disabled={loadingAddFriends}>
+									{loadingAddFriends ? ("Adding...") : ("Add friends")}
 								</button>
 							</div>
 							</>
@@ -396,18 +387,13 @@ function Friends() {
 									<button onClick={() => handleFriendRequestResponse(0, name)}>X</button>
 								</div>
 							))}
-							<div className="add-friends-actions">
-								<button
-									className="add-cancel-button"
-									onClick={() => closePopup()}
-									disabled={loadingAddFriends}
-								>
+							<div className="popups-actions">
+								<button className="popups-cancel-button" onClick={() => closePopup()} disabled={loadingAddFriends}>
 									Annuler
 								</button>
 							</div>
 							</>
 						)}
-
 					</div>
 				</div>
 			)}
