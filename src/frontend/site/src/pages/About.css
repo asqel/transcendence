@@ -1,0 +1,13 @@
+.privacy-link {
+	display: block;
+	margin-top: 30px;
+	text-align: center;
+	font-size: 12px;
+	color: var(--text);
+	text-decoration: none;
+}
+
+.privacy-link:hover {
+	color: var(--accent);
+	text-decoration: underline;
+}

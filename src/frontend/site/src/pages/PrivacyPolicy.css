@@ -1,0 +1,21 @@
+.privacy-policy {
+	width: 100%;
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 40px 20px;
+	box-sizing: border-box;
+	text-align: left;
+}
+
+.privacy-policy h1 {
+	text-align: center;
+	margin-bottom: 30px;
+}
+
+.privacy-policy h2 {
+	margin-top: 30px;
+}
+
+.privacy-policy p {
+	margin-bottom: 15px;
+}

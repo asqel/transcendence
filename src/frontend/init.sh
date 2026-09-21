@@ -2,7 +2,7 @@
 set -e
 
 if [ ! -f "secrets/server.key" ] || [ ! -f "secrets/server.crt" ] ; then
-	echo "Error: Missing frontend server certificat or key" >&2 
+	echo "Error: Missing frontend server certificat or key" >&2
 	exit 1
 fi
 
@@ -14,7 +14,6 @@ cp secrets/* /etc/nginx/ssl/
 cp nginx/nginx.conf /etc/nginx/
 rm -rf /var/www/html/
 mkdir -p /var/www/
-
 
 apk add --no-cache nodejs npm
 npm --prefix ./site install --legacy-peer-deps
