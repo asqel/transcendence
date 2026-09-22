@@ -56,71 +56,70 @@ function Login() {
 	}
 
 	return (
-	<div>
-		<h1>{mode === 'signin' ? t("signin") : t("signup")}</h1>
+		<div>
+			<h1>{mode === 'signin' ? t("signin") : t("signup")}</h1>
 
-		<div className="mode-switch">
-		<button
-			type="button"
-			onClick={() => setMode('signin')}
-			className={mode === 'signin' ? 'active' : ''}
-		>
-			{t("signin")}
-		</button>
-		<button
-			type="button"
-			onClick={() => setMode('register')}
-			className={mode === 'register' ? 'active' : ''}
-		>
-			{t("signup")}
-		</button>
-		</div>
+			<div className="mode-switch">
+			<button
+				type="button"
+				onClick={() => setMode('signin')}
+				className={mode === 'signin' ? 'active' : ''}
+			>
+				{t("signin")}
+			</button>
+			<button
+				type="button"
+				onClick={() => setMode('register')}
+				className={mode === 'register' ? 'active' : ''}
+			>
+				{t("signup")}
+			</button>
+			</div>
 
-		<form onSubmit={handleSubmit} className="login-form">
-			<input
-				value={username}
-				onChange={(e) => setUsername(e.target.value)}
-				placeholder={t("username")}
-			/>
-			{mode === 'register' && (
+			<form onSubmit={handleSubmit} className="login-form">
 				<input
-					type="email"
-					value={email}
-					onChange={(e) => setEmail(e.target.value)}
-					placeholder={t("email")}
+					value={username}
+					onChange={(e) => setUsername(e.target.value)}
+					placeholder={t("username")}
+				/>
+				{mode === 'register' && (
+					<input
+						type="email"
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
+						placeholder={t("email")}
+						required
+					/>
+				)}
+
+				<input
+					type="password"
+					value={password}
+					onChange={(e) => setPassword(e.target.value)}
+					placeholder={t("password")}
 					required
 				/>
-			)}
 
-			<input
-				type="password"
-				value={password}
-				onChange={(e) => setPassword(e.target.value)}
-				placeholder={t("password")}
-				required
-			/>
+				{mode === 'register' && (
+					<input
+					type="password"
+					value={confirmPassword}
+					onChange={(e) => setConfirmPassword(e.target.value)}
+					placeholder={t("confirm_password")}
+					required
+					/>
+				)}
 
-			{mode === 'register' && (
-				<input
-				type="password"
-				value={confirmPassword}
-				onChange={(e) => setConfirmPassword(e.target.value)}
-				placeholder={t("confirm_password")}
-				required
-				/>
-			)}
-
-			<button type="submit" disabled={loading}>
-				{loading
-				? '...'
-				: mode === 'signin'
-				? t("signin")
-				: t("signup")}
-			</button>
-
-			{error && <p className="login-error">{error}</p>}
-		</form>
-	</div>
+				<button type="submit" disabled={loading}>
+					{loading
+					? '...'
+					: mode === 'signin'
+					? t("signin")
+					: t("signup")}
+				</button>
+				{error && <p className="login-error">{error}</p>}
+			</form>
+		</div>
 	)
 }
 

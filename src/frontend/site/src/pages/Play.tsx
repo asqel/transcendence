@@ -392,10 +392,6 @@ function Play() {
 			{partId && (
 				<div className="game-layout">
 					<div className="puissance4">
-						<div className="game-controls">
-							<button onClick={handleCopy}>Copy</button>
-							{!gameState && <button onClick={handleQuit}>{!opAkf ? "Forfait" : "Quitter"}</button>}
-						</div>
 						{gameState && (
 							<div className="game-result-overlay">
 								<div className="game-result">
@@ -443,31 +439,35 @@ function Play() {
 							))}
 						</div>
 					</div>
-					
-
-					<div className="chatbox">
-						<div className="chatbox-messages" ref={messagesContainerRef}>
-							{chatMessages.length === 0 && (
-								<p className="chatbox-empty">Aucun message pour l'instant.</p>
-							)}
-							{chatMessages.map((msg, i) => (
-								<p key={i} className="chatbox-message">{msg}</p>
-							))}
+					<div className="actions">
+						<div className="game-controls">
+							<button onClick={handleCopy}>Copy</button>
+							{!gameState && <button onClick={handleQuit}>{!opAkf ? "Forfait" : "Quitter"}</button>}
 						</div>
-						<div className="chatbox-input-row">
-							<input
-								type="text"
-								value={chatInput}
-								onChange={(e) => setChatInput(e.target.value)}
-								onKeyDown={(e) => {
-									if (e.key === "Enter") handleSendChat()
-								}}
-								placeholder="Écrire un message..."
-								className="input"
-							/>
-							<button onClick={handleSendChat}>
-								Envoyer
-							</button>
+						<div className="game-chatbox">
+							<div className="chatbox-messages" ref={messagesContainerRef}>
+								{chatMessages.length === 0 && (
+									<p className="chatbox-empty">Aucun message pour l'instant.</p>
+								)}
+								{chatMessages.map((msg, i) => (
+									<p key={i} className="chatbox-message">{msg}</p>
+								))}
+							</div>
+							<div className="chatbox-input-row">
+								<input
+									type="text"
+									value={chatInput}
+									onChange={(e) => setChatInput(e.target.value)}
+									onKeyDown={(e) => {
+										if (e.key === "Enter") handleSendChat()
+									}}
+									placeholder="Écrire un message..."
+									className="input"
+								/>
+								<button onClick={handleSendChat}>
+									Envoyer
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>

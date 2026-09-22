@@ -135,7 +135,6 @@ function App() {
 				<div className="app">
 					<Navigation />
 					<Popups />
-
 					<main className="app-content">
 						<AppRoutes />
 					</main>
