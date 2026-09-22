@@ -3,7 +3,7 @@ import json
 import api
 
 
-class Consumer(WebsocketConsumer):
+class GameConsumer(WebsocketConsumer):
 
 	def connect(self):
 		self.accept()

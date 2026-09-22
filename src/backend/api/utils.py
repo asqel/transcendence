@@ -17,11 +17,11 @@ def is_username_valid(name: str):
 	if (len(name) < 3 or len(name) > 12):
 		return False
 
-	if (name[0] == ' ' or  name[0] == '/' or name[-1] == ' '):
+	if (name[0] == ' ' or name[0] == '/' or name[-1] == ' '):
 		return False
 	
 	for i in name:
-		if (i in ":;'\"@" or ord(i) >= 127 or ord(i) < 32):
+		if (i in ":;'\"@/" or ord(i) >= 127 or ord(i) < 32):
 			return False
 	if ("  " in name):
 		return False
