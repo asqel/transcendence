@@ -123,7 +123,7 @@ def do_leave(ws, data):
 	if (ws.player):
 		ws.player.asked_leave = True
 	if (ws.game):
-		ws.game.on_disco(ws)
+		on_disco(ws, 0)
 		ws.game = None
 		ws.player = None
 		ws.user = None
@@ -131,7 +131,6 @@ def do_leave(ws, data):
 def on_disco(ws, close_code):
 	if (ws.game):
 		ws.game.on_disco(ws)
-
 	if (ws.user is not None):
 		api.tmp.set(ws.user, "websocket", None)
 
@@ -145,6 +144,7 @@ def ws_auth_user(ws, data: bytes):
 	except:
 		return send(ws, OPC_AUTH, "b", OPC_ERR_GENERAL)
 	
+	api.utils.log(api.tmp.get(ws.user, "websocket"), ws, "CC")
 	if (api.tmp.get(ws.user, "websocket")):
 		ws.user = None
 		return send(ws, OPC_AUTH, "b", OPC_ERR_ALREADY_2)
@@ -499,7 +499,7 @@ class Game:
 			else:
 				winner_stats.streak += 1
 				if (winner_stats.streak >= 5):
-					api.ach.gain(winner, api.ach.ACH_WIN_STREAK)
+					api.ach.gain(winner.user, api.ach.ACH_WIN_STREAK)
 
 			looser_stats.number_loss += 1
 			looser_stats.number_placed += looser.number_placed
@@ -508,20 +508,20 @@ class Game:
 			else:
 				looser_stats.streak -= 1
 				if (looser_stats.streak <= 5):
-					api.ach.gain(looser, api.ach.ACH_POOP)
+					api.ach.gain(looser.user, api.ach.ACH_POOP)
 
 			if (7 <= timezone.now().hour < 20):
-				api.ach.gain(winner, api.ach.ACH_SUN)
+				api.ach.gain(winner.user, api.ach.ACH_SUN)
 			else:
-				api.ach.gain(winner, api.ach.ACH_MOON)
+				api.ach.gain(winner.user, api.ach.ACH_MOON)
 				
 			winner_stats.elo, looser_stats.elo = compute_elo(winner_stats.elo, looser_stats.elo, 1)
 
 			winner_stats.save()
 			looser_stats.save()
 		else:
-			stats1 = Stats.objects.filter(user=self.player_1).filter()
-			stats2 = Stats.objects.filter(user=self.player_2).filter()
+			stats1 = Stats.objects.filter(user=self.player_1.user).filter()
+			stats2 = Stats.objects.filter(user=self.player_2.user).filter()
 
 			stats1.streak = 0
 			stats2.streak = 0

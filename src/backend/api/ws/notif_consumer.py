@@ -41,12 +41,14 @@ class NotifConsumer(WebsocketConsumer):
 		except Exception as e:
 			api.utils.log(e)
 			return self.send(bytes_data=b'\xFF');
+	def send_ach_notif(self, ach):
+		self.send(bytes_data=b'\x00' + ach.to_bytes(1, "little"))
+
+	def send_friend_req(self, username):
+		self.send(bytes_data=b'\x01' + username.encode(encoding="utf-8"))
 
 	def send_msg_notif(self, username):
-		self.send(bytes_data=b'\x00' + username.encode(encoding="utf-8"))
+		self.send(bytes_data=b'\x02' + username.encode(encoding="utf-8"))	
 	
-	def send_ach_notif(self, ach):
-		self.send(bytes_data=b'\x01' + ach.to_bytes(1, "little"))
-		
-	def send_friend_req(self, username):
-		self.send(bytes_data=b'\x02' + username.encode(encoding="utf-8"))
+	def send_req_accept(self, username):
+		self.send(bytes_data=b'\x03' + username.encode(encoding='utf-8'))

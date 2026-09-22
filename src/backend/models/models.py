@@ -46,7 +46,6 @@ class Friendness(models.Model):
 class FriendRequest(models.Model):
 	from_who = models.ForeignKey(User, on_delete=models.CASCADE, related_name="from_who")
 	to_who = models.ForeignKey(User, on_delete=models.CASCADE, related_name="to_who")
-	state = models.IntegerField(default=0, choices=[(0, "pending"), (1, "rejected")])
 	
 class FriendMessage(models.Model):
 	lesser = models.ForeignKey(User, on_delete=models.CASCADE, related_name="message_lesser")
