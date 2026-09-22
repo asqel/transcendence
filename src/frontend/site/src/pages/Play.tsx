@@ -462,7 +462,6 @@ function Play() {
 										if (e.key === "Enter") handleSendChat()
 									}}
 									placeholder="Écrire un message..."
-									className="input"
 								/>
 								<button onClick={handleSendChat}>
 									Envoyer
