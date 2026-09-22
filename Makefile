@@ -11,6 +11,9 @@ run:
 frontend:
 	$(DOCK_CMD) up frontend
 
+dev:
+	$(DOCK_CMD_DEV) up
+
 dev-front:
 	$(DOCK_CMD_DEV) up frontend
 

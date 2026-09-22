@@ -355,7 +355,7 @@ function Play() {
 		)
 	}
 	return (
-		<div className={`${partId ? "game-page" : "join-page"}`}>
+		<div className="page">
 			{!partId && (
 				<>
 				<h1>Play</h1>
@@ -391,12 +391,11 @@ function Play() {
 
 			{partId && (
 				<div className="game-layout">
-					<div className="game-main">
+					<div className="puissance4">
 						<div className="game-controls">
 							<button onClick={handleCopy}>Copy</button>
 							{!gameState && <button onClick={handleQuit}>{!opAkf ? "Forfait" : "Quitter"}</button>}
 						</div>
-						<div className="puissance4">
 						{gameState && (
 							<div className="game-result-overlay">
 								<div className="game-result">
@@ -411,9 +410,7 @@ function Play() {
 									>
 										{t("rematch")} {rematchSelf + rematchOp} / 2
 									</button>
-
 								)}
-
 								<button onClick={handleQuit}>
 									{t("quit")}
 								</button>
@@ -430,7 +427,6 @@ function Play() {
 						    		{Array.from({ length: 6 }).map((_, row) => {
 						    			const index = row * 7 + column;
 						    			const player = board[index];
-										
 						    			return (
 						    				<div key={index} className="puissance4-cell">
 						    					{player !== 0 && (
@@ -445,7 +441,6 @@ function Play() {
 						    		})}
 						    	</button>
 							))}
-						</div>
 						</div>
 					</div>
 					

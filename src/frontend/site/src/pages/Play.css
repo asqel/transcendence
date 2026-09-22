@@ -1,484 +1,243 @@
-/* =========================================================
-   PAGE
-   ========================================================= */
-
-h1 {
-  margin: 8px 0;
-  flex-shrink: 0;
-}
-
 .page {
-  box-sizing: border-box;
-  width: 100%;
+	    width: 100%;
+    flex: 1;
 }
 
-.join-page {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-/* =========================================================
-   PAGE DE CONNEXION / CRÉATION
-   ========================================================= */
-
+/*join section*/
 .content {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 32px;
-  margin-top: 24px;
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	gap: 32px;
+	margin-top: 24px;
 }
 
 .join-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
 }
 
-
-/* =========================================================
-   ÉLÉMENTS GÉNÉRAUX
-   ========================================================= */
-
-.input {
-  padding: 10px 14px;
-  font-size: 15px;
-  border: 1px solid #2a2d34;
-  border-radius: 8px;
-  background-color: #1a1c22;
-  color: #f5f5f5;
-  outline: none;
+.join-section .input {
+	padding: 10px 14px;
+	font-size: 15px;
+	border: 1px solid #2a2d34;
+	border-radius: 8px;
+	background-color: #1a1c22;
+	color: #f5f5f5;
+	outline: none;
 }
 
-button {
-  padding: 10px 18px;
-  font-size: 14px;
-  font-weight: 600;
-  border: 1px solid #2a2d34;
-  border-radius: 8px;
-  background-color: #2563eb;
-  color: #f5f5f5;
-  cursor: pointer;
-}
-
-button:disabled {
-  background-color: #2a2d34;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.ws-error {
-  color: #f87171;
-  font-size: 16px;
-}
-
-
-/* =========================================================
-   LAYOUT DU JEU
-   ========================================================= */
+/*game section*/
 
 .game-layout {
-  flex: 1;
-  min-width: 0;
-  min-height: 0;
-  width: 100%;
+	width: 100%;
+    height: 100%;
 
-  display: flex;
-  align-items: center;
-  gap: 12px;
+	flex: 1;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 12px;
+	box-sizing: border-box;
 }
 
-.game-main {
-  flex: 1 1 0;
-  min-width: 0;
-  min-height: 0;
+.puissance4 {
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  overflow: hidden;
+	    height: 100%;
+    max-height: 100%;
+	display: flex;
+	flex-direction: column;
+
+	justify-content: center;
+	flex: 0 1 auto;
+
+	
+    flex: 0 1 auto;
+    aspect-ratio: 7 / 6;
 }
 
 .game-controls {
-  display: flex;
-  flex-shrink: 0;
-  gap: 12px;
+	display: flex;
+	flex-direction: row;
+	gap: 12px;
 }
-
-.game-page {
-  height: 100%;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-
-/* =========================================================
-   PUISSANCE 4
-   ========================================================= */
-
-.puissance4 {
-  position: relative;
-
-  flex: 0 0 auto;
-  min-width: 0;
-  min-height: 0;
-
-  box-sizing: border-box;
-  padding: 12px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  border: 1px solid #2a2d34;
-  border-radius: 12px;
-
-  background-color: #3a4ee9;
-}
-
-
-/* =========================================================
-   PLATEAU
-   ========================================================= */
 
 .puissance4-board {
-  width: min(
-    100%,
-    calc((100dvh - 160px) * 7 / 6)
-  );
+    width: 100%;
+    height: 100%;
 
-  max-width: 100%;
-  aspect-ratio: 7 / 6;
+    box-sizing: border-box;
 
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: clamp(2px, 0.5vw, 8px);
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.3%;
+
+    background-color: #3a4ee9;
+    border-radius: 10px;
+    padding: 10px;
+	
 }
 
-
-/* =========================================================
-   COLONNES
-   ========================================================= */
-
 .puissance4-column {
-  min-width: 0;
-  min-height: 0;
 
-  display: grid;
-  grid-template-rows: repeat(6, 1fr);
-  gap: clamp(2px, 0.5vw, 8px);
+	display: grid;
+	grid-template-rows: repeat(6, 1fr);
+	gap: 0.3%;
 
-  padding: 0;
-  margin: 0;
+	padding: 0;
+	margin: 0;
 
-  border: none;
-  background: transparent;
+	border: none;
+	background: transparent;
 
-  cursor: pointer;
+	cursor: pointer;
 }
 
 .puissance4-column:hover {
-  background: #ffffff9e;
-  transform: none;
+	background: #ffffff9e;
+	transform: none;
 }
 
 .puissance4-column:disabled {
-  background: transparent;
-  cursor: default;
+	background: transparent;
+	cursor: default;
 }
 
-
-/* =========================================================
-   CELLULES
-   ========================================================= */
 
 .puissance4-cell {
-  width: 100%;
-  height: 100%;
-  aspect-ratio: 1;
+	width: 100%;
+	height: 100%;
+	aspect-ratio: 1;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 
-  border-radius: 50%;
-  background-color: #0f1115;
+	border-radius: 50%;
+	background-color: #0f1115;
 }
 
-
-/* =========================================================
-   PIONS
-   ========================================================= */
-
 .puissance4-piece {
-  width: 80%;
-  height: 80%;
+	width: 80%;
+	height: 80%;
 
-  border-radius: 50%;
-  image-rendering: pixelated;
+	border-radius: 50%;
+	image-rendering: pixelated;
 
-  animation: pieceDrop 0.35s ease-out;
+	animation: pieceDrop 0.35s ease-out;
 }
 
 .puissance4-piece.player-1 {
-  filter: sepia(1) saturate(8) hue-rotate(320deg);
+	filter: sepia(1) saturate(8) hue-rotate(320deg);
 }
 
 .puissance4-piece.player-2 {
-  filter: sepia(1) saturate(8) hue-rotate(10deg);
+	filter: sepia(1) saturate(8) hue-rotate(10deg);
 }
 
-
-/* =========================================================
-   ANIMATION
-   ========================================================= */
 
 @keyframes pieceDrop {
-  from {
-    transform: translateY(-260px);
-  }
+	from {
+		transform: translateY(-260px);
+	}
 
-  to {
-    transform: translateY(0);
-  }
+	to {
+		transform: translateY(0);
+	}
 }
 
 
-/* =========================================================
-   RÉSULTAT
-   ========================================================= */
+/*result section*/
 
 .game-result-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
+	position: absolute;
+	inset: 0;
+	z-index: 3;
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 20px;
 
-  border-radius: 12px;
-  background-color: rgba(0, 0, 0, 0.55);
+	border-radius: 12px;
+	background-color: rgba(0, 0, 0, 0.55);
 
-  pointer-events: none;
+	pointer-events: none;
 }
 
 .game-result-overlay button {
-  pointer-events: auto;
+	pointer-events: auto;
 }
 
 .game-result {
-  font-size: clamp(28px, 5vw, 64px);
-  font-weight: 800;
-  color: white;
-  text-align: center;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+	font-size: clamp(28px, 5vw, 64px);
+	font-weight: 800;
+	color: white;
+	text-align: center;
+	text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
 }
 
 
-/* =========================================================
-   CHAT
-   ========================================================= */
+/*chat section*/
 
 .chatbox {
-  flex: 0 0 30%;
-  min-width: 0;
-  min-height: 0;
+    flex: 0 0 30%;
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
 
-  height: 100%;
-  max-height: none;
+    box-sizing: border-box;
 
-  box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 
-  display: flex;
-  flex-direction: column;
-  align-self: center;
+    border: 1px solid #2a2d34;
+    border-radius: 8px;
 
-  border: 1px solid #2a2d34;
-  border-radius: 8px;
-
-  background-color: #1a1c22;
+    background-color: #1a1c22;
 }
 
 
-/* =========================================================
-   MESSAGES
-   ========================================================= */
-
 .chatbox-messages {
-  flex: 1;
-  min-height: 0;
+	flex: 1;
+	min-height: 0;
 
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
 
-  overflow-y: auto;
-  padding: 10px 12px;
+	overflow-y: auto;
+	padding: 10px 12px;
 }
 
 .chatbox-message {
-  margin: 0;
-  max-height: 600px;
+	margin: 0;
+	max-height: 600px;
 
-  color: #f5f5f5;
-  font-size: 13px;
+	color: #f5f5f5;
+	font-size: 13px;
 
-  overflow-wrap: break-word;
+	overflow-wrap: break-word;
 }
 
 .chatbox-empty {
-  margin: 0;
-  color: #8b8f98;
-  font-size: 13px;
+	margin: 0;
+	color: #8b8f98;
+	font-size: 13px;
 }
 
-
-/* =========================================================
-   INPUT CHAT
-   ========================================================= */
-
 .chatbox-input-row {
-  display: flex;
-  gap: 8px;
+	display: flex;
+	gap: 8px;
 
-  padding: 10px;
-  border-top: 1px solid #2a2d34;
+	padding: 10px;
+	border-top: 1px solid #2a2d34;
 }
 
 .chatbox-input-row .input {
-  flex: 1;
-  min-width: 0;
-}
-
-
-/* =========================================================
-   ÉCRANS HORIZONTAUX
-   ========================================================= */
-
-@media (min-aspect-ratio: 2 / 3) {
-
-  .game-layout {
-    min-height: 0;
-    align-items: stretch;
-    overflow: hidden;
-  }
-
-  .puissance4 {
-    flex: 0 1 auto;
-    min-height: 0;
-    max-height: 100%;
-    width: min(
-      100%,
-      calc((100dvh - 180px) * 7 / 6 + 24px)
-    );
-  }
-
-
-  /* -------------------------------------------------------
-     PLATEAU
-     ------------------------------------------------------- */
-
-  .puissance4-board {
-    width: 100%;
-    max-height: 100%;
-  }
-
-
-  /* -------------------------------------------------------
-     CHAT
-     ------------------------------------------------------- */
-
-  .chatbox {
-    flex: 0 0 30%;
-    align-self: stretch;
-    min-height: 0;
-    height: auto;
-    max-height: none;
-  }
-}
-
-
-/* =========================================================
-   ÉCRANS VERTICAUX
-   ========================================================= */
-
-@media (max-aspect-ratio: 2 / 3) {
-
-  .page {
-    padding: 8px;
-  }
-
-  .game-layout {
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  .game-main {
-    flex: 1 1 0;
-    width: 100%;
-  }
-
-
-  /* -------------------------------------------------------
-     BOUTONS
-     ------------------------------------------------------- */
-
-  .game-controls {
-    align-self: center;
-  }
-
-  .game-controls button {
-    position: static;
-    transform: none;
-    margin: 0;
-  }
-
-
-  /* -------------------------------------------------------
-     PUISSANCE 4
-     ------------------------------------------------------- */
-
-  .puissance4 {
-    flex: 1 1 0;
-    align-self: center;
-    width: min(100%, calc((100% - 210px) * 7 / 6 + 24px));
-  }
-
-
-  /* -------------------------------------------------------
-     PLATEAU
-     ------------------------------------------------------- */
-
-  .puissance4-board {
-    width: min(
-      100%,
-      calc((100% - 210px) * 7 / 6)
-    );
-
-    max-height: 100%;
-  }
-
-
-  /* -------------------------------------------------------
-     CHAT
-     ------------------------------------------------------- */
-
-  .chatbox {
-    flex: 0 0 27%;
-    width: 100%;
-    height: auto;
-    max-height: none;
-  }
+	flex: 1;
+	min-width: 0;
 }

@@ -289,7 +289,7 @@ function Friends() {
 					<button onClick={() => openPopup("add")}>add friends</button>
 					<button onClick={() => openPopup("request")}>Show request</button>
 					{selectedFriend.current && (
-						<button onClick={handleDeleteFriend}>delete</button>
+						<button className="delete" onClick={handleDeleteFriend}>delete</button>
 					)}
 				</div>
 				<div className="list">
@@ -304,7 +304,7 @@ function Friends() {
 					))}
 				</div>
 			</div>
-			<div className="chatbox">
+			<div className="friends-chatbox">
 				<div className="chatbox-messages" ref={messagesContainerRef}>
 					{chatMessages.length === 0 && (
 						<p className="chatbox-empty">Aucun message pour l'instant.</p>

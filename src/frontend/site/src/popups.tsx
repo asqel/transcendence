@@ -6,6 +6,7 @@ import "./popups.css"
 const OPC_ACHIVEMENTS_NOTIF = 0x00;
 const OPC_FRIEND_REQUEST_NOTIF = 0x01;
 const OPC_CHAT_NOTIF = 0x02;
+const OPC_FRIEND_REQUEST_ACCEPT = 0x03;
 
 function Popups() {
 	const { user } = useAuth()
@@ -51,7 +52,10 @@ function Popups() {
 		else if (bytes[0] === OPC_CHAT_NOTIF) {
 			const decoder = new TextDecoder();
 			const str = decoder.decode(bytes.subarray(1));
-			showAchievement(OPC_CHAT_NOTIF, str);
+			showAchievement(OPC_CHAT_NOTIF, str);2
+		}
+		else if (bytes[0] === OPC_FRIEND_REQUEST_ACCEPT) {
+			window.dispatchEvent(new Event("friends:addedFriends"));
 		}
 	}
 

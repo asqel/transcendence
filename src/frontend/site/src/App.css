@@ -5,7 +5,7 @@ STRUCTURE DE L'APPLICATION
 .app {
 	width: 100%;
 	min-width: 0;
-	height: 100svh;
+	height: 100dvh;
 	min-height: 0;
 	box-sizing: border-box;
 
@@ -49,68 +49,16 @@ nav a:hover {
 	 DESKTOP
 	 ========================= */
 
-@media (orientation: landscape) {
-	.navbar-desktop {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 15px 30px;
-	}
-
-	.nav-left,
-	.nav-right {
-		display: flex;
-		align-items: center;
-		gap: 20px;
-	}
-
-	.navbar-mobile {
-		display: none;
-	}
+.navbar-desktop {
+	display: flex;
+	flex-shrink: 0;
+	justify-content: space-between;
+	align-items: center;
+	padding: 15px 30px;
 }
-
-
-/* =========================
-	 MOBILE
-	 ========================= */
-
-@media (orientation: portrait) {
-	.navbar-desktop {
-		display: none;
-	}
-
-	.navbar-mobile {
-		display: flex;
-		position: relative;
-		z-index: 1000;
-		justify-content: flex-end;
-		align-items: center;
-		padding: 15px 20px;
-	}
-
-
-
-	.hamburger {
-		font-size: 28px;
-		background: none;
-		border: none;
-		cursor: pointer;
-	}
-
-	.mobile-menu {
-		display: flex;
-		flex-direction: column;
-		gap: 20px;
-
-		position: absolute;
-		top: 100%;
-		left: 0;
-		right: 0;
-
-		padding: 20px;
-
-		z-index: 10;
-
-		background-color: grey;
-	}
+.nav-left,
+.nav-right {
+	display: flex;
+	align-items: center;
+	gap: 20px;
 }

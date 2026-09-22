@@ -20,7 +20,6 @@ import './App.css'
 
 function Navigation() {
 	const { user, logout } = useAuth()
-	const [menuOpen, setMenuOpen] = useState(false);
 	const { i18n } = useTranslation();
 
 	function handleChangeLang(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -28,7 +27,6 @@ function Navigation() {
 	}
 
   return (
-		<>
 		<nav className="navbar-desktop">
 			<div className="nav-left">
     		    <Link to="/">Accueil</Link>
@@ -61,31 +59,6 @@ function Navigation() {
 				</select>
     		</div>
 		</nav>
-    	<nav className="navbar-mobile">
-  			<button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>☰</button>
-    		{menuOpen && (
-				<div className="mobile-menu">
-					<Link to="/" onClick={() => setMenuOpen(false)}>Accueil</Link>
-					<Link to="/about" onClick={() => setMenuOpen(false)}>À propos</Link>
-					<Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
-					<Link to="/playerSearch" onClick={() => setMenuOpen(false)}>PlayerSearch</Link>
-					<Link to="/play" onClick={() => setMenuOpen(false)}>Play</Link>
-					
-					{user ? (
-						<>
-						<Link to="/achievements" onClick={() => setMenuOpen(false)}>Achievements</Link>
-						<Link to="/friends" onClick={() => setMenuOpen(false)}>Friends</Link>
-						<Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
-						<span>Bonjour, {user.username}</span>
-						<button onClick={() => {logout(); setMenuOpen(false)}}>Déconnexion</button>
-						</>
-					) : (
-						<Link to="/login" onClick={() => setMenuOpen(false)}>Connexion</Link>
-					)}
-				</div>
-			)}
-		</nav>
-		</>
 	);
 }
 

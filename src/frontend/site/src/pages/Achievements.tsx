@@ -125,12 +125,7 @@ function Achievements() {
 				return (
 					<button
 						key={index}
-						type="button"
-						className={`achievement
-							${selected ? "achievement-selected" : ""}
-							${!unlocked ? "achievement-locked" : ""}
-
-						`}
+						className={`achievement ${selected ? "achievement-selected" : ""}`}
 						onClick={() => handleSelectSkin(index)}
 						disabled={!unlocked || loadingSkin !== null}
 					>

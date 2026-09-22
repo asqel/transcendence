@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 export default function ProfilePage() {
 	const {t} = useTranslation()
 
-	const { username } = useParams(); // récupère "toto" si l'URL est /profile/toto
+	const { username } = useParams();
 	const [player, setPlayer] = useState<UserResponse | null>(null);
 	const [error, setError] = useState<string|null>(null);
 
