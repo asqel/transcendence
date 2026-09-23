@@ -22,10 +22,10 @@ export interface UserResponse {
 	bio: string;
 	country: string;
 	join_date: string;
+	streak: number;
 	win_count: number;
 	loss_count: number;
 	placed: number;
-	streak: number;
 }
 
 export interface SkinResponse {

@@ -10,84 +10,76 @@ function Login() {
 
 	const {t} = useTranslation()
 
-	const [mode, setMode] = useState<'signin' | 'register'>('signin')
+	const [mode, setMode] = useState<"signin" | "register">("signin")
 
-	const [username, setUsername] = useState('')
-	const [email, setEmail] = useState('')
-	const [password, setPassword] = useState('')
-	const [confirmPassword, setConfirmPassword] = useState('')
+	const [username, setUsername] = useState<string>("")
+	const [email, setEmail] = useState<string>("")
+	const [password, setPassword] = useState<string>("")
+	const [confirmPassword, setConfirmPassword] = useState<string>("")
 
-	const [error, setError] = useState('')
-	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState<string>("")
+	const [loading, setLoading] = useState<boolean>(false)
 
 	const { signin } = useAuth()
 	const navigate = useNavigate()
 
 	async function handleSubmit (e: React.SubmitEvent<HTMLFormElement>) {
-	e.preventDefault()
-	setError('')
-	setLoading(true)
+		e.preventDefault()
+		setError('')
+		setLoading(true)
 
-	try {
-		if (mode === 'signin') {
-			await signin(username, password)
+		try {
+			if (mode === 'signin') {
+				await signin(username, password)
+			}
+			else {
+				if (password !== confirmPassword)
+					throw(462)
+				await authApi.create_account(username, password, email)
+				await signin(username, password)
+			}
+			navigate('/')
 		}
-		else {
-			if (password !== confirmPassword)
-				throw new Error(t("error.pass_not_match"))
-			await authApi.create_account(username, password, email)
-			await signin(username, password)
+		catch (err) {
+			setError(t(`login-page.error.${err}`, {defaultValue: t("error.defaut")}))
 		}
-		navigate('/')
-	}
-	catch (err) {
-		if (err === 409)
-			setError(t("error.username_already_used"))
-		else if (err === 460)
-			setError(t("error.incorrect_username"))
-		else if (err === 461)
-			setError(t("error.pass_weak"))
-		else
-			setError(t("error.wrong"))
-	}
-	finally {
-		setLoading(false)
-	}
+		finally {
+			setLoading(false)
+		}
 	}
 
 	return (
-		<div>
-			<h1>{mode === 'signin' ? t("signin") : t("signup")}</h1>
-
+		<div className='page-login'>
 			<div className="mode-switch">
-			<button
-				type="button"
-				onClick={() => setMode('signin')}
-				className={mode === 'signin' ? 'active' : ''}
-			>
-				{t("signin")}
-			</button>
-			<button
-				type="button"
-				onClick={() => setMode('register')}
-				className={mode === 'register' ? 'active' : ''}
-			>
-				{t("signup")}
-			</button>
+				<button
+					type="button"
+					onClick={() => setMode('signin')}
+					className={mode === 'signin' ? 'active' : ''}
+				>
+					{t("login-page.signin")}
+				</button>
+				<button
+					type="button"
+					onClick={() => setMode('register')}
+					className={mode === 'register' ? 'active' : ''}
+				>
+					{t("login-page.signup")}
+				</button>
 			</div>
 
 			<form onSubmit={handleSubmit} className="login-form">
 				<input
 					value={username}
 					onChange={(e) => setUsername(e.target.value)}
-					placeholder={t("username")}
+					placeholder={t("login-page.username")}
+					required
 				/>
 				{mode === 'register' && (
 					<input
 						type="email"
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
-						placeholder={t("email")}
+						placeholder={t("login-page.email")}
 						required
 					/>
 				)}
@@ -96,7 +88,7 @@ function Login() {
 					type="password"
 					value={password}
 					onChange={(e) => setPassword(e.target.value)}
-					placeholder={t("password")}
+					placeholder={t("login-page.password")}
 					required
 				/>
 
@@ -105,7 +97,7 @@ function Login() {
 					type="password"
 					value={confirmPassword}
 					onChange={(e) => setConfirmPassword(e.target.value)}
-					placeholder={t("confirm_password")}
+					placeholder={t("login-page.confirm_password")}
 					required
 					/>
 				)}
@@ -114,8 +106,8 @@ function Login() {
 					{loading
 					? '...'
 					: mode === 'signin'
-					? t("signin")
-					: t("signup")}
+					? t("login-page.to_signin")
+					: t("login-page.to_signup")}
 				</button>
 				{error && <p className="login-error">{error}</p>}
 			</form>

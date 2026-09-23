@@ -130,10 +130,8 @@ function Profile() {
 	return (
 		<div className="profile-page">
 			<h1>Mon profil</h1>
-
 			<section className="profile-section">
 				<p><strong>Pseudo :</strong> {self.username}</p>
-
 				<p>
 					<strong>Email :</strong> {self.email}
 					{!self.email_confirmed && (
@@ -145,9 +143,7 @@ function Profile() {
 						</button>
 					)}
 				</p>
-
 				<p><strong>Bio :</strong></p>
-
 				<textarea
 					className="bio-textarea"
 					value={bio}
@@ -155,9 +151,7 @@ function Profile() {
 					onKeyDown={handleBioKeyDown}
 					maxLength={100}
 				/>
-
 				<p className="bio-counter">{bio.length} / 100</p>
-
 				<select className="country-select" value={country} onChange={handleCountryChange}>
 						{countries.map((c) => (
 							<option key={c.code} value={c.code}>
@@ -166,10 +160,8 @@ function Profile() {
 						))}
 				</select>
 			</section>
-
 			<section className="danger-zone">
 				<h2>Zone dangereuse</h2>
-
 				<button
 					className="delete-account-button"
 					onClick={openDeletePopup}
@@ -178,6 +170,7 @@ function Profile() {
 					Supprimer mon compte
 				</button>
 			</section>
+			
 
 			{/* POPUP DE SUPPRESSION */}
 			{showDeletePopup && (

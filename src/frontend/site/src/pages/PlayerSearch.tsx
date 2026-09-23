@@ -13,20 +13,22 @@ export default function UserSearchPage() {
 	const navigate = useNavigate()
 
 	async function handleSearch() {
+		if (!query.trim() || error)
+			return
 		try {
-			await globalApi.get_user(query);
+			await globalApi.get_user(query.trim());
 			navigate(`/profile/${encodeURIComponent(query.trim())}`);
 		}
 		catch (err) {
 			if (err == 404)
-				setError("Not found")
+				setError(t("player_search-page.error.not_found"))
 		}
 	}
 
 
 	return (
 			<div className="container">
-				<h1 className="title">{t("text.find_player")}</h1>
+				<h1 className="title">{t("player_search-page.find_player")}</h1>
 					<div className="search-wrapper">
 						<input
 							value={query}
@@ -34,13 +36,13 @@ export default function UserSearchPage() {
 							onKeyDown={(e) => {
 							if (e.key === "Enter") handleSearch()
 							}}
-							placeholder={t("text.player_name")}
+							placeholder={t("player_search-page.username")}
 							className="input"
 						/>
+						<button onClick={handleSearch}>{t("player_search-page.find")}</button>
 						{error && (
-							<p>{error}</p>
+							<p className="search-error">{error}</p>
 						)}
-						<button onClick={handleSearch}>{t("text.find")}</button>
 					</div>
 		</div>
 	);

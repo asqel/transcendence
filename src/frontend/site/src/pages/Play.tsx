@@ -338,50 +338,57 @@ function Play() {
 
 	if (wsError) {
 		return (
-			<div className="page">
+			<div className="page-play">
 				<p className="ws-error">
-					Impossible de se connecter au serveur. Réessaie plus tard.
+					{t("error.ws-error")}
 				</p>
 			</div>
 		)
 	}
 	if (!connected) {
 		return (
-			<div className="page">
+			<div className="page-play">
 				<p>
-					Loading
+					{t("loading")}
 				</p>
 			</div>
 		)
 	}
 	return (
-		<div className="page">
+		<div className="page-play">
 			{!partId && (
 				<>
-				<h1>Play</h1>
+				<h1>{t("play-page.play")}</h1>
 				<div className="content">
 					<div className="join-section">
 						<input
 							type="text"
 							value={codeInput}
 							onChange={(e) => setCodeInput(e.target.value)}
-							placeholder="Code de la partie"
+							placeholder={t("play-page.code_input")}
 							className="input"
 						/>
 						<button onClick={handleSpectate}>
-							Spectate
+							{t("play-page.spectate")}
 						</button>
 						{user && (
 							<button onClick={handleJoin}>
-								Join
+								{t("play-page.join")}
 							</button>
 						)}
 					</div>
 
 					{user && (
-						<button onClick={handleCreateGame}>
-							Créer une partie
-						</button>
+						<div className="create-section">
+							<button onClick={handleCreateGame}>
+								{t("play-page.create_multi")}
+							</button>
+							<button onClick={handleCreateGame}>
+								{t("play-page.create_ai")}
+							</button>
+						</div>
+
+						
 					)}
 				</div>
 				</>
@@ -395,20 +402,20 @@ function Play() {
 						{gameState && (
 							<div className="game-result-overlay">
 								<div className="game-result">
-									{gameState === "won" && (winer ? winer + t("as_won") : t("victory"))}
-									{gameState === "lose" && t("defeat")}
-									{gameState === "draw" && t("draw")}
+									{gameState === "won" && (winer ? winer + t("play-page.as_won") : t("play-page.victory"))}
+									{gameState === "lose" && t("play-page.defeat")}
+									{gameState === "draw" && t("play-page.draw")}
 								</div>
 								{autentified.current && !opLeft && (
 									<button
 										onClick={handleRematch}
 										disabled={rematchSelf === 1}
 									>
-										{t("rematch")} {rematchSelf + rematchOp} / 2
+										{t("play-page.rematch")} {rematchSelf + rematchOp} / 2
 									</button>
 								)}
 								<button onClick={handleQuit}>
-									{t("quit")}
+									{t("play-page.quit")}
 								</button>
 							</div>
 						)}
@@ -441,13 +448,13 @@ function Play() {
 					</div>
 					<div className="actions">
 						<div className="game-controls">
-							<button onClick={handleCopy}>Copy</button>
-							{!gameState && <button onClick={handleQuit}>{!opAkf ? "Forfait" : "Quitter"}</button>}
+							<button onClick={handleCopy}>{t("play-page.copy")}</button>
+							{!gameState && <button onClick={handleQuit}>{!opAkf ? t("play-page.forfeit") : t("play-page.quit")}</button>}
 						</div>
 						<div className="game-chatbox">
 							<div className="chatbox-messages" ref={messagesContainerRef}>
 								{chatMessages.length === 0 && (
-									<p className="chatbox-empty">Aucun message pour l'instant.</p>
+									<p className="chatbox-empty">{t("chatbox.no_message")}</p>
 								)}
 								{chatMessages.map((msg, i) => (
 									<p key={i} className="chatbox-message">{msg}</p>
@@ -461,10 +468,10 @@ function Play() {
 									onKeyDown={(e) => {
 										if (e.key === "Enter") handleSendChat()
 									}}
-									placeholder="Écrire un message..."
+									placeholder={t("chatbox.write_message")}
 								/>
 								<button onClick={handleSendChat}>
-									Envoyer
+									{t("chatbox.send")}
 								</button>
 							</div>
 						</div>

@@ -72,7 +72,7 @@ function Friends() {
 		const bytes = new Uint8Array(event.data)
 		if (bytes[0] === OPC_AUTH) {
 			if (bytes[1] !== 0) {
-				console.log("error auth: ", bytes[1]);
+				console.log("auth_error: ", bytes[1]);
 				wsRef.current?.close();
 			}           
 		}
@@ -127,7 +127,7 @@ function Friends() {
 				sender(OPC_REQUEST_CHAT);
 			}
 			if (bytes[1] !== 0)
-				console.log("selectFriend_error: ", bytes[1])
+				console.log("select_friend_error: ", bytes[1])
 		}
 		else if (bytes[0] === OPC_CHAT) {
 			if (bytes[1] === 0) {
@@ -283,21 +283,21 @@ function Friends() {
 	}
 
 	return (
-		<div className="page">
+		<div className="page-friend">
 			<div className="friendslist">
 				<div className="actions">
-					<button onClick={() => openPopup("add")}>add friends</button>
-					<button onClick={() => openPopup("request")}>Show request</button>
+					<button onClick={() => openPopup("add")}>{t("friends-page.add_friend")}</button>
+					<button onClick={() => openPopup("request")}>{t("friends-page.show_request")}</button>
 					{selectedFriend.current && (
 						<button className="delete" onClick={handleDeleteFriend}>delete</button>
 					)}
 				</div>
 				<div className="list">
 					{loadingFriendsList && (
-						<p>Loading...</p>
+						<p>{t("loading")}</p>
 					)}
 					{friendsList.length === 0 && (
-						<p>Aucun amis pour le moment</p>
+						<p>{t("friends-page.no_friend")}</p>
 					)}
 					{friendsList.map((friend, i) => (
 						<button key={i} onClick={() => (handleSelectFriend(friend))} disabled={friend == selectedFriend.current}>{friend}</button>
@@ -307,7 +307,7 @@ function Friends() {
 			<div className="friends-chatbox">
 				<div className="chatbox-messages" ref={messagesContainerRef}>
 					{chatMessages.length === 0 && (
-						<p className="chatbox-empty">Aucun message pour l'instant.</p>
+						<p className="chatbox-empty">{t("chatbox.no_message")}</p>
 					)}
 					{chatMessages.map((msg, i) => (
 						<p key={i} className="chatbox-message">{msg}</p>
@@ -321,11 +321,11 @@ function Friends() {
 						onKeyDown={(e) => {
 							if (e.key === "Enter") handleSendChat()
 						}}
-						placeholder="Écrire un message..."
+						placeholder={t("chatbox.write_message")}
 						className="input"
 					/>
 					<button onClick={handleSendChat}>
-						Envoyer
+						{t("chatbox.send")}
 					</button>
 				</div>
 			</div>
@@ -334,7 +334,7 @@ function Friends() {
 					<div className="popups" onClick={(e) => e.stopPropagation()}>
 						{showAddFriendsPopup && (
 							<>
-							<h2>Add friends</h2>
+							<h2>{t("friends-page.add_friend")}</h2>
 							<input
 								type="text"
 								className="add-friends-input"
@@ -360,25 +360,25 @@ function Friends() {
 
 							<div className="popups-actions">
 								<button className="popups-cancel-button" onClick={() => closePopup()} disabled={loadingAddFriends}>
-									Annuler
+									{t("friends-page.cancel")}
 								</button>
 								<button className="popups-confirm-button" onClick={handleAddFriends} disabled={loadingAddFriends}>
-									{loadingAddFriends ? ("Adding...") : ("Add friends")}
+									{loadingAddFriends ? ("...") : (t("friends-page.send_request"))}
 								</button>
 							</div>
 							</>
 						)}
 						{showFriendsRequestPopup && (
 							<>
-							<h2>Pending Friends Requests</h2>
+							<h2>{t("friends-page.pending_request")}</h2>
 							{loadingFriendsRequest && (
-								<p>Loading</p>
+								<p>{t("loading")}</p>
 							)}
 							{friendsRequestsError && (
-								<p>Error</p>
+								<p>{t("error.default")}</p>
 							)}
 							{friendsRequests.length === 0 && (
-								<p>No friend request</p>
+								<p>{t("friends-page.no_request")}</p>
 							)}
 							{friendsRequests.map((name, i) => (
 								<div key={i}>
@@ -389,7 +389,7 @@ function Friends() {
 							))}
 							<div className="popups-actions">
 								<button className="popups-cancel-button" onClick={() => closePopup()} disabled={loadingAddFriends}>
-									Annuler
+									{t("friends-page.cancel")}
 								</button>
 							</div>
 							</>

@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Link, Navigate, } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next';
@@ -20,24 +19,24 @@ import './App.css'
 
 function Navigation() {
 	const { user, logout } = useAuth()
-	const { i18n } = useTranslation();
+	const { t, i18n } = useTranslation();
 
 	function handleChangeLang(e: React.ChangeEvent<HTMLSelectElement>) {
 		i18n.changeLanguage(e.target.value);
 	}
 
   return (
-		<nav className="navbar-desktop">
+		<nav className="navbar">
 			<div className="nav-left">
-    		    <Link to="/">Accueil</Link>
+    		    <Link to="/">{t("navbar.home")}</Link>
     		    <Link to="/about">À propos</Link>
     		    <Link to="/contact">Contact</Link>
-    		    <Link to="/playerSearch">PlayerSearch</Link>
-				<Link to="/play">Play</Link>
+    		    <Link to="/playerSearch">{t("navbar.player_search")}</Link>
+				<Link to="/play">{t("navbar.play")}</Link>
 				{user && (
 					<>
-					<Link to="/achievements">Achievements</Link>
-					<Link to="/friends">Friends</Link>
+					<Link to="/achievements">{t("navbar.achievements")}</Link>
+					<Link to="/friends">{t("navbar.friends")}</Link>
 					</>
 				)}
 				
@@ -45,17 +44,17 @@ function Navigation() {
     		<div className="nav-right">
     		    {user ? (
     		    	<>
-    		    	<Link to="/profile">Profile</Link>
-    		    	<span>Bonjour, {user.username}</span>
-    		    	<button onClick={logout}>Déconnexion</button>
+    		    	<Link to="/profile">{t("navbar.profile")}</Link>
+    		    	<span>{t("navbar.welcome")}, {user.username}</span>
+    		    	<button onClick={logout}>{t("navbar.logout")}</button>
     		    	</>
     		    ) : (
     		    	<Link to="/login">Connexion</Link>
     		    )}
 				<select name="lang" value={i18n.language} onChange={handleChangeLang}>
-					<option value="es">Espagnol</option>
-					<option value="en">English</option>
-					<option value="fr">Francais</option>
+					<option value="es">ES</option>
+					<option value="en">EN</option>
+					<option value="fr">FR</option>
 				</select>
     		</div>
 		</nav>
