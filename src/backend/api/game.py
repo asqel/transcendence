@@ -498,8 +498,6 @@ class Game:
 				winner_stats.streak = 1
 			else:
 				winner_stats.streak += 1
-				if (winner_stats.streak >= 5):
-					api.ach.gain(winner.user, api.ach.ACH_WIN_STREAK)
 
 			looser_stats.number_loss += 1
 			looser_stats.number_placed += looser.number_placed
@@ -507,18 +505,21 @@ class Game:
 				looser_stats.streak = -1
 			else:
 				looser_stats.streak -= 1
-				if (looser_stats.streak <= 5):
-					api.ach.gain(looser.user, api.ach.ACH_POOP)
+
+			winner_stats.elo, looser_stats.elo = compute_elo(winner_stats.elo, looser_stats.elo, 1)
+
+			winner_stats.save()
+			looser_stats.save()
 
 			if (7 <= timezone.now().hour < 20):
 				api.ach.gain(winner.user, api.ach.ACH_SUN)
 			else:
 				api.ach.gain(winner.user, api.ach.ACH_MOON)
-				
-			winner_stats.elo, looser_stats.elo = compute_elo(winner_stats.elo, looser_stats.elo, 1)
 
-			winner_stats.save()
-			looser_stats.save()
+			if (winner_stats.streak >= 5):
+				api.ach.gain(winner.user, api.ach.ACH_WIN_STREAK)
+			if (looser_stats.streak <= 5):
+				api.ach.gain(looser.user, api.ach.ACH_POOP)
 		else:
 			stats1 = Stats.objects.filter(user=self.player_1.user).filter()
 			stats2 = Stats.objects.filter(user=self.player_2.user).filter()
@@ -552,7 +553,7 @@ class Game:
 				self.player_2.send(OPC_SEND, "bs", OPC_ERR_OK, message)
 
 		else:
-			self.to_spectators(OPC_TEXT, "bs", OPC_ERR_OK, message)
+			self.to_spectators(OPC_SEND, "bs", OPC_ERR_OK, message)
 	
 	def on_disco(self, ws):
 		global games

@@ -72,34 +72,7 @@ def get(request):
 		if stats.achievement[i] == '1':
 			res[i] = True
 
-	res[0] = True
-	res[5] = True
-	res[7] = True
-	return JsonResponse(res, safe=False)
-
-@common.endpoint("GET")
-def get(request):
-	username = request.GET.get("username", "/self")
-	if (username == GHOST_NAME):
-		return common.error("User not found", 404)
-	
-	user = None
-	if (username == "/self"):
-		if (not request.user.is_authenticated):
-			return common.error("Unauthorized", 401)
-		user = request.user
-	else:
-		user = user.objects.filter(username=username).first()
-	
-	if (user is None):
-		return common.error("User not found", 404)
-	
-	stats = Stats.objects.filter(user=user).first()
-	res = [False] * ACH_COUNT
-	for i in range(ACH_COUNT):
-		if stats.achievement[i] == '1':
-			res[i] = True
-
+	api.utils.log(res, stats.achievement, stats.user)
 	return JsonResponse(res, safe=False)
 
 @common.endpoint("POST")
@@ -130,7 +103,7 @@ def get_skin(request):
 
 def gain(user, ach_id):
 	stats = Stats.objects.filter(user=user).first()
-	utils.log(stats.achievement, ach_id)
+	utils.log("AAAAAAAAAA", stats.achievement, ach_id)
 	if (stats.achievement[ach_id] == '1'):
 		return False
 	
@@ -139,6 +112,9 @@ def gain(user, ach_id):
 	if (stats.achievement.startswith('1' * (ACH_COUNT - 1))):
 		stats.achievement = '1' * ACH_COUNT
 		api.notif.send_ach(user, ACH_ALL)
-	stats.save()
+	utils.log("IIIIIIIIIA", stats.achievement, ach_id)
+	a = stats.save()
+	utils.log("UUUUUUUUUUU", a, stats._state.db)
+	stats = Stats.objects.filter(user=user).first()
+	utils.log("ZZZZZZZZZ", stats.achievement, stats.user)
 	return True
-	
