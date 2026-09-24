@@ -103,7 +103,6 @@ def get_skin(request):
 
 def gain(user, ach_id):
 	stats = Stats.objects.filter(user=user).first()
-	utils.log("AAAAAAAAAA", stats.achievement, ach_id)
 	if (stats.achievement[ach_id] == '1'):
 		return False
 	
@@ -112,9 +111,5 @@ def gain(user, ach_id):
 	if (stats.achievement.startswith('1' * (ACH_COUNT - 1))):
 		stats.achievement = '1' * ACH_COUNT
 		api.notif.send_ach(user, ACH_ALL)
-	utils.log("IIIIIIIIIA", stats.achievement, ach_id)
-	a = stats.save()
-	utils.log("UUUUUUUUUUU", a, stats._state.db)
-	stats = Stats.objects.filter(user=user).first()
-	utils.log("ZZZZZZZZZ", stats.achievement, stats.user)
+	stats.save()
 	return True
