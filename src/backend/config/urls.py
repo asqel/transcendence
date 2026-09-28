@@ -34,4 +34,5 @@ urlpatterns = [
 	path("api/account/get-skin", api.ach.get_skin),
 	path("api/account/confirm-ask", api.account.ask_confirm_email),
 	path("api/account/confirm", api.account.confirm_email),
+	path("api/account/history", api.account.history),
 ]
