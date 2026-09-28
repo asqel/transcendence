@@ -36,4 +36,5 @@ urlpatterns = [
 	path("api/account/confirm", api.account.confirm_email),
 	path("api/account/history", api.account.history),
 	path("api/leaderboard", api.leaderboard.get),
+	path("api/account/data", api.account.get_data),
 ]

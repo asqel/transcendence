@@ -12,13 +12,15 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.utils import timezone
 import pycountry
+from django.http import JsonResponse, HttpResponse
+import json
 
 import secrets
 import os
 
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from models.models import Game, BIO_MAX_CHAR, Profile, Stats, EmailConfirm
+from models.models import Game, BIO_MAX_CHAR, Profile, Stats, EmailConfirm, Friendness, FriendMessage, FriendRequest
 
 @common.endpoint("POST")
 def create(request):
@@ -153,8 +155,8 @@ This link expires in 6 hours.
 			from_email=None,
 			recipient_list=[request.user.email]
 		)
-	except:
-		...
+	except Exception as e:
+		api.utils.log(e)
 	return common.success("", 204)
 
 @common.endpoint("GET", need_json=False)
@@ -197,3 +199,68 @@ def history(request):
 	]
 	
 	return JsonResponse(res, safe=False)
+
+@common.endpoint("GET", need_json=False)
+def get_data(request):
+	if (not request.user.is_authenticated):
+		return common.error("Not authentified", 403)
+	games = Game.objects.filter(Q(user1=request.user) | Q(user2=request.user))
+	stats = Stats.objects.filter(user=request.user).first()
+	friends = Friendness.objects.filter(Q(lesser=request.user) | Q(greater=request.user))
+	friend_list = []
+	for i in friends:
+		if i.lesser.username == request.user.username:
+			friend_list.append(i.greater.username)
+		else:
+			friend_list.append(i.lesser.username)
+	
+	friend_message = FriendMessage.objects.filter(Q(lesser=request.user) | Q(greater=request.user))
+	message_dict = {}
+	for i in friend_message:
+		friend = i.lesser
+		if (friend.username == request.user.username):
+			friend = i.greater
+		if friend.username not in message_dict:
+			message_dict[friend.username] = []
+		message = {}
+		if i.is_from_leser:
+			message["from"] = i.lesser.username
+			message["to"] = i.greater.username
+		else:
+			message["to"] = i.lesser.username
+			message["from"] = i.greater.username
+		message["content"] = i.message
+		message_dict[friend.username].append(message)
+			
+
+
+	data = {
+		"username": request.user.username,
+		"email": request.user.email,
+		"games": [
+			{
+				"player1": i.user1.username,
+				"player2": i.user2.username,
+				"winner": i.winner,
+				"date": str(i.date),
+			}
+			for i in games
+		],
+		"stats": {
+			"win": stats.number_win,
+			"loss": stats.number_loss,
+			"placed": stats.number_placed,
+			"achievements": [i == '1' for i in stats.achievement],
+			"skin": stats.used_skin,
+			"streak": stats.streak,
+			"elo": stats.elo,
+		},
+		"friends": friend_list,
+		"messages": message_dict,
+		"friend_request_sent": [i.to_who for i in FriendRequest.objects.filter(from_who=request.user)],
+		"friend_request_received": [i.from_who for i in FriendRequest.objects.filter(to_who=request.user)]
+	}
+	res = HttpResponse(json.dumps(data, ensure_ascii=False, indent=4), content_type="application/json")
+	res["Content-Disposition"] = "attachment; filename=\"data.json\""
+	return res
+
