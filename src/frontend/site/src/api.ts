@@ -22,16 +22,29 @@ export interface UserResponse {
 	bio: string;
 	country: string;
 	join_date: string;
+	elo: number
 	streak: number;
 	win_count: number;
 	loss_count: number;
 	placed: number;
+
 }
 
 export interface SkinResponse {
 	skin: number;
 }
 
+export interface HistoryResponse {
+	player1: string;
+	player2: string
+	winner: 0|1|2;
+	date: string;
+}
+
+export interface LeaderboardResponse {
+	board: [string, number][]
+	self: number|null
+}
 
 // ============================================================
 // Request principale
@@ -80,11 +93,11 @@ async function refresh_token(): Promise<boolean> {
 }
 
 
-async function request<T>(endpoint: string, method: string, body: string = "", options_extra: RequestInit = {}): Promise<T> {
+async function request<T>(endpoint: string, method: string, body: string = "", options: RequestInit = {}, download: boolean = false): Promise<T> {
 	let accessToken = localStorage.getItem("access");
 
 	function makeConfig(token: string | null): RequestInit {
-		const headers = new Headers(options_extra.headers);
+		const headers = new Headers(options.headers);
 		headers.set("Content-Type", "application/json");
 		if (token) {
 			headers.set("Authorization", `Bearer ${token}`);
@@ -93,7 +106,7 @@ async function request<T>(endpoint: string, method: string, body: string = "", o
 		}
 
 		return {
-			...options_extra,
+			...options,
 			method,
 			...(method === "POST" ? { body } : {}),
 			headers,
@@ -118,9 +131,11 @@ async function request<T>(endpoint: string, method: string, body: string = "", o
 		throw res.status;
 	}
 
-	if (res.status === 204) {
+	if (res.status === 204)
 		return {} as T;
-	}
+
+	if (download)
+		return res.blob() as Promise<T>;
 
 	return res.json() as Promise<T>;
 }
@@ -205,8 +220,16 @@ function get_skin(): Promise<SkinResponse> {
 	return request<SkinResponse>("/account/get-skin", "GET");
 }
 
+function get_history(): Promise<HistoryResponse[]> {
+	return request<HistoryResponse[]>("/account/history", "GET");
+}
+
+function download_data() {
+	return request<Blob>("/account/data", "GET", "", {}, true)
+}
+
 // ============================================================
-// Global
+// Globals
 // ============================================================
 
 function get_user(): Promise<SelfResponse>;
@@ -214,6 +237,10 @@ function get_user(user: string): Promise<UserResponse>;
 
 function get_user(user: string = "/self",): Promise<SelfResponse | UserResponse> {
 	return request<SelfResponse | UserResponse>(`/account/profile?username=${user}`, "GET");
+}
+
+function get_leaderboard(): Promise<LeaderboardResponse> {
+	return request<LeaderboardResponse>("/leaderboard", "GET");
 }
 
 // ============================================================
@@ -238,9 +265,12 @@ export const userApi = {
 	get_achivments,
 	set_skin,
 	get_skin,
+	get_history,
+	download_data,
 };
 
 
 export const globalApi = {
 	get_user,
+	get_leaderboard,
 };

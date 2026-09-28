@@ -2,27 +2,33 @@
 	width: 100%;
 	height: 100%;
 	display: flex;
-	flex-direction: column;
-	align-items: center;
+	flex-direction: row;
 }
 
 
 .profile-loading {
 	text-align: center;
 }
+.profile-error {
+	color: red;
+}
 
 .profile-section {
 	flex: 1;
-	width: 40%;
-	border: 1px solid white;
+	height: 100%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	padding: 10px;
+
 }
 
-.profile-error {
-	color: red;
+.profile {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
 }
 
 .confirm-mail-button {
@@ -31,21 +37,24 @@
 
 .bio-textarea {
 	width: 50%;
-	background-color: #c62828;
+	height: 15%;
+	background-color: #333;
+	border: none;
+	border-radius: 10px;
 	color: #fff;
 	resize: none;
 	box-sizing: border-box;
 }
 
 .bio-counter {
-	margin-top: 4px;
-	text-align: right;
 	font-size: 0.9em;
 }
 
 .country-select {
 	width: 50%;
-	background-color: #a91f1f;
+	background-color: #333;
+	border-radius: 10px;
+	border: none;
 	color: #fff;
 	padding: 8px;
 }
@@ -59,6 +68,59 @@
 	background-color: #d32f2f;
 	color: white;
 }
+
+
+/*achievements secction*/
+
+.achievements-section {
+	flex: 1;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.achievements {
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5%;
+    box-sizing: border-box;
+}
+
+.achievement {
+    min-width: 0;
+    min-height: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+	background-color: #999999;
+}
+
+.achievement:disabled {
+	background-color: #333;
+}
+
+.achievement-selected {
+	border: 2px solid var(--button-color);
+}
+
+.achievement-image {
+    height: 40%;
+	width: 40%;
+    object-fit: contain;
+    flex: 0 1 20%;
+}
+
+.achievement-info {
+    min-width: 0;
+    min-height: 0;
+    flex: 1 1 0;
+    overflow: hidden;
+}
+
 
 
 
@@ -127,8 +189,8 @@
 	color: #c62828;
 	font-size: 14px;
 
-	margin-top: 10px !important;
-	margin-bottom: 0 !important;
+	margin-top: 10px;
+	margin-bottom: 0;
 }
 
 .delete-modal-actions {

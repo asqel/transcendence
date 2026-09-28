@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import { useAuth } from "./context/AuthContext"
+import { useTranslation } from 'react-i18next';
 import "./popups.css"
 
 
@@ -9,26 +10,27 @@ const OPC_CHAT_NOTIF = 0x02;
 const OPC_FRIEND_REQUEST_ACCEPT = 0x03;
 
 function Popups() {
-	const { user } = useAuth()
+	const { t } = useTranslation();
+	const { user } = useAuth();
 
 	const wsRef = useRef<WebSocket | null>(null)
 	const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const shouldReconnectRef = useRef(true)
 
-	const [achievementPopup, setAchievementPopup] = useState<string | null>(null)
+	const [achievementPopup, setAchievementPopup] = useState<number | null>(null)
 	const [newFriendPopup, setNewFriendPopup] = useState<string | null>(null)
 	const [messagePopup, setMessagePopup] = useState<string | null>(null)
 	
 
 	
 
-	function showAchievement(id: number, str: string) {
-		if (id === OPC_ACHIVEMENTS_NOTIF)
-			setAchievementPopup(str);
-		else if (id === OPC_FRIEND_REQUEST_NOTIF)
-			setNewFriendPopup(str);
-		else if (id === OPC_CHAT_NOTIF)
-			setMessagePopup(str);
+	function showAchievement(id: number, val: string|number) {
+		if (id === OPC_ACHIVEMENTS_NOTIF && typeof val === "number")
+			setAchievementPopup(val);
+		else if (id === OPC_FRIEND_REQUEST_NOTIF && typeof val === "string")
+			setNewFriendPopup(val);
+		else if (id === OPC_CHAT_NOTIF && typeof val === "string")
+			setMessagePopup(val);
 		setTimeout(() => {
 			setAchievementPopup(null);
 			setNewFriendPopup(null);
@@ -39,9 +41,7 @@ function Popups() {
 	function handleMessage(event: MessageEvent<any>) {
 		const bytes = new Uint8Array(event.data)
 		if (bytes[0] === OPC_ACHIVEMENTS_NOTIF){
-			const decoder = new TextDecoder();
-			const str = decoder.decode(bytes.subarray(1));
-			showAchievement(OPC_ACHIVEMENTS_NOTIF, str);
+			showAchievement(OPC_ACHIVEMENTS_NOTIF, bytes[1]);
 		}
 		else if (bytes[0] === OPC_FRIEND_REQUEST_NOTIF) {
 			const decoder = new TextDecoder();
@@ -130,7 +130,7 @@ function Popups() {
 						🏆 Achievement débloqué !
 					</div>
 					<div className="popup-text">
-						{achievementPopup}
+						{t("achievements." + achievementPopup + ".name")}
 					</div>
 				</div>
 			)}

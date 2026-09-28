@@ -82,7 +82,7 @@ function Friends() {
 				setShowAddFriendsPopups(false);
 			}
 			else
-				setAddFriendsError(t("req_error." + bytes[1]))
+				setAddFriendsError(t("friends-page.add_error." + bytes[1]))
 
 		}
 		else if (bytes[0] === OPC_LIST_REQUEST) {
@@ -194,8 +194,7 @@ function Friends() {
 		setFriendsRequests([]);
 		setFriendsRequestsError("");
 	}
-
-							
+				
 	function handleAddFriends() {
 		setLoadingAddFriends(true);
 		sender(OPC_ADD_FRIENDS, addFriends);

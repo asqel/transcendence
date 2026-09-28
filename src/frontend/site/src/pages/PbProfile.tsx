@@ -38,9 +38,10 @@ export default function ProfilePage() {
 			<section className="profile-section">
 				<p><strong>Pseudo :</strong> {username}</p>
 				<p><strong>Bio :</strong></p>
-				<p>{player.bio}</p>
+				<p>{player.bio ? player.bio : "no bio"}</p>
 				<p><strong>Country: </strong>{player.country} {countries.find(country => country.code === player.country)?.flag}</p>
 				<p><strong>join_date: </strong>{date}</p>
+				<p><strong>elo: </strong>{player.elo}</p>
 				<p><strong>streak: </strong>{player.streak}</p>
 				<p><strong>win count: </strong>{player.win_count}</p>
 				<p><strong>loss count: </strong> {player.loss_count}</p>

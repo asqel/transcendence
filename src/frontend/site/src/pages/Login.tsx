@@ -41,7 +41,7 @@ function Login() {
 			navigate('/')
 		}
 		catch (err) {
-			setError(t(`login-page.error.${err}`, {defaultValue: t("error.defaut")}))
+			setError(t(`login-page.error.${err}`, {defaultValue: t("error.default")}))
 		}
 		finally {
 			setLoading(false)

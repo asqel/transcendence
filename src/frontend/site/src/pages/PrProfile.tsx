@@ -4,9 +4,12 @@ import { useAuth } from '../context/AuthContext'
 import { userApi, type SelfResponse, type UserResponse } from "../api";
 import { useTranslation } from 'react-i18next';
 import countries from "../data/countries.json";
+import achievements from "../data/achievements.json";
 import "./PrProfile.css"
+import { useNavigate } from 'react-router-dom';
 function Profile() {
 	const {t} = useTranslation();
+	const navigate = useNavigate();
 
 	const { logout } = useAuth();
 
@@ -15,18 +18,29 @@ function Profile() {
 	const [bio, setBio] = useState<string>("");
 	const [country, setCountry] = useState<string>("");
 	const [error, setError] = useState<string | null>(null)
-	const [loadingProfile, setLoadingProfile] = useState<boolean>(true);
-	const [loadingDelete, setLoadingDelete] = useState<boolean>(false);
+	const [loadingProfile, setLoadingProfile] = useState<boolean>(false);
 
+	const [loadingConfirmMail, setLoadingConfirmMail] = useState<boolean>(false);
+	const [sendConfirmMail, setSendCofirmMail] = useState<boolean>(false);
+	const [confirmMailError, setcofirmMailError] = useState<boolean>(false);
+
+	const [achievementList, setAchievementList] = useState<boolean[]>([])
+	const [selectedSkin, setSelectedSkin] = useState(0)
+
+	const [loadingSkin, setLoadingSkin] = useState<number | null>(null)
 	// Popup de suppression
 	const [showDeletePopup, setShowDeletePopup] = useState<boolean>(false);
 	const [deletePassword, setDeletePassword] = useState<string>("");
+	const [loadingDelete, setLoadingDelete] = useState<boolean>(false);
+	const [deleteDone, setDeleteDone] = useState<boolean>(false);
 	const [deleteError, setDeleteError] = useState<string | null>(null);
 
 	async function fetchProfile() {
 		try {
 			setLoadingProfile(true)
+			console.log("getting user");
 			const rec_self = await userApi.get_user()
+			console.log(rec_self);
 			setSelf(rec_self)
 			const rec_user = await userApi.get_user(rec_self.username)
 			setUser(rec_user);
@@ -41,8 +55,30 @@ function Profile() {
 		}
 	}
 
+	async function loadAchievements() {
+		try {
+			const list = await userApi.get_achivments();
+			setAchievementList(list);
+			const skin = await userApi.get_skin();
+			setSelectedSkin(skin.skin);
+		}
+		catch (error) {
+			console.error(error)
+		}
+	}
+
 	async function handleSendMail() {
-		await userApi.send_confirm_mail()
+		try {
+			setLoadingConfirmMail(true);
+			await userApi.send_confirm_mail();
+		}
+		catch {
+			setcofirmMailError(true);
+		}
+		finally {
+			setLoadingConfirmMail(false);
+			setSendCofirmMail(true);
+		}
 	}
 
 	async function handleBioKeyDown(
@@ -67,6 +103,38 @@ function Profile() {
 		}
 		catch {
 		}
+	}
+
+	async function handleSelectSkin(index: number) {
+		if (!achievementList[index])
+			return
+		try {
+			setLoadingSkin(index)
+			await userApi.set_skin(index)
+			setSelectedSkin(index)
+		}
+		catch (error) {
+			console.error(error)
+		}
+		finally {
+			setLoadingSkin(null)
+		}
+	}
+
+	async function downloadData() {
+		try {
+			const blob = await userApi.download_data();
+
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement("a");
+
+			a.href = url;
+			a.download = "data.json";
+			a.click();
+
+			URL.revokeObjectURL(url);
+		}
+		catch {}
 	}
 
 	// Ouvre la popup
@@ -94,21 +162,25 @@ function Profile() {
 		}
 
 		try {
-			setLoadingDelete(true)
-			setDeleteError(null)
-			await userApi.delete_account()
-			logout()
+			setDeleteDone(false);
+			setLoadingDelete(true);
+			setDeleteError(null);
+			await userApi.delete_account();
+			if (!self?.email_confirmed)
+				logout();
 		}
 		catch (err) {
-			setDeleteError("Mot de passe incorrect ou erreur lors de la suppression.")
+			setDeleteError("Mot de passe incorrect ou erreur lors de la suppression.");
 		}
 		finally {
-			setLoadingDelete(false)
+			setLoadingDelete(false);
+			setDeleteDone(true);
 		}
 	}
 
 	useEffect(() => {
-		fetchProfile()
+		fetchProfile();
+		loadAchievements();
 	}, [])
 
 	if (loadingProfile) {
@@ -129,46 +201,89 @@ function Profile() {
 
 	return (
 		<div className="profile-page">
-			<h1>Mon profil</h1>
 			<section className="profile-section">
-				<p><strong>Pseudo :</strong> {self.username}</p>
-				<p>
-					<strong>Email :</strong> {self.email}
-					{!self.email_confirmed && (
-						<button
-							className="confirm-mail-button"
-							onClick={handleSendMail}
-						>
-							Confirmer le mail
-						</button>
-					)}
-				</p>
-				<p><strong>Bio :</strong></p>
-				<textarea
-					className="bio-textarea"
-					value={bio}
-					onChange={(e) => setBio(e.target.value)}
-					onKeyDown={handleBioKeyDown}
-					maxLength={100}
-				/>
-				<p className="bio-counter">{bio.length} / 100</p>
-				<select className="country-select" value={country} onChange={handleCountryChange}>
-						{countries.map((c) => (
-							<option key={c.code} value={c.code}>
-								({c.code}) {c.name} {c.flag}
-							</option>
-						))}
-				</select>
+				<h1>Mon profil</h1>
+				<section className="profile">
+					<p><strong>Pseudo :</strong> {self.username}</p>
+					<p>
+						<strong>Email :</strong> {self.email}
+						{!self.email_confirmed && (
+							<button
+								className="confirm-mail-button"
+								onClick={handleSendMail}
+								disabled={loadingConfirmMail}
+							>
+								{confirmMailError ? "Email deja envoyer" : (sendConfirmMail ? "Email envoyer!" : "Envoyer le mail")}
+							</button>
+						)}
+					</p>
+					<p><strong>Bio :</strong></p>
+					<textarea
+						className="bio-textarea"
+						value={bio}
+						onChange={(e) => setBio(e.target.value)}
+						onKeyDown={handleBioKeyDown}
+						maxLength={100}
+					/>
+					<p className="bio-counter">{bio.length} / 100</p>
+					<select className="country-select" value={country} onChange={handleCountryChange}>
+							{countries.map((c) => (
+								<option key={c.code} value={c.code}>
+									({c.code}) {c.name} {c.flag}
+								</option>
+							))}
+					</select>
+					<button onClick={() => navigate("/history")}>History</button>
+				</section>
+				<section className="data-zone">
+					<button
+						className="dl-data-button"
+						onClick={downloadData}
+					>
+						Telecharger ces data
+					</button>
+				</section>
+				<section className="danger-zone">
+					<h2>Zone dangereuse</h2>
+					<button
+						className="delete-account-button"
+						onClick={openDeletePopup}
+						disabled={loadingDelete}
+					>
+						Supprimer mon compte
+					</button>
+				</section>
 			</section>
-			<section className="danger-zone">
-				<h2>Zone dangereuse</h2>
-				<button
-					className="delete-account-button"
-					onClick={openDeletePopup}
-					disabled={loadingDelete}
-				>
-					Supprimer mon compte
-				</button>
+			<section className="achievements-section">
+				<h1>test</h1>
+				<div className="achievements">
+				{achievements.map((achievement, index) => {
+					const unlocked = achievementList[index]
+					const selected = index === selectedSkin
+					return (
+						<button
+							key={index}
+							className={`achievement ${selected ? "achievement-selected" : ""}`}
+							onClick={() => handleSelectSkin(index)}
+							disabled={!unlocked || loadingSkin !== null}
+						>
+							<img
+								src={achievement.image}
+								alt={t("achievements." + index + ".name")}
+								className="achievement-image"
+							/>
+	
+							<div className="achievement-info">
+								<h3>{t("achievements." + index + ".name")}</h3>
+								<p>{t("achievements." + index + ".des")}</p>
+							</div>
+							{selected && (
+								<span className="achievement-check">✓</span>
+							)}
+						</button>
+					)
+				})}
+				</div>
 			</section>
 			
 
@@ -176,41 +291,42 @@ function Profile() {
 			{showDeletePopup && (
 				<div className="delete-modal-overlay" onClick={closeDeletePopup}>
 					<div className="delete-modal" onClick={(e) => e.stopPropagation()}>
-						{!self.email_confirmed && (
-							<>
-								<h2>Supprimer votre compte ?</h2>
-								<p>
-									Cette action est <strong>irréversible</strong>.
-									<br />
-									Veuillez entrer votre mot de passe pour confirmer.
-								</p>
-								<input
-									type="password"
-									className="delete-password-input"
-									placeholder="Mot de passe"
-									value={deletePassword}
-									onChange={(e) => {
-										setDeletePassword(e.target.value)
-										setDeleteError(null)
-									}}
-									onKeyDown={(e) => {
-										if (e.key === "Enter") {
-											handleDeleteAccount()
-										}
-									}}
-									autoFocus
-									disabled={loadingDelete}
-								/>
-								{deleteError && (
-									<p className="delete-modal-error">
-										{deleteError}
-									</p>
-								)}
-							</>
+						<>
+						<h2>Supprimer votre compte ?</h2>
+						<p>
+							Cette action est <strong>irréversible</strong>.
+						</p>
+						<p>
+							Veuillez entrer votre mot de passe pour confirmer.
+						</p>
+						<input
+							type="password"
+							className="delete-password-input"
+							placeholder="Mot de passe"
+							value={deletePassword}
+							onChange={(e) => {
+								setDeletePassword(e.target.value)
+								setDeleteError(null)
+							}}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") {
+									handleDeleteAccount()
+								}
+							}}
+							autoFocus
+							disabled={loadingDelete}
+						/>
+						{deleteDone && (
+							<p className="delete-modal-done">
+								Email send
+							</p>
 						)}
-						{self.email_confirmed && (
-							<p>Email will be send to delete account</p>
+						{deleteError && (
+							<p className="delete-modal-error">
+								{deleteError}
+							</p>
 						)}
+						</>
 						<div className="delete-modal-actions">
 							<button
 								className="delete-cancel-button"
@@ -222,13 +338,9 @@ function Profile() {
 							<button
 								className="delete-confirm-button"
 								onClick={handleDeleteAccount}
-								disabled={loadingDelete || (!self.email_confirmed && !deletePassword)}
+								disabled={loadingDelete}
 							>
-								{loadingDelete ?
-									("Suppression...")
-									:
-									("Supprimer définitivement")
-								}
+								{loadingDelete ? ("Suppression...") : ("Supprimer definitinvement")}
 							</button>
 						</div>
 					</div>

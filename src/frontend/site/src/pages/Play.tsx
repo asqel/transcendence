@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next';
-import { achievements } from "./Achievements";
+import achievements from "../data/achievements.json";
 import "./Play.css"
 
 const OPC_AUTH = 0xff
@@ -51,7 +51,7 @@ function Play() {
 	const opponentSkin = useRef<number>(0);
 	const [opLeft, setOpLeft] = useState<boolean>(false);
 	const [winer, setWiner] = useState<string>("");
-	const [currentPlayer, setCurrentPlayer] = useState<1|2>(1);
+	const [currentPlayer, setCurrentPlayer] = useState<1|2>(2);
 	const [gameState, setGameState] = useState<"won" | "lose" | "draw" | null>(null);
 	const [rematchSelf, setRemathSelf] = useState<0|1>(0);
 	const [rematchOp, setRemathOp] = useState<0|1>(0);
@@ -113,7 +113,7 @@ function Play() {
 			opponentSkin.current = bytes[2];
 			const decoder = new TextDecoder();
 			const str = decoder.decode(bytes.subarray(3));
-			setChatMessages((prev) => [...prev, str + t("joining_string")]);
+			setChatMessages((prev) => [...prev, str + " " + t("play-page.join_string")]);
 		}
 		else if (bytes[0] === OPC_REMATCH) {
 			setRemathOp(1);
@@ -176,9 +176,9 @@ function Play() {
 		}
 	}
 
-	function handleCreateGame() {
+	function handleCreateGame(val: number) {
 		sender(OPC_AUTH, localStorage.getItem("access"));
-		sender(OPC_CREATE, 0);
+		sender(OPC_CREATE, val);
 		self.current = 1;
 		opponent.current = 2
 	}
@@ -216,6 +216,8 @@ function Play() {
 		setWiner("");
 		setChatMessages([]);
 		setOpAkf(false);
+		setOpLeft(false);
+		setCurrentPlayer(2);
 		navigate('/play/')
 	}
 
@@ -380,10 +382,10 @@ function Play() {
 
 					{user && (
 						<div className="create-section">
-							<button onClick={handleCreateGame}>
+							<button onClick={() => handleCreateGame(0)}>
 								{t("play-page.create_multi")}
 							</button>
-							<button onClick={handleCreateGame}>
+							<button onClick={() => handleCreateGame(1)}>
 								{t("play-page.create_ai")}
 							</button>
 						</div>

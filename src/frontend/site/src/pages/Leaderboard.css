@@ -1,0 +1,24 @@
+.leaderboard-page {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.leaderboard {
+    border: 2px solid var(--button-color);
+    padding: 10px;
+    margin-top: 5%;
+    border-radius: 10px;
+    font-size: min(2.5dvh, 2.5dvw);
+    color: white;
+}
+.self {
+    border: 2px solid var(--button-color);
+    border-radius: 10px;
+    padding: 10px;
+    font-size: min(2.5dvh, 2.5dvw);
+    color: white;
+}

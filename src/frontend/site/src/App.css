@@ -60,3 +60,14 @@ nav a:hover {
 	background: var(--button-color);
 	border-color: var(--accent);
 }
+
+.legal-button {
+	display: flex;
+	flex-direction: column;
+}
+
+.legal-button a{
+	text-align: center;
+	font-size: 0.6em;
+	padding: 4px;
+}

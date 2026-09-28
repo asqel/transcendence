@@ -30,6 +30,7 @@ export default {
 		"join": "Rejoindre la partie",
 		"create_multi": "Creer la partie",
 		"create_ai": "Jouer contre l'ia",
+		"join_string": "a rejoint la partie",
 		"as_won": "a gagner",
 		"victory": "Victoire",
 		"defeat": "Perdu",
@@ -47,6 +48,13 @@ export default {
 		"send_request": "Envoyer une demmande",
 		"pending_request": "Demande d'ami en attente",
 		"no_request": "Auccune demande pour le moment",
+		"add_error": {
+			'1': "Erreur",
+			'2': "Non trouve",
+			'3': "Deja amis",
+			'4': "Requette deja envoyer",
+			'5': "Une requette a deja etais recu",
+		},
 	},
 	"chatbox": {
 		"no_message": "Auccun message pour le moment",
@@ -56,23 +64,37 @@ export default {
 	"navbar": {
 		"home": "Acceuil",
 		"player_search": "Rechercher un joueur",
+		"leaderboard": "Classement",
 		"play": "Jouer",
 		"achievements": "Succes",
 		"friends": "Amis",
 		"profile": "Profile",
 		"welcome": "Bonjour",
 		"logout": "Deconnection",
+		"privacy-policy": "Politique de confidentialite",
+		"terme-of-service": "Condition d'utilisatioon",
 	},
 	"error": {
 		"default": "Une erreur est survenue",
 		"ws-error": "Connection au serveur impossible"
 	},
 	"loading": "Chargement...",
-	req_error: {
-		'1': "Erreur",
-		'2': "Non trouve",
-		'3': "Deja amis",
-		'4': "Requette deja envoyer",
-		'5': "Une requette a deja etais recu",
-	}
+
+	"achievements": {
+		"0": {"name": "Le commencement", "des": "creer un compte" },
+		"1": {"name": "La haut", "des": "Gagner verticalement" },
+		"2": {"name": "D'une piere 2 coup", "des": "Gagner dans plusieur direction en meme temps" },
+		"3": {"name": "Egalite", "des": "Faites une egalite" },
+		"4": {"name": "Mon Romeo", "des": "Rejouer 5 fois avec la meme personne" },
+		"5": {"name": "Journee ensoillee", "des": "Gagner en pleine journee" },
+		"6": {"name": "Fausse victoire", "des": "Gagner une partie grace a un forfait" },
+		"7": {"name": "Imbatable", "des": "Gagner 5 partie a la suite" },
+		"8": {"name": "Ecouter moi", "des": "Envoyer un messge dans le chat non spectateur" },
+		"9": {"name": "Sans dormir", "des": "Gagner une partie la nuit" },
+		"10": {"name": "Ce n'est pas grave", "des": "Perdez 5 partie d'affiler" },
+		"11": {"name": "Monde inconue", "des": "Venez d'un monde inconue" },
+		"12": {"name": "Mignion", "des": "Envoyer :3 dans le chat non spectateur" },
+		"13": {"name": "Joueur loyal", "des": "Envoyer GG a la fin d'une partie" },
+		"14": {"name": "Repos", "des": "Obtenir tous les succes" },
+	},
 };
