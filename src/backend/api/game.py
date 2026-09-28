@@ -6,6 +6,7 @@ import secrets
 import threading
 from django.utils import timezone
 from datetime import timedelta
+from coreIA import get_best_move
 
 auth = JWTAuthentication()
 
@@ -175,6 +176,9 @@ def create_game(ws, data):
 	ws.game = game
 	ws.player = Player(ws, ws.user, 1)
 	game.player_1 = ws.player
+	if game.ai:
+		game.player_2 = Player(None, None, 2)
+		game.player_2.game = game
 	game.player_1.game = game
 
 	send(ws, OPC_CREATE, "bs", OPC_ERR_OK, game_id)
@@ -273,6 +277,8 @@ class Game:
 		self.player_2 = None
 		self.password = password
 		self.type = game_type
+		self.ai = game_type == 1
+		self.ai_difficulty = "normal"
 		self.spectators = []
 		self.state = 0
 		self.width = 7
@@ -442,6 +448,9 @@ class Game:
 			self.change_turn()
 			self.check_win(player, x, y)
 
+			if self.ai and self.state != STATE_END:
+				self.on_ai_place()
+
 			return OPC_ERR_OK
 
 	def to_spectators(self, *args, **kwargs):
@@ -483,6 +492,8 @@ class Game:
 			self.register_win(0)
 
 	def register_win(self, who: int):
+		if self.ai:
+			return
 		models.Game.objects.create(user1=self.player_1.user, user2=self.player_2.user, winner=who)
 
 		if (who != 0):
@@ -527,7 +538,7 @@ class Game:
 			stats2.streak = 0
 			stats1.number_placed += self.player_1.number_placed
 			stats2.number_placed += self.player_2.number_placed
-			stat1.elo, stats2.elo = compute_elo(stats1.elo, stats2.elo, 0)
+			stats1.elo, stats2.elo = compute_elo(stats1.elo, stats2.elo, 0)
 			stats1.save()
 			stats2.save()
 
@@ -673,3 +684,29 @@ class Game:
 		for i in self.spectators:
 			i.game = None
 		self.spectators = []
+
+	def on_ai_place(self):
+		column = get_best_move(self.board, self.ai_difficulty)
+		if column is None:
+			return
+	
+	y = self.height - 1
+	while self.board[y][column] != 0:
+		y -= 1
+	
+	self.board[y][column] = 2
+	self.player_2.number_placed += 1
+	self.player_1.send(
+        OPC_PLACE3,
+        "bw",
+        2,
+        column
+    )
+	self.to_spectators(
+        OPC_PLACE3,
+        "bw",
+        column,
+        2
+    )
+	self.change_turn()
+	self.check_win(self.player_2, column, y)

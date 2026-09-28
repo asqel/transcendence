@@ -109,7 +109,7 @@ def set_info(request):
 	if (not key):
 		return common.error("Missing key 'field'", 400)
 	if (not value or type(value) != str):
-		return commmon.error("Missing key 'value' or not a string", 400)
+		return common.error("Missing key 'value' or not a string", 400)
 
 	if (key == "bio"):
 		if (len(value) > 100):
