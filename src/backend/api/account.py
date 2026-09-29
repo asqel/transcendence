@@ -10,6 +10,7 @@ from django.db.models import Q
 from datetime import timedelta
 from django.utils import timezone
 from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.utils import timezone
 import pycountry
 from django.http import JsonResponse, HttpResponse
@@ -20,7 +21,7 @@ import os
 
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from models.models import Game, BIO_MAX_CHAR, Profile, Stats, EmailConfirm, Friendness, FriendMessage, FriendRequest
+from models.models import Game, BIO_MAX_CHAR, Profile, Stats, EmailConfirm, Friendness, FriendMessage, FriendRequest, DeleteConfirm
 
 @common.endpoint("POST")
 def create(request):
@@ -43,6 +44,7 @@ def create(request):
 		Profile.objects.create(user=user, bio="", country="")
 		Stats.objects.create(user=user)
 		EmailConfirm.objects.create(user=user)
+		DeleteConfirm.objects.create(user=user)
 
 	except IntegrityError as e:
 		utils.log(e)
@@ -50,26 +52,79 @@ def create(request):
 		
 	return common.success("", 0)
 
+def real_delete(user):
+	websocket = tmp_info.get(user, "websocket")
+	if (websocket):
+		websocket.close(close_code=1000)
+	tmp_info.remove(user)
+
+	ghost = utils.get_ghost()
+	Profile.objects.filter(user=user).delete()
+	Game.objects.filter(user1=user).update(user1=ghost)
+	Game.objects.filter(user2=user).update(user2=ghost)
+	Game.objects.filter(user1=ghost, user2=ghost).delete()
+	Stats.objects.filter(user=user).delete()
+
+	user.delete()
+
 @common.endpoint("POST", need_json=False)
 def delete(request):
 	if (not request.user.is_authenticated):
 		return common.error("Not authentified", 401)
 	
-	websocket = tmp_info.get(request.user, "websocket")
-	if (websocket):
-		websocket.close(close_code=1000)
-	tmp_info.remove(request.user)
-	
-	ghost = utils.get_ghost()
-	Game.objects.filter(user1=request.user).update(user1=ghost)
-	Game.objects.filter(user2=request.user).update(user2=ghost)
-	Game.objects.filter(user1=ghost, user2=ghost).delete()
-	Profile.objects.filter(user=request.user).delete()
-	Stats.objects.filter(user=request.user).delete()
 
-	request.user.delete()
-	
+	profile = Profile.objects.filter(user=request.user).first()
+	if (profile and profile.email_confirmed):
+		return do_delete_ask(request, request.user.email)
+
+	real_delete(request.user)
 	return common.success("", 0);
+
+def do_delete_ask(request, email):
+	delete_confirm = DeleteConfirm.objects.filter(user=request.user).first()
+	delete_confirm.token = secrets.token_urlsafe(32)
+	if (delete_confirm.expires_at + timedelta(hours=1) < timezone.now()):
+		return common.error("too much request", 429)
+	delete_confirm.expires_at = timezone.now() + timedelta(hours=6)
+	delete_confirm.save()
+
+	try:
+		send_mail(
+			subject="Account deletion",
+			message=f"""
+Hello {request.user.username},
+
+Please click on the link to delete your account: https://{request.get_host()}/confirm-delete?token={delete_confirm.token}&username={request.user.username}
+
+This link expires in 1 hour.
+		""",
+		from_email=None,
+		recipient_list=[email]
+		)
+	except Exception as e:
+		api.utils.log(e)
+	return common.success("", 204)
+
+def do_delete_confirm(request):
+	name = request.GET.get("username", None)
+	token = request.GET.get("token", None)
+	if (name is None or token is None):
+		return common.error("Forbbiden", 403)
+	
+	user = User.objects.filter(username=name).first()
+	delete_confirm = DeleteConfirm.objects.filter(user=user).first()
+
+	if (delete_confirm.expires_at < timezone.now()):
+		return common.error("Expired", 400)
+	if (delete_confirm.token != token):
+		return common.error("Forbbiden", 403)
+	
+	delete_confirm.expires_at = timezone.now();
+	delete_confirm.token = ""
+	delete_confirm.save()
+
+	real_delete(user)
+	return common.success("", 204)
 
 @common.endpoint("GET", need_json=False)
 def profile(request):
@@ -148,12 +203,12 @@ def ask_confirm_email(request):
 			message=f"""
 Hello {request.user.username},
 
-Please click on the link to confirm your email address: https://{os.getenv('HOST_NAME')}/confirm-mail?token={email_confirm.token}&username={request.user.username}
+Please click on the link to confirm your email address: https://{request.get_host()}/confirm-mail?token={email_confirm.token}&username={request.user.username}
 
-This link expires in 6 hours.
+This link expires in 1 hour.
 		""",
-			from_email=None,
-			recipient_list=[request.user.email]
+		from_email=None,
+		recipient_list=[request.user.email]
 		)
 	except Exception as e:
 		api.utils.log(e)
@@ -206,6 +261,7 @@ def get_data(request):
 		return common.error("Not authentified", 403)
 	games = Game.objects.filter(Q(user1=request.user) | Q(user2=request.user))
 	stats = Stats.objects.filter(user=request.user).first()
+	profile = Profile.objects.filter(user=request.user).first()
 	friends = Friendness.objects.filter(Q(lesser=request.user) | Q(greater=request.user))
 	friend_list = []
 	for i in friends:
@@ -258,9 +314,31 @@ def get_data(request):
 		"friends": friend_list,
 		"messages": message_dict,
 		"friend_request_sent": [i.to_who for i in FriendRequest.objects.filter(from_who=request.user)],
-		"friend_request_received": [i.from_who for i in FriendRequest.objects.filter(to_who=request.user)]
+		"friend_request_received": [i.from_who for i in FriendRequest.objects.filter(to_who=request.user)],
+		"bio": profile.bio,
+		"country": profile.country,
+		"join_date": str(profile.join_date),
 	}
 	res = HttpResponse(json.dumps(data, ensure_ascii=False, indent=4), content_type="application/json")
 	res["Content-Disposition"] = "attachment; filename=\"data.json\""
+	if (profile.email_confirmed):
+		email = EmailMessage(
+			subject="Data Request",
+			body=f"""
+Hello {request.user.username},
+
+To download your personal data see the attached file
+		""",
+			to=[request.user.email],
+
+		)
+		email.attach(
+			"data.json", json.dumps(data, ensure_ascii=False, indent=4), "application/json"
+		)
+		try:
+			email.send()
+		except:
+			...
+		
 	return res
 
