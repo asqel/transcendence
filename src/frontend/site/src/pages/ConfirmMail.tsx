@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom"
 import { userApi } from "../api";
 
@@ -24,24 +24,17 @@ function ConfirmMail() {
 			}
 			finally {
 				setLoading(false)
+				navigate("/")
 			}
 			
 	}
 
-	useEffect(() => {sendConfirm()}, []);
-
-	if (loading)
-		return (
-			<div>loading</div>
-		)
-	if (error)
-		return (
-			<div>Error</div>
-		)
-	else
-		return (
-			<div>succes</div>
-		)
+	return (
+		<div>
+			<button onClick={sendConfirm}>{loading ? "loading" : "confirm"}</button>
+			{error && <p>error</p>}
+		</div>
+	)
 	
 }
 

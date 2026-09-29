@@ -38,11 +38,20 @@ function Leaderboard() {
     }
     return (
         <div className="leaderboard-page">
-            <div className="leaderboard">
+            <table className="leaderboard">
+                <tr>
+                    <th>Rank</th>
+                    <th>Player</th>
+                    <th>Elo</th>
+                </tr>
                 {leaderboard?.board.map((player, index) => (
-                    <p key={index}>#{index + 1}: {player[0]}, {player[1]} elo</p>
+                    <tr key={index}>
+                        <td>#{index + 1}</td>
+                        <td>{player[0]}</td>
+                        <td>{player[1]}</td>
+                    </tr>
                 ))}
-            </div>
+            </table>
             { leaderboard?.self &&
                 <div className="self">
                     <p>Rank: {leaderboard?.self}</p>

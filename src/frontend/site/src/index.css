@@ -1,11 +1,12 @@
 :root {
-	--text: #9ca3af;
-	--text-h: #f3f4f6;
+	--text: whitesmoke;
+	--text-gray: gray;
 	--bg: #16171d;
-	--border: #2e303a;
+	--zone-bg: #1F2028;
+	--border: #3a3b48;
 
-	--button-color: #aa3bff;
-	--button-color-hover: #6e17b0;
+	--utils-color: #aa3bff;
+	--utils-color-darker: #6e17b0;
 
 	--sans: system-ui, sans-serif;
 	--heading: system-ui, sans-serif;
@@ -29,15 +30,63 @@ button {
 	border: 1px solid #2a2d34;
 	border-radius: 10px;
 	color: white;
-	background: var(--button-color);
+	background: var(--utils-color);
 	cursor: pointer;
 }
 
 button:hover {
-	background: var(--button-color-hover);
+	background: var(--utils-color-darker);
 }
 
 button:disabled {
 	cursor: not;
 	opacity: 60%;
+}
+
+input {
+	background: var(--zone-bg);
+	color: var(--text);
+	border: none;
+	border-radius: 10px;
+}
+
+input:focus {
+	outline-color: var(--utils-color);
+	outline-style: solid;
+}
+
+input::placeholder {
+  color: var(--text-gray);
+}
+
+textarea {
+	background: var(--zone-bg);
+	color: var(--text);
+	border: none;
+	border-radius: 10px;
+	resize: none;
+}
+
+textarea:focus {
+	outline-color: var(--utils-color);
+	outline-style: solid;
+}
+
+select {
+	background: var(--zone-bg);
+	color: var(--text);
+	border: none;
+	border-radius: 10px;
+}
+
+select:focus {
+	outline-color: var(--utils-color);
+	outline-style: solid;
+}
+
+option {
+	background: var(--zone-bg);
+}
+option:hover {
+	background: var(--utils-color);
 }

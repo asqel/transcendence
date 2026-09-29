@@ -16,4 +16,5 @@ export default {
 		"13": {"name": "Fair play", "des": "Send GG in the chat after a game" },
 		"14": {"name": "You can rest now", "des": "Have all the achivements" },
 	},
+	"date-lang": "en-EN",
 };

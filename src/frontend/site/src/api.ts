@@ -176,7 +176,11 @@ function send_confirm_mail(): Promise<null> {
 }
 
 function confirm_mail(token: string, username: string): Promise<null> {
-	return request<null>(`/account/confirm?token=${token}&username=${username}`, "GET")
+	return request<null>(`/account/confirm-mail?token=${token}&username=${username}`, "GET")
+}
+
+function confirm_delete(token: string, username: string): Promise<null> {
+	return request<null>(`/account/confirm-delete?token=${token}&username=${username}`, "GET")
 }
 
 function change_bio(bio: string): Promise<null> {
@@ -256,8 +260,9 @@ export const authApi = {
 
 export const userApi = {
 	get_user,
-	confirm_mail,
 	send_confirm_mail,
+	confirm_mail,
+	confirm_delete,
 	change_bio,
 	change_country,
 	delete_account,

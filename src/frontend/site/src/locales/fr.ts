@@ -43,6 +43,7 @@ export default {
 	"friends-page": {
 		"add_friend": "Ajouter un ami",
 		"show_request": "Voir les demandes",
+		"delete": "Supprimer l'ami",
 		"no_friend": "Auccun amis pour le moment",
 		"cancel": "Annuler",
 		"send_request": "Envoyer une demmande",
@@ -97,4 +98,5 @@ export default {
 		"13": {"name": "Joueur loyal", "des": "Envoyer GG a la fin d'une partie" },
 		"14": {"name": "Repos", "des": "Obtenir tous les succes" },
 	},
+	"date-lang": "fr-FR",
 };

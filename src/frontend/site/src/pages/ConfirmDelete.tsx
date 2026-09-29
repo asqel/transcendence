@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom"
+import { useAuth } from '../context/AuthContext'
 import { userApi } from "../api";
 
-function ConfirmMail() {
+function ConfirmDelete() {
+	const { logout } = useAuth()
 	const [searchParams] = useSearchParams()
 	const navigate = useNavigate()
 	const [loading, setLoading] = useState<boolean>(false);
@@ -17,33 +19,26 @@ function ConfirmMail() {
 		else
 			try {
 				setLoading(true)
-				await userApi.confirm_mail(token, username);
+				await userApi.confirm_delete(token, username);
 			}
 			catch (error) {
 				setError(true);
 			}
 			finally {
 				setLoading(false)
+				logout();
+				navigate("/")
 			}
 			
 	}
 
-	useEffect(() => {sendConfirm()}, []);
-
-	if (loading)
-		return (
-			<div>loading</div>
-		)
-	if (error)
-		return (
-			<div>Error</div>
-		)
-	else
-		return (
-			<div>succes</div>
-		)
+	return (
+		<div>
+			<button onClick={sendConfirm}>{loading ? "loading" : "confirm"}</button>
+			{error && <p>error</p>}
+		</div>
+	)
 	
 }
 
-
-export default ConfirmMail
+export default ConfirmDelete

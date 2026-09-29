@@ -288,7 +288,7 @@ function Friends() {
 					<button onClick={() => openPopup("add")}>{t("friends-page.add_friend")}</button>
 					<button onClick={() => openPopup("request")}>{t("friends-page.show_request")}</button>
 					{selectedFriend.current && (
-						<button className="delete" onClick={handleDeleteFriend}>delete</button>
+						<button className="delete" onClick={handleDeleteFriend}>{t("friends-page.delete")}</button>
 					)}
 				</div>
 				<div className="list">

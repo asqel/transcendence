@@ -42,6 +42,7 @@ function Popups() {
 		const bytes = new Uint8Array(event.data)
 		if (bytes[0] === OPC_ACHIVEMENTS_NOTIF){
 			showAchievement(OPC_ACHIVEMENTS_NOTIF, bytes[1]);
+			window.dispatchEvent(new Event("achievements:new"));
 		}
 		else if (bytes[0] === OPC_FRIEND_REQUEST_NOTIF) {
 			const decoder = new TextDecoder();
@@ -52,7 +53,7 @@ function Popups() {
 		else if (bytes[0] === OPC_CHAT_NOTIF) {
 			const decoder = new TextDecoder();
 			const str = decoder.decode(bytes.subarray(1));
-			showAchievement(OPC_CHAT_NOTIF, str);2
+			showAchievement(OPC_CHAT_NOTIF, str);
 		}
 		else if (bytes[0] === OPC_FRIEND_REQUEST_ACCEPT) {
 			window.dispatchEvent(new Event("friends:addedFriends"));

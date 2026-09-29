@@ -81,9 +81,7 @@ function Profile() {
 		}
 	}
 
-	async function handleBioKeyDown(
-		e: React.KeyboardEvent<HTMLTextAreaElement>
-	) {
+	async function handleBioKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
 		if (e.key === "Enter") {
 			e.preventDefault()
 			try {
@@ -92,6 +90,15 @@ function Profile() {
 			catch {
 			}
 		}
+	}
+
+	async function handleBioBlur() {
+		try {
+			await userApi.change_bio(bio);
+		}
+		catch {
+		}
+		
 	}
 
 	async function handleCountryChange(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -181,6 +188,10 @@ function Profile() {
 	useEffect(() => {
 		fetchProfile();
 		loadAchievements();
+		window.addEventListener("achievements:new", loadAchievements);
+		return () => {
+			window.removeEventListener("achievements:new", loadAchievements);
+		};
 	}, [])
 
 	if (loadingProfile) {
@@ -204,8 +215,8 @@ function Profile() {
 			<section className="profile-section">
 				<h1>Mon profil</h1>
 				<section className="profile">
-					<p><strong>Pseudo :</strong> {self.username}</p>
-					<p>
+					<div><strong>Pseudo :</strong> {self.username}</div>
+					<div>
 						<strong>Email :</strong> {self.email}
 						{!self.email_confirmed && (
 							<button
@@ -216,16 +227,20 @@ function Profile() {
 								{confirmMailError ? "Email deja envoyer" : (sendConfirmMail ? "Email envoyer!" : "Envoyer le mail")}
 							</button>
 						)}
-					</p>
-					<p><strong>Bio :</strong></p>
-					<textarea
-						className="bio-textarea"
-						value={bio}
-						onChange={(e) => setBio(e.target.value)}
-						onKeyDown={handleBioKeyDown}
-						maxLength={100}
-					/>
-					<p className="bio-counter">{bio.length} / 100</p>
+					</div>
+					<div>
+						<strong>Bio :</strong>
+						<br />
+						<textarea
+							className="bio-textarea"
+							value={bio}
+							onChange={(e) => setBio(e.target.value)}
+							onKeyDown={handleBioKeyDown}
+							onBlur={handleBioBlur}
+							maxLength={100}
+						/>
+					</div>
+					<div className="bio-counter">{bio.length} / 100</div>
 					<select className="country-select" value={country} onChange={handleCountryChange}>
 							{countries.map((c) => (
 								<option key={c.code} value={c.code}>

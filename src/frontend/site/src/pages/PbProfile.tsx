@@ -20,8 +20,8 @@ export default function ProfilePage() {
 		if (!username) return;
 		try {
 			const res: UserResponse = await globalApi.get_user(username);
-			const date = new Date("2026-09-22T18:35:25.478761+00:00");
-			setDate(date.toLocaleString("fr-FR", {day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit"}))
+			const date = new Date(res.join_date);
+			setDate(date.toLocaleString(undefined, {day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit"}))
 			setPlayer(res);
 		}
 		catch {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { userApi, type HistoryResponse} from "../api";
 import { useTranslation } from "react-i18next";
+import "./History.css"
 
 function History() {
     const {t} = useTranslation();
@@ -8,6 +9,25 @@ function History() {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
     const [history, setHistory] = useState<HistoryResponse[]|null>(null);
+
+    function formatGameDate(date: string) {
+        return new Date(date).toLocaleString(t("date-lang"), {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+    }
+
+    function getWiner(game: HistoryResponse) {
+        if (game.winner === 1)
+            return game.player1;
+        else if (game.winner === 2)
+            return game.player2;
+        return ("tie")
+    }
+
 
     async function fetchHistory() {
         setLoading(true);
@@ -43,9 +63,22 @@ function History() {
     }
     return (
         <div className="history-page">
-            {history?.map((game, index) => (
-                <p key={index}>{game.player1}, {game.player2}, {game.winner}, {game.date}</p>
-            ))}
+            <table className="history">
+                <tr>
+                    <th>Player 1</th>
+                    <th>Player 2</th>
+                    <th>Winer</th>
+                    <th>Date</th>
+                </tr>
+                {history?.map((game, index) => (
+                    <tr key={index}>
+                        <td>{game.player1}</td>
+                        <td>{game.player2}</td>
+                        <td>{getWiner(game)}</td>
+                        <td>{formatGameDate(game.date)}</td>
+                    </tr>
+                ))}
+            </table>
         </div>
     )
 }

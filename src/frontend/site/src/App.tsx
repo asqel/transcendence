@@ -11,6 +11,7 @@ import PlayerSearch from './pages/PlayerSearch.tsx'
 import Play from './pages/Play.tsx'
 import Friends from './pages/Friends.tsx'
 import ConfirmMail from './pages/ConfirmMail.tsx'
+import ConfirmDelete from './pages/ConfirmDelete.tsx';
 import Popups from './popups.tsx'
 import PrivacyPolicy from './pages/PrivacyPolicy.tsx';
 import TermeOfService from './pages/TermsOfService.tsx';
@@ -110,6 +111,7 @@ function AppRoutes() {
 		/>
 		<Route path="/profile/:username?" element={<PbProfile />} />
 		<Route path="/confirm-mail" element={<ConfirmMail />} />
+		<Route path="/confirm-delete" element={<ConfirmDelete />} />
 				<Route 
 					path="/history" 
 					element={

@@ -54,14 +54,14 @@ function Login() {
 				<button
 					type="button"
 					onClick={() => setMode('signin')}
-					className={mode === 'signin' ? 'active' : ''}
+					className={mode === 'register' ? 'not-active' : ''}
 				>
 					{t("login-page.signin")}
 				</button>
 				<button
 					type="button"
 					onClick={() => setMode('register')}
-					className={mode === 'register' ? 'active' : ''}
+					className={mode === 'signin' ? 'not-active' : ''}
 				>
 					{t("login-page.signup")}
 				</button>

@@ -8,17 +8,16 @@
 }
 
 .leaderboard {
-    border: 2px solid var(--button-color);
-    padding: 10px;
+    border: 2px solid var(--border);
     margin-top: 5%;
     border-radius: 10px;
     font-size: min(2.5dvh, 2.5dvw);
-    color: white;
+    border-spacing: min(3dvh, 3dvw);
 }
+
 .self {
-    border: 2px solid var(--button-color);
+    border: 2px solid var(--border);
     border-radius: 10px;
     padding: 10px;
     font-size: min(2.5dvh, 2.5dvw);
-    color: white;
 }
