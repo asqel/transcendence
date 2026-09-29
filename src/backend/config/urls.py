@@ -38,4 +38,6 @@ urlpatterns = [
 	path("api/leaderboard", api.leaderboard.get),
 	path("api/account/data", api.account.get_data),
 	path("api/account/confirm-delete", api.account.do_delete_confirm),
+	path("api/account/history", api.account.history),
+	path("api/leaderboard", api.leaderboard.get),
 ]
