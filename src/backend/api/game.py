@@ -518,7 +518,7 @@ class Game:
 
 			if (winner_stats.streak >= 5):
 				api.ach.gain(winner.user, api.ach.ACH_WIN_STREAK)
-			if (looser_stats.streak <= 5):
+			if (looser_stats.streak <= -5):
 				api.ach.gain(looser.user, api.ach.ACH_POOP)
 		else:
 			stats1 = Stats.objects.filter(user=self.player_1.user).filter()

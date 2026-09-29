@@ -33,7 +33,11 @@ urlpatterns = [
 	path("api/account/set-skin", api.ach.set_skin),
 	path("api/account/get-skin", api.ach.get_skin),
 	path("api/account/confirm-ask", api.account.ask_confirm_email),
-	path("api/account/confirm", api.account.confirm_email),
+	path("api/account/confirm-mail", api.account.confirm_email),
+	path("api/account/history", api.account.history),
+	path("api/leaderboard", api.leaderboard.get),
+	path("api/account/data", api.account.get_data),
+	path("api/account/confirm-delete", api.account.do_delete_confirm),
 	path("api/account/history", api.account.history),
 	path("api/leaderboard", api.leaderboard.get),
 ]
