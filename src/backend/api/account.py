@@ -41,7 +41,7 @@ def create(request):
 
 	try:
 		user = User.objects.create_user(**infos);
-		Profile.objects.create(user=user, bio="", country="")
+		Profile.objects.create(user=user, bio="")
 		Stats.objects.create(user=user)
 		EmailConfirm.objects.create(user=user)
 		DeleteConfirm.objects.create(user=user)
@@ -165,8 +165,8 @@ def set_info(request):
 	value = request.json.get("value", None)
 	if (not key):
 		return common.error("Missing key 'field'", 400)
-	if (not value or type(value) != str):
-		return commmon.error("Missing key 'value' or not a string", 400)
+	if (type(value) != str):
+		return common.error("Missing key 'value' or not a string", 400)
 
 	if (key == "bio"):
 		if (len(value) > 100):
