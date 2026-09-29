@@ -38,6 +38,12 @@ class EmailConfirm(models.Model):
 	token = models.CharField(max_length=100, default="")
 	expires_at = models.DateTimeField(default=timezone.now)
 
+class DeleteConfirm(models.Model):
+	user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="delete_confirm")
+	token = models.CharField(max_length=100, default="")
+	expires_at = models.DateTimeField(default=timezone.now)
+
+
 class Friendness(models.Model):
 	lesser = models.ForeignKey(User, on_delete=models.CASCADE, related_name="lesser")
 	greater = models.ForeignKey(User, on_delete=models.CASCADE, related_name="greater")
