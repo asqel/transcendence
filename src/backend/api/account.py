@@ -179,3 +179,21 @@ def confirm_email(request):
 	profile.email_confirmed = True
 	profile.save()
 	return common.success("", 204)
+
+@common.endpoint("GET", need_json=False)
+def history(request):
+	if (not request.user.is_authenticated):
+		return common.error("Not authentified", 403)
+	
+	games = Game.objects.filter(Q(user1=request.user) | Q(user2=request.user))
+	res = [
+		{
+			"player1": i.user1.username,
+			"player2": i.user2.username,
+			"winner": i.winner,
+			"date": str(i.date),
+		}
+		for i in games
+	]
+	
+	return JsonResponse(res, safe=False)
