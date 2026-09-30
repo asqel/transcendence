@@ -35,17 +35,40 @@ export default function ProfilePage() {
 	if (!player) return <p>{t("text.loading")}</p>;
 	return (
 		<div className="pb-profile-page">
-			<section className="profile-section">
-				<p><strong>Pseudo :</strong> {username}</p>
-				<p><strong>Bio :</strong></p>
-				<p>{player.bio ? player.bio : "no bio"}</p>
-				<p><strong>Country: </strong>{player.country} {countries.find(country => country.code === player.country)?.flag}</p>
-				<p><strong>join_date: </strong>{date}</p>
-				<p><strong>elo: </strong>{player.elo}</p>
-				<p><strong>streak: </strong>{player.streak}</p>
-				<p><strong>win count: </strong>{player.win_count}</p>
-				<p><strong>loss count: </strong> {player.loss_count}</p>
-				<p><strong>placed: </strong> {player.placed}</p>
+			<section className="profile">
+				<div className="name">
+					<strong>Pseudo :</strong> {username}
+				</div>
+				<div className="bio">
+					<strong>Bio :</strong>
+					<br />
+					<textarea
+						className="bio-textarea"
+						value={player.bio}
+						disabled={true}
+					/>
+				</div>
+				<div className="country">
+					<strong>Country: </strong>{player.country} {countries.find(country => country.code === player.country)?.flag}
+				</div>
+				<div className="join-date">
+					<strong>Join-date: </strong> {date}
+				</div>
+				<div className="elo">
+					<strong>Elo: </strong> {player.elo}
+				</div>
+				<div className="streak">
+					<strong>Streak: </strong> {player.streak}
+				</div>
+				<div className="win-count">
+					<strong>Win count: </strong> {player.win_count}
+				</div>
+				<div className="loss-count">
+					<strong>Loss count: </strong> {player.loss_count}
+				</div>
+				<div className="placed">
+					<strong>Placed: </strong> {player.placed}
+				</div>
 			</section>
 		</div>
 	) 

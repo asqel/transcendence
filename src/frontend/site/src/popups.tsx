@@ -7,19 +7,20 @@ import "./popups.css"
 const OPC_ACHIVEMENTS_NOTIF = 0x00;
 const OPC_FRIEND_REQUEST_NOTIF = 0x01;
 const OPC_CHAT_NOTIF = 0x02;
-const OPC_FRIEND_REQUEST_ACCEPT = 0x03;
+const OPC_FRIEND_REQUEST_ACCEPTED_NOTIF = 0x03;
 
 function Popups() {
 	const { t } = useTranslation();
 	const { user } = useAuth();
 
-	const wsRef = useRef<WebSocket | null>(null)
-	const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-	const shouldReconnectRef = useRef(true)
+	const wsRef = useRef<WebSocket | null>(null);
+	const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const shouldReconnectRef = useRef(true);
 
-	const [achievementPopup, setAchievementPopup] = useState<number | null>(null)
-	const [newFriendPopup, setNewFriendPopup] = useState<string | null>(null)
-	const [messagePopup, setMessagePopup] = useState<string | null>(null)
+	const [achievementPopup, setAchievementPopup] = useState<number | null>(null);
+	const [friendRequestPopup, setFriendRequestPopup] = useState<string | null>(null);
+	//const [acceptedFriendPopup, setAcceptedFriendPopup] = useState<string | null>(null);
+	const [messagePopup, setMessagePopup] = useState<string | null>(null);
 	
 
 	
@@ -28,12 +29,12 @@ function Popups() {
 		if (id === OPC_ACHIVEMENTS_NOTIF && typeof val === "number")
 			setAchievementPopup(val);
 		else if (id === OPC_FRIEND_REQUEST_NOTIF && typeof val === "string")
-			setNewFriendPopup(val);
+			setFriendRequestPopup(val);
 		else if (id === OPC_CHAT_NOTIF && typeof val === "string")
 			setMessagePopup(val);
 		setTimeout(() => {
 			setAchievementPopup(null);
-			setNewFriendPopup(null);
+			setFriendRequestPopup(null);
 			setMessagePopup(null);
 		}, 4000)
 	}
@@ -55,7 +56,7 @@ function Popups() {
 			const str = decoder.decode(bytes.subarray(1));
 			showAchievement(OPC_CHAT_NOTIF, str);
 		}
-		else if (bytes[0] === OPC_FRIEND_REQUEST_ACCEPT) {
+		else if (bytes[0] === OPC_FRIEND_REQUEST_ACCEPTED_NOTIF) {
 			window.dispatchEvent(new Event("friends:addedFriends"));
 		}
 	}
@@ -124,7 +125,7 @@ function Popups() {
 	}, [user])
 
 	return (
-		<div>
+		<>
 			{achievementPopup && (
 				<div className="popup">
 					<div className="popup-title">
@@ -135,13 +136,13 @@ function Popups() {
 					</div>
 				</div>
 			)}
-			 {newFriendPopup && (
+			{friendRequestPopup && (
 				<div className="popup">
 					<div className="popup-title">
-						Demande d'amis accepter
+						Demande d'amis recu
 					</div>
 					<div className="popup-text">
-						{newFriendPopup} a accepter ta demande
+						{friendRequestPopup} t'a envoer une demande
 					</div>
 				</div>
 			)}
@@ -155,7 +156,7 @@ function Popups() {
 					</div>
 				</div>
 			)}
-		</div>
+		</>
 	);
 }
 

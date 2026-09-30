@@ -211,12 +211,14 @@ function Profile() {
 	}
 
 	return (
-		<div className="profile-page">
+		<div className="pr-profile-page">
 			<section className="profile-section">
 				<h1>Mon profil</h1>
 				<section className="profile">
-					<div><strong>Pseudo :</strong> {self.username}</div>
-					<div>
+					<div className="name">
+						<strong>Pseudo :</strong> {self.username}
+					</div>
+					<div className="email">
 						<strong>Email :</strong> {self.email}
 						{!self.email_confirmed && (
 							<button
@@ -228,7 +230,7 @@ function Profile() {
 							</button>
 						)}
 					</div>
-					<div>
+					<div className="bio">
 						<strong>Bio :</strong>
 						<br />
 						<textarea
@@ -239,8 +241,9 @@ function Profile() {
 							onBlur={handleBioBlur}
 							maxLength={100}
 						/>
+						<div className="counter">{bio.length} / 100</div>
 					</div>
-					<div className="bio-counter">{bio.length} / 100</div>
+					
 					<select className="country-select" value={country} onChange={handleCountryChange}>
 							{countries.map((c) => (
 								<option key={c.code} value={c.code}>
@@ -248,8 +251,8 @@ function Profile() {
 								</option>
 							))}
 					</select>
-					<button onClick={() => navigate("/history")}>History</button>
 				</section>
+				<button className="profile-history" onClick={() => navigate("/history")}>History</button>
 				<section className="data-zone">
 					<button
 						className="dl-data-button"
@@ -301,12 +304,9 @@ function Profile() {
 				</div>
 			</section>
 			
-
-			{/* POPUP DE SUPPRESSION */}
 			{showDeletePopup && (
 				<div className="delete-modal-overlay" onClick={closeDeletePopup}>
 					<div className="delete-modal" onClick={(e) => e.stopPropagation()}>
-						<>
 						<h2>Supprimer votre compte ?</h2>
 						<p>
 							Cette action est <strong>irréversible</strong>.
@@ -336,12 +336,6 @@ function Profile() {
 								Email send
 							</p>
 						)}
-						{deleteError && (
-							<p className="delete-modal-error">
-								{deleteError}
-							</p>
-						)}
-						</>
 						<div className="delete-modal-actions">
 							<button
 								className="delete-cancel-button"
@@ -358,6 +352,11 @@ function Profile() {
 								{loadingDelete ? ("Suppression...") : ("Supprimer definitinvement")}
 							</button>
 						</div>
+						{deleteError && (
+							<p className="delete-modal-error">
+								{deleteError}
+							</p>
+						)}
 					</div>
 				</div>
 			)}

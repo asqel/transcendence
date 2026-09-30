@@ -78,11 +78,11 @@ function Friends() {
 		}
 		else if (bytes[0] === OPC_ADD_FRIENDS) {
 			if (bytes[1] === 0) {
-				setLoadingAddFriends(false);
 				setShowAddFriendsPopups(false);
 			}
-			else
+			else 
 				setAddFriendsError(t("friends-page.add_error." + bytes[1]))
+			setLoadingAddFriends(false);
 
 		}
 		else if (bytes[0] === OPC_LIST_REQUEST) {
@@ -120,7 +120,6 @@ function Friends() {
 		else if (bytes[0] === OPC_SELECT_FRIENDS) {
 			if (bytes[1] === 0) {
 				setChatMessages([]);
-				//messagesContainerRef.current = null;
 				const decoder = new TextDecoder();
 				const str = decoder.decode(bytes.subarray(2));
 				selectedFriend.current = str;
@@ -303,31 +302,33 @@ function Friends() {
 					))}
 				</div>
 			</div>
-			<div className="friends-chatbox">
-				<div className="chatbox-messages" ref={messagesContainerRef}>
-					{chatMessages.length === 0 && (
-						<p className="chatbox-empty">{t("chatbox.no_message")}</p>
-					)}
-					{chatMessages.map((msg, i) => (
-						<p key={i} className="chatbox-message">{msg}</p>
-					))}
+			{selectedFriend.current && (
+				<div className="friends-chatbox">
+					<div className="chatbox-messages" ref={messagesContainerRef}>
+						{chatMessages.length === 0 && (
+							<p className="chatbox-empty">{t("chatbox.no_message")}</p>
+						)}
+						{chatMessages.map((msg, i) => (
+							<p key={i} className="chatbox-message">{msg}</p>
+						))}
+					</div>
+					<div className="chatbox-input-row">
+						<input
+							type="text"
+							value={chatInput}
+							onChange={(e) => setChatInput(e.target.value)}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") handleSendChat()
+							}}
+							placeholder={t("chatbox.write_message")}
+							className="input"
+							/>
+						<button onClick={handleSendChat}>
+							{t("chatbox.send")}
+						</button>
+					</div>
 				</div>
-				<div className="chatbox-input-row">
-					<input
-						type="text"
-						value={chatInput}
-						onChange={(e) => setChatInput(e.target.value)}
-						onKeyDown={(e) => {
-							if (e.key === "Enter") handleSendChat()
-						}}
-						placeholder={t("chatbox.write_message")}
-						className="input"
-					/>
-					<button onClick={handleSendChat}>
-						{t("chatbox.send")}
-					</button>
-				</div>
-			</div>
+			)}
 			{(showAddFriendsPopup || showFriendsRequestPopup) && (
 				<div className="popups-overlay" onClick={() => closePopup()}>
 					<div className="popups" onClick={(e) => e.stopPropagation()}>
@@ -336,7 +337,6 @@ function Friends() {
 							<h2>{t("friends-page.add_friend")}</h2>
 							<input
 								type="text"
-								className="add-friends-input"
 								placeholder="Friends Name"
 								value={addFriends}
 								onChange={(e) => {
@@ -351,12 +351,6 @@ function Friends() {
 								autoFocus
 								disabled={loadingAddFriends}
 							/>
-							{addFriendsError && (
-								<p className="popups-error">
-									{addFriendsError}
-								</p>
-							)}
-
 							<div className="popups-actions">
 								<button className="popups-cancel-button" onClick={() => closePopup()} disabled={loadingAddFriends}>
 									{t("friends-page.cancel")}
@@ -365,6 +359,12 @@ function Friends() {
 									{loadingAddFriends ? ("...") : (t("friends-page.send_request"))}
 								</button>
 							</div>
+							{addFriendsError && (
+								<p className="popup-error">
+									{addFriendsError}
+								</p>
+							)}
+
 							</>
 						)}
 						{showFriendsRequestPopup && (

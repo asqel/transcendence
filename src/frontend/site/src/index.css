@@ -12,9 +12,12 @@
 	--heading: system-ui, sans-serif;
 	--mono: ui-monospace, monospace;
 
+	--font-size: min(1.8dvh, 1.8dvw);
+
 
 
 	font-family: var(--sans);
+	font-size: var(--font-size);
 
 	color: var(--text);
 	background: var(--bg);
@@ -24,9 +27,11 @@ body {
 	margin: 0;
 }
 
+
 button {
-	padding: 10px 18px;
+	padding: 1.2dvh 1.4dvw;
  	font-weight: 600;
+	font-size: var(--font-size);
 	border: 1px solid #2a2d34;
 	border-radius: 10px;
 	color: white;
@@ -44,6 +49,8 @@ button:disabled {
 }
 
 input {
+	padding: 1.2dvh 1.4dvw;
+	font-size: var(--font-size);
 	background: var(--zone-bg);
 	color: var(--text);
 	border: none;
@@ -60,6 +67,7 @@ input::placeholder {
 }
 
 textarea {
+	font-size: var(--font-size);
 	background: var(--zone-bg);
 	color: var(--text);
 	border: none;
@@ -73,6 +81,7 @@ textarea:focus {
 }
 
 select {
+	font-size: var(--font-size);
 	background: var(--zone-bg);
 	color: var(--text);
 	border: none;
@@ -85,6 +94,7 @@ select:focus {
 }
 
 option {
+	font-size: var(--font-size);
 	background: var(--zone-bg);
 }
 option:hover {

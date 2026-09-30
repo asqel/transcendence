@@ -4,16 +4,19 @@
 
 .popup {
   position: fixed;
-  top: 24px;
-  right: 24px;
+  top: 2dvh;
+  right: 2dvw;
 
-  padding: 16px 20px;
+  padding: 2dvh 2dvw;
 
-  background: #1a1c22;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1dvh;
+
+  background: var(--zone-bg);
   border: 1px solid #2a2d34;
-  border-radius: 12px;
-
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
 
   z-index: 1000;
 
@@ -22,14 +25,9 @@
 
 .popup-title {
   font-weight: 700;
-  font-size: 15px;
+  font-size: calc(var(--font-size) * 1.2);
 }
 
-.popup-text {
-  margin-top: 4px;
-  font-size: 14px;
-  color: #aaa;
-}
 
 @keyframes achievement-popup-in {
   from {

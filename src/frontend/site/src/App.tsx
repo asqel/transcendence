@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Link, Navigate, } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link, Navigate, useNavigate, } from 'react-router-dom'
 import { useEffect, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next';
 import { AuthProvider, useAuth } from './context/AuthContext'
@@ -20,6 +20,7 @@ import Leaderboard from './pages/Leaderboard.tsx';
 import './App.css'
 
 function Navigation() {
+	const navigate = useNavigate();
 	const { user, logout } = useAuth()
 	const { t, i18n } = useTranslation();
 
@@ -31,28 +32,41 @@ function Navigation() {
   return (
 		<nav className="navbar">
 			<div className="nav-left">
-    		    <Link to="/">{t("navbar.home")}</Link>
-    		    <Link to="/player-search">{t("navbar.player_search")}</Link>
-				<Link to="/leaderboard">{t("navbar.leaderboard")}</Link>
-				<Link to="/play">{t("navbar.play")}</Link>
+				<button onClick={() => navigate("/")}>
+				  {t("navbar.home")}
+				</button>
+
+				<button onClick={() => navigate("/player-search")}>
+				  {t("navbar.player_search")}
+				</button>
+
+				<button onClick={() => navigate("/leaderboard")}>
+				  {t("navbar.leaderboard")}
+				</button>
+
+				<button onClick={() => navigate("/play")}>
+				  {t("navbar.play")}
+				</button>
+
 				{user && (
-					<Link to="/friends">{t("navbar.friends")}</Link>
+					<button onClick={() => navigate("/friends")}>{t("navbar.friends")}</button>
+
 				)}
 				<div className="legal-button">
-					<Link to="/privacy-policy">{t("navbar.privacy-policy")}</Link>
-					<Link to="/terme-of-service">{t("navbar.terme-of-service")}</Link>
+					<button onClick={() => navigate("/privacy-policy")}>{t("navbar.privacy-policy")}</button>
+					<button onClick={() => navigate("/terme-of-service")}>{t("navbar.terme-of-service")}</button>
 				</div>
-				
     		</div>
     		<div className="nav-right">
     		    {user ? (
-    		    	<>
-    		    	<Link to="/profile">{t("navbar.profile")}</Link>
-    		    	<span>{t("navbar.welcome")}, {user.username}</span>
-    		    	<button onClick={logout}>{t("navbar.logout")}</button>
-    		    	</>
+    		    	<div className='user'>
+						<button onClick={() => navigate("/profile")}>{t("navbar.profile")}</button>
+    		    		<span>{t("navbar.welcome")}, {user.username}</span>
+    		    		<button className="logout" onClick={logout}>{t("navbar.logout")}</button>
+    		    	</div>
     		    ) : (
-    		    	<Link to="/login">Connexion</Link>
+					<button onClick={() => navigate("/login")}>Connexion</button>
+
     		    )}
 				<select name="lang" value={i18n.language} onChange={handleChangeLang}>
 					<option value="es">ES</option>

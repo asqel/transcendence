@@ -11,26 +11,17 @@
 	display: flex;
 	align-items: flex-start;
 	justify-content: center;
-	gap: 32px;
-	margin-top: 24px;
+	gap: 10%;
+	margin-top: 5%;
 }
 
 .join-section, .create-section {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 8px;
+	gap: 2dvh;
 }
 
-.join-section .input {
-	padding: 10px 14px;
-	font-size: 15px;
-	border: 1px solid #2a2d34;
-	border-radius: 8px;
-	background-color: #1a1c22;
-	color: #f5f5f5;
-	outline: none;
-}
 
 /*game section*/
 
@@ -68,7 +59,7 @@
   gap: 0.3%;
   background-color: #3a4ee9;
   border-radius: 10px;
-  padding: 10px;
+  padding: 1.5%;
 }
 
 .puissance4-column {
@@ -157,9 +148,9 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 20px;
+	gap: 5%;
 
-	border-radius: 12px;
+	border-radius: 10px;
 	background-color: rgba(0, 0, 0, 0.55);
 
 	pointer-events: none;
@@ -170,11 +161,9 @@
 }
 
 .game-result {
-	font-size: clamp(28px, 5vw, 64px);
 	font-weight: 800;
 	color: white;
 	text-align: center;
-	text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
 }
 
 
@@ -207,7 +196,7 @@
     flex-direction: column;
 
     border: 1px solid #2a2d34;
-    border-radius: 8px;
+    border-radius: 10px;
 
     background-color: #1a1c22;
 	box-sizing: border-box;
@@ -221,18 +210,15 @@
 
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: 1%;
 
 	overflow-y: auto;
-	padding: 10px 12px;
+	padding: 2% 2%;
 }
 
 .game-chatbox .chatbox-message {
 	min-width: 0;
 	margin: 0;
-
-	color: #f5f5f5;
-	font-size: 13px;
 
 	overflow-wrap: break-word;
 }
@@ -246,16 +232,16 @@
 	min-width: 0;
     min-height: 0;
 	display: flex;
-	gap: 8px;
+	gap: 1dvw;
 
-	padding: 10px;
-	border-top: 1px solid #2a2d34;
+	padding: 2%;
+	border-top: 1px solid var(--border);
 }
 
 .game-chatbox .chatbox-input-row input {
 	flex: 1;
 	min-width: 0;
-    min-height: 0;
+	min-height: 0;
 }
 
 .game-chatbox .chatbox-input-row button {

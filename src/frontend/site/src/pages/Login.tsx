@@ -66,7 +66,6 @@ function Login() {
 					{t("login-page.signup")}
 				</button>
 			</div>
-
 			<form onSubmit={handleSubmit} className="login-form">
 				<input
 					value={username}

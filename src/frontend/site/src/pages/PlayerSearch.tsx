@@ -27,6 +27,7 @@ export default function UserSearchPage() {
 
 
 	return (
+		<div className="player-search-page">
 			<div className="container">
 				<h1 className="title">{t("player_search-page.find_player")}</h1>
 					<div className="search-wrapper">
@@ -37,13 +38,13 @@ export default function UserSearchPage() {
 							if (e.key === "Enter") handleSearch()
 							}}
 							placeholder={t("player_search-page.username")}
-							className="input"
 						/>
 						<button onClick={handleSearch}>{t("player_search-page.find")}</button>
 						{error && (
 							<p className="search-error">{error}</p>
 						)}
 					</div>
+			</div>
 		</div>
 	);
 }
