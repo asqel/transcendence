@@ -14,6 +14,7 @@ from django.core.mail import EmailMessage
 from django.utils import timezone
 import pycountry
 from django.http import JsonResponse, HttpResponse
+from django.contrib.auth.hashers import check_password
 import json
 
 import secrets
@@ -67,10 +68,15 @@ def real_delete(user):
 
 	user.delete()
 
-@common.endpoint("POST", need_json=False)
+@common.endpoint("POST")
 def delete(request):
 	if (not request.user.is_authenticated):
 		return common.error("Not authentified", 401)
+	password = request.json.get("password")
+	if (password is None):
+		return common.error("Missing password", 404)
+	if (not check_password(password, request.user.password)):
+		return common.error("Wrong password", 404)
 	
 
 	profile = Profile.objects.filter(user=request.user).first()
@@ -83,9 +89,9 @@ def delete(request):
 def do_delete_ask(request, email):
 	delete_confirm = DeleteConfirm.objects.filter(user=request.user).first()
 	delete_confirm.token = secrets.token_urlsafe(32)
-	if (delete_confirm.expires_at + timedelta(hours=1) < timezone.now()):
+	if (delete_confirm.expires_at > timezone.now()):
 		return common.error("too much request", 429)
-	delete_confirm.expires_at = timezone.now() + timedelta(hours=6)
+	delete_confirm.expires_at = timezone.now() + timedelta(hours=1)
 	delete_confirm.save()
 
 	try:
@@ -103,7 +109,7 @@ This link expires in 1 hour.
 		)
 	except Exception as e:
 		api.utils.log(e)
-	return common.success("", 204)
+	return common.success("Email sent", 202)
 
 def do_delete_confirm(request):
 	name = request.GET.get("username", None)
@@ -193,9 +199,10 @@ def ask_confirm_email(request):
 	
 	email_confirm = EmailConfirm.objects.filter(user=request.user).first()
 	email_confirm.token = secrets.token_urlsafe(32)
-	if (email_confirm.expires_at + timedelta(hours=1) < timezone.now()):
+	api.utils.log(email_confirm.expires_at + timedelta(hours=1), timezone.now())
+	if (email_confirm.expires_at > timezone.now()):
 		return common.error("too much request", 429)
-	email_confirm.expires_at = timezone.now() + timedelta(hours=6)
+	email_confirm.expires_at = timezone.now() + timedelta(hours=1)
 	email_confirm.save()
 	try:
 		send_mail(
@@ -212,6 +219,7 @@ This link expires in 1 hour.
 		)
 	except Exception as e:
 		api.utils.log(e)
+		# !TODO inform front that it failed ?
 	return common.success("", 204)
 
 @common.endpoint("GET", need_json=False)
