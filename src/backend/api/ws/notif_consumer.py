@@ -17,7 +17,10 @@ class NotifConsumer(WebsocketConsumer):
 		if (self.user is None):
 			return 
 
-		api.tmp.get(self.user, "notif").remove(self)
+		try:
+			api.tmp.get(self.user, "notif").remove(self)
+		except:
+			...
 
 	def receive(self, text_data=None, bytes_data=None):
 		if bytes_data is not None:

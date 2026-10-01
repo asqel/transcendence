@@ -81,10 +81,11 @@ class FriendChatConsumer(WebsocketConsumer):
 
 				res = api.friend.accept_request(self.user, name, state)
 				if (res == 0 and state == True):
-					api.send_req_accept(name, self.user.username)
+					api.notif.send_req_accept(name, self.user.username)
 
 				return self.send(bytes_data=b'\x04\x00' + res.to_bytes(1))
-			except:
+			except Exception as e:
+				api.utils.log("E", e)
 				return self.send(bytes_data=b'\x04\x01')
 
 		if (bytes_data[0] == 0x05):
