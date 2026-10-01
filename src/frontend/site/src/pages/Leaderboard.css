@@ -1,0 +1,24 @@
+.leaderboard-page {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2%;
+}
+
+.leaderboard {
+    border: 2px solid var(--border);
+    border-spacing: min(3dvh, 3dvw);
+    padding: 1%;
+    margin-top: 5%;
+    border-radius: 10px;
+    font-size: min(2.5dvh, 2.5dvw);
+}
+
+.self {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 1%;
+    font-size: min(2.5dvh, 2.5dvw);
+}

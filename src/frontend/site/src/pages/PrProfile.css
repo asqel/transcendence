@@ -1,0 +1,208 @@
+.pr-profile-page {
+	width: 100%;
+	height: 100%;
+	padding: 1%;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: row;
+}
+
+.pr-profile-page .profile-loading {
+	text-align: center;
+}
+.pr-profile-page .profile-error {
+	color: red;
+}
+
+.pr-profile-page .profile-section {
+	flex: 1;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+	min-width: 0;
+	min-height: 0;
+
+}
+
+.pr-profile-page .profile {
+	flex: 4;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4%;
+	min-width: 0;
+	min-height: 0;
+	box-sizing: border-box;
+
+}
+.pr-profile-page .profile .confirm-mail-button {
+	margin-left: 1dvw;
+}
+.pr-profile-page .profile .bio {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	min-width: 0;
+	min-height: 0;
+}
+.pr-profile-page .profile .bio textarea {
+	width: 100%;
+	height: 100%;
+}
+.pr-profile-page .profile .bio .counter {
+	font-size: 0.9em;
+}
+.pr-profile-page .profile .country-select {
+	width: 70%;
+	padding: 3%;
+	min-width: 0;
+	min-height: 0;
+}
+
+.pr-profile-page .data-zone {
+	flex: 1;
+	min-width: 0;
+	min-height: 0;
+}
+
+.pr-profile-page .danger-zone {
+	flex: 1;
+	min-width: 0;
+	min-height: 0;
+}
+
+.pr-profile-page .delete-account-button {
+	background-color: #d32f2f;
+	min-width: 0;
+	min-height: 0;
+}
+.pr-profile-page .delete-account-button:hover {
+	background-color: #a91f1f;
+}
+
+
+/*achievements secction*/
+
+.achievements-section {
+	flex: 1;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.achievements {
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5%;
+    box-sizing: border-box;
+}
+
+.achievement {
+    min-width: 0;
+    min-height: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+	background-color: #999999;
+}
+
+.achievement:disabled {
+	background-color: #333;
+}
+
+.achievement-selected {
+	border: 2px solid var(--button-color);
+}
+
+.achievement-image {
+    height: 40%;
+	width: 40%;
+    object-fit: contain;
+    flex: 0 1 20%;
+}
+
+.achievement-info {
+    min-width: 0;
+    min-height: 0;
+    flex: 1 1 0;
+    overflow: hidden;
+}
+
+
+
+
+/* =========================
+   POPUP SUPPRESSION COMPTE
+   ========================= */
+
+.delete-modal-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.8);
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	z-index: 1000;
+}
+
+.delete-modal {
+	width: 40%;
+	border-radius: 10px;
+	padding: 2%;
+	background: var(--zone-bg);
+	display: flex;
+	flex-direction: column;
+	gap: 2dvh;
+}
+
+.delete-modal h2 {
+	margin: 0;
+}
+
+.delete-modal p {
+	margin: 0;
+}
+
+.delete-password-input {
+	width: 100%;
+	box-sizing: border-box;
+
+	background: var(--bg);
+}
+
+.delete-password-input:focus {
+	outline-color: #c62828;
+}
+
+.delete-modal-error {
+	margin: 0;
+	padding: 2% 4%;
+	border: 1px solid rgba(239, 68, 68, 0.3);
+	border-radius: 10px;
+	text-align: center;
+	color: #f87171;
+}
+
+.delete-modal-actions {
+	display: flex;
+	justify-content: space-between;
+}
+
+.delete-confirm-button {
+	background: #c62828;
+	color: white;
+}
+
+.delete-confirm-button:hover:not(:disabled) {
+	background: #a91f1f;
+}

@@ -1,0 +1,152 @@
+.page-friend {
+	display: flex;
+	width: 100%;
+	height: 100%;
+}
+
+/* Liste des amis */
+.friendslist {
+	flex: 1;
+	max-width: 25%;
+    display: flex;
+    flex-direction: column;
+}
+
+.friendslist .actions {
+	flex: 1;
+    display: flex;
+    flex-direction: row;
+}
+
+.friendslist .actions .delete {
+	background: red;
+}
+
+.friendslist .actions button {
+	flex: 1;
+}
+
+
+.friendslist .list {
+	flex: 10;
+	padding: 4%;
+    display: flex;
+    flex-direction: column;
+	gap: 3%;
+}
+
+.friendslist .list button {
+    width: 100%;
+	background: transparent;
+}
+.friendslist .list button:hover {
+	background: #ffffff31;
+}
+.friendslist .list button:disabled {
+	background: #ffffff9f;
+	color: white;
+}
+
+
+/* Zone de chat */
+.friends-chatbox {
+	flex: 3;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	background: var(--zone-bg);
+}
+
+.friends-chatbox .chatbox-messages {
+	height: 100%;
+	min-width: 0;
+    min-height: 0;
+
+	display: flex;
+	flex-direction: column;
+	gap: 1%;
+
+	overflow-y: auto;
+	padding: 2% 2%;
+}
+
+.friends-chatbox .chatbox-message {
+	min-width: 0;
+	margin: 0;
+
+	overflow-wrap: break-word;
+}
+
+.friends-chatbox .chatbox-empty {
+	color: #888;
+	text-align: center;
+}
+
+.friends-chatbox .chatbox-input-row {
+	min-width: 0;
+    min-height: 0;
+	display: flex;
+	gap: 1dvw;
+
+	padding: 1%;
+	border-top: 1px solid var(--border);
+}
+
+.friends-chatbox .chatbox-input-row input {
+	flex: 1;
+}
+
+
+
+/*popups*/
+.popups-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.8);
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	z-index: 1000;
+}
+
+.popups {
+	width: 40%;
+	border-radius: 10px;
+	padding: 2%;
+	background: var(--zone-bg);
+	display: flex;
+	flex-direction: column;
+	gap: 2dvh;
+}
+
+.popups h2 {
+	margin: 0;
+}
+
+.popups p {
+	margin: 0;
+}
+
+.popups input {
+	width: 100%;
+	box-sizing: border-box;
+
+	background: var(--bg);
+}
+
+.popups-actions {
+	display: flex;
+	justify-content: space-between;
+}
+
+.popup-error {
+	margin: 0;
+	padding: 2% 4%;
+	border: 1px solid rgba(239, 68, 68, 0.3);
+	border-radius: 10px;
+	text-align: center;
+	color: #f87171;
+}
+

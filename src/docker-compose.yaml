@@ -35,7 +35,7 @@ services:
 
   frontend:
     container_name: frontend
-    image: nginx
+    image: nginx:alpine
 
     volumes:
         - ./frontend:/app
