@@ -127,7 +127,6 @@ async function request<T>(endpoint: string, method: string, body: string = "", o
 	}
 
 	if (!res.ok) {
-		window.dispatchEvent(new Event("auth:logout"));
 		throw res.status;
 	}
 
@@ -199,8 +198,11 @@ function change_country(country: string): Promise<null> {
 	return request<null>(`/account/set-info`, "POST", body)
 }
 
-function delete_account(): Promise<null> {
-	return request<null>("/account/delete", "POST");
+function delete_account(pass: string): Promise<null> {
+	const body = JSON.stringify({
+		"password": pass
+	});
+	return request<null>("/account/delete", "POST", body);
 }
 
 

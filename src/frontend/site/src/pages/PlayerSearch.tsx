@@ -22,6 +22,8 @@ export default function UserSearchPage() {
 		catch (err) {
 			if (err == 404)
 				setError(t("player_search-page.error.not_found"))
+			else
+				setError(t("error.default"))
 		}
 	}
 

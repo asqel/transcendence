@@ -1,7 +1,10 @@
 .pb-profile-page {
 	width: 100%;
 	height: 100%;
-	padding: 1%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2dvh;
 }
 
 
@@ -9,23 +12,39 @@
 	text-align: center;
 }
 
-.pb-profile-page .profile {
-	width: 100%;
-	height: 100%;
+.pb-profile-page .profile-info {
+	width: 30%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	margin-top: 6dvh;
-	gap: 4%;
+	gap: 1dvh;
+	padding: 1%;
+	border: 2px solid var(--border);
+	border-radius: 10px;
+	box-sizing: border-box;
 	min-width: 0;
 	min-height: 0;
-	box-sizing: border-box;
 }
 
-.pb-profile-page .profile .bio {
+.pb-profile-page .profile-info .bio {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	min-width: 0;
+	min-height: 0;
+}
+
+.pb-profile-page .games-info {
+	width: 30%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1dvh;
+	padding: 1%;
+	border: 2px solid var(--border);
+	border-radius: 10px;
+	box-sizing: border-box;
 	min-width: 0;
 	min-height: 0;
 }

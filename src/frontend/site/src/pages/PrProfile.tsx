@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { userApi, type SelfResponse, type UserResponse } from "../api";
+import { userApi, type SelfResponse, type SkinResponse, type UserResponse } from "../api";
 import { useTranslation } from 'react-i18next';
 import countries from "../data/countries.json";
 import achievements from "../data/achievements.json";
@@ -13,11 +13,10 @@ function Profile() {
 
 	const { logout } = useAuth();
 
-	const [self, setSelf] = useState<SelfResponse | null>(null);
-	const [user, setUser] = useState<UserResponse | null>(null);
+	const [self, setSelf] = useState<SelfResponse|null>(null);
 	const [bio, setBio] = useState<string>("");
 	const [country, setCountry] = useState<string>("");
-	const [error, setError] = useState<string | null>(null)
+	const [error, setError] = useState<boolean>(false);
 	const [loadingProfile, setLoadingProfile] = useState<boolean>(false);
 
 	const [loadingConfirmMail, setLoadingConfirmMail] = useState<boolean>(false);
@@ -39,16 +38,15 @@ function Profile() {
 		try {
 			setLoadingProfile(true)
 			console.log("getting user");
-			const rec_self = await userApi.get_user()
+			const rec_self: SelfResponse = await userApi.get_user()
 			console.log(rec_self);
 			setSelf(rec_self)
-			const rec_user = await userApi.get_user(rec_self.username)
-			setUser(rec_user);
+			const rec_user: UserResponse = await userApi.get_user(rec_self.username)
 			setBio(rec_user.bio);
 			setCountry(rec_user.country);
 		}
 		catch (err) {
-			setError(t("error.loading_profile"))
+			setError(true)
 		}
 		finally {
 			setLoadingProfile(false)
@@ -57,13 +55,13 @@ function Profile() {
 
 	async function loadAchievements() {
 		try {
-			const list = await userApi.get_achivments();
+			const list: boolean[] = await userApi.get_achivments();
 			setAchievementList(list);
-			const skin = await userApi.get_skin();
+			const skin: SkinResponse = await userApi.get_skin();
 			setSelectedSkin(skin.skin);
 		}
-		catch (error) {
-			console.error(error)
+		catch (err) {
+			setError(true)
 		}
 	}
 
@@ -163,21 +161,20 @@ function Profile() {
 
 	// Suppression du compte
 	async function handleDeleteAccount() {
-		if (!self?.email_confirmed && !deletePassword) {
-			setDeleteError("Veuillez entrer votre mot de passe.")
+		if (!deletePassword) {
+			setDeleteError(t("pr-profile-page.enter_password"))
 			return
 		}
 
 		try {
 			setDeleteDone(false);
 			setLoadingDelete(true);
-			setDeleteError(null);
-			await userApi.delete_account();
+			await userApi.delete_account(deletePassword);
 			if (!self?.email_confirmed)
 				logout();
 		}
 		catch (err) {
-			setDeleteError("Mot de passe incorrect ou erreur lors de la suppression.");
+			setDeleteError(t("pr-profile-page.delete_fail"));
 		}
 		finally {
 			setLoadingDelete(false);
@@ -197,15 +194,15 @@ function Profile() {
 	if (loadingProfile) {
 		return (
 			<div className="profile-page profile-loading">
-				{t("text.loading_profile")}
+				{t("loading")}
 			</div>
 		)
 	}
 
-	if (error || !self || !user) {
+	if (error) {
 		return (
 			<div className="profile-page profile-error">
-				{error}
+				{t("error.server")}
 			</div>
 		)
 	}
@@ -213,25 +210,25 @@ function Profile() {
 	return (
 		<div className="pr-profile-page">
 			<section className="profile-section">
-				<h1>Mon profil</h1>
+				<h1>{t("pr-profile-page.title")}</h1>
 				<section className="profile">
 					<div className="name">
-						<strong>Pseudo :</strong> {self.username}
+						<strong>{t("pr-profile-page.name")}: </strong> {self?.username}
 					</div>
 					<div className="email">
-						<strong>Email :</strong> {self.email}
-						{!self.email_confirmed && (
+						<strong>{t("pr-profile-page.email")}: </strong> {self?.email}
+						{!self?.email_confirmed && (
 							<button
 								className="confirm-mail-button"
 								onClick={handleSendMail}
 								disabled={loadingConfirmMail}
 							>
-								{confirmMailError ? "Email deja envoyer" : (sendConfirmMail ? "Email envoyer!" : "Envoyer le mail")}
+								{confirmMailError ? t("pr-profile-page.email_already_send") : (sendConfirmMail ? t("pr-profile-page.email_send") : t("pr-profile-page.send_email"))}
 							</button>
 						)}
 					</div>
 					<div className="bio">
-						<strong>Bio :</strong>
+						<strong>{t("pr-profile-page.bio")}: </strong>
 						<br />
 						<textarea
 							className="bio-textarea"
@@ -251,29 +248,29 @@ function Profile() {
 								</option>
 							))}
 					</select>
+					<button className="profile-history" onClick={() => navigate("/history")}>{t("pr-profile-page.hisotry")}</button>
 				</section>
-				<button className="profile-history" onClick={() => navigate("/history")}>History</button>
 				<section className="data-zone">
 					<button
 						className="dl-data-button"
 						onClick={downloadData}
 					>
-						Telecharger ces data
+						{t("pr-profile-page.dl-data")}
 					</button>
 				</section>
 				<section className="danger-zone">
-					<h2>Zone dangereuse</h2>
+					<h2>{t("pr-profile-page.danger-zone")}</h2>
 					<button
 						className="delete-account-button"
 						onClick={openDeletePopup}
 						disabled={loadingDelete}
 					>
-						Supprimer mon compte
+						{t("pr-profile-page.delete-account")}
 					</button>
 				</section>
 			</section>
 			<section className="achievements-section">
-				<h1>test</h1>
+				<h1>{t("pr-profile-page.achievements")}</h1>
 				<div className="achievements">
 				{achievements.map((achievement, index) => {
 					const unlocked = achievementList[index]
@@ -307,17 +304,17 @@ function Profile() {
 			{showDeletePopup && (
 				<div className="delete-modal-overlay" onClick={closeDeletePopup}>
 					<div className="delete-modal" onClick={(e) => e.stopPropagation()}>
-						<h2>Supprimer votre compte ?</h2>
+						<h2>{t("pr-profile-page.delete-popup")}</h2>
 						<p>
-							Cette action est <strong>irréversible</strong>.
+							{t("pr-profile-page.delete_consequence")}
 						</p>
 						<p>
-							Veuillez entrer votre mot de passe pour confirmer.
+							{t("pr-profile-page.enter_password")}
 						</p>
 						<input
 							type="password"
 							className="delete-password-input"
-							placeholder="Mot de passe"
+							placeholder={t("pr-profile-page.password")}
 							value={deletePassword}
 							onChange={(e) => {
 								setDeletePassword(e.target.value)
@@ -333,7 +330,7 @@ function Profile() {
 						/>
 						{deleteDone && (
 							<p className="delete-modal-done">
-								Email send
+								{t("pr-profile-page.email_send")}
 							</p>
 						)}
 						<div className="delete-modal-actions">
@@ -342,14 +339,14 @@ function Profile() {
 								onClick={closeDeletePopup}
 								disabled={loadingDelete}
 							>
-								Annuler
+								{t("pr-profile-page.cancel")}
 							</button>
 							<button
 								className="delete-confirm-button"
 								onClick={handleDeleteAccount}
 								disabled={loadingDelete}
 							>
-								{loadingDelete ? ("Suppression...") : ("Supprimer definitinvement")}
+								{loadingDelete ? (t("pr-profile-page.deleting")) : (t("pr-profile-page.confirm_delete"))}
 							</button>
 						</div>
 						{deleteError && (

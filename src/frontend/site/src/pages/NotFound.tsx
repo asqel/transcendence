@@ -1,4 +1,7 @@
+import { useTranslation } from "react-i18next"
+
 function NotFound() {
-  return <h1>404 Error</h1>
+  const [t] = useTranslation()
+  return <h1 style={{textAlign: "center"}}>{t("404")}</h1>
 }
 export default NotFound

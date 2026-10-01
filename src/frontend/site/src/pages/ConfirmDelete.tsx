@@ -33,7 +33,7 @@ function ConfirmDelete() {
 	}
 
 	return (
-		<div>
+		<div style={{display: "flex", justifyContent: "center", margin: "20%"}}>
 			<button onClick={sendConfirm}>{loading ? "loading" : "confirm"}</button>
 			{error && <p>error</p>}
 		</div>

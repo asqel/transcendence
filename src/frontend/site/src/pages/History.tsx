@@ -57,7 +57,7 @@ function History() {
     if (error) {
         return (
             <div className="history-page">
-                <p>{t("error.default")}</p>
+                <p>{t("error.server")}</p>
             </div>
         )
     }
@@ -65,10 +65,10 @@ function History() {
         <div className="history-page">
             <table className="history">
                 <tr>
-                    <th>Player 1</th>
-                    <th>Player 2</th>
-                    <th>Winer</th>
-                    <th>Date</th>
+                    <th>{t("history-page.player1")}</th>
+                    <th>{t("history-page.player2")}</th>
+                    <th>{t("history-page.winner")}</th>
+                    <th>{t("history-page.date")}</th>
                 </tr>
                 {history?.map((game, index) => (
                     <tr key={index}>

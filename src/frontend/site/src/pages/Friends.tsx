@@ -274,7 +274,7 @@ function Friends() {
 		return (
 			<div>
 				<p className="ws-error">
-					Impossible de se connecter au serveur. Réessaie plus tard.
+					{t("error.server")}
 				</p>
 			</div>
 		)

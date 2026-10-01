@@ -19,7 +19,7 @@ function Popups() {
 
 	const [achievementPopup, setAchievementPopup] = useState<number | null>(null);
 	const [friendRequestPopup, setFriendRequestPopup] = useState<string | null>(null);
-	//const [acceptedFriendPopup, setAcceptedFriendPopup] = useState<string | null>(null);
+	const [acceptedFriendPopup, setAcceptedFriendPopup] = useState<string | null>(null);
 	const [messagePopup, setMessagePopup] = useState<string | null>(null);
 	
 
@@ -30,11 +30,14 @@ function Popups() {
 			setAchievementPopup(val);
 		else if (id === OPC_FRIEND_REQUEST_NOTIF && typeof val === "string")
 			setFriendRequestPopup(val);
+		else if (id === OPC_FRIEND_REQUEST_ACCEPTED_NOTIF && typeof val === "string")
+			setAcceptedFriendPopup(val);
 		else if (id === OPC_CHAT_NOTIF && typeof val === "string")
 			setMessagePopup(val);
 		setTimeout(() => {
 			setAchievementPopup(null);
 			setFriendRequestPopup(null);
+			setAcceptedFriendPopup(null);
 			setMessagePopup(null);
 		}, 4000)
 	}
@@ -57,6 +60,9 @@ function Popups() {
 			showAchievement(OPC_CHAT_NOTIF, str);
 		}
 		else if (bytes[0] === OPC_FRIEND_REQUEST_ACCEPTED_NOTIF) {
+			const decoder = new TextDecoder();
+			const str = decoder.decode(bytes.subarray(1));
+			showAchievement(OPC_FRIEND_REQUEST_ACCEPTED_NOTIF, str);
 			window.dispatchEvent(new Event("friends:addedFriends"));
 		}
 	}
@@ -93,7 +99,6 @@ function Popups() {
 		ws.onerror = (error) => {
 			console.log("Erreur WebSocket notif:", error);
 			wsRef.current = null
-			// Ne pas tenter de se reconnecter immédiatement pour éviter les boucles
 		}
 		ws.onmessage = handleMessage
 		wsRef.current = ws
@@ -129,30 +134,40 @@ function Popups() {
 			{achievementPopup && (
 				<div className="popup">
 					<div className="popup-title">
-						🏆 Achievement débloqué !
+						{t("popups.achievement")}
 					</div>
 					<div className="popup-text">
-						{t("achievements." + achievementPopup + ".name")}
+						{t("popups.achievement_text")} {t("achievements." + achievementPopup + ".name")}
 					</div>
 				</div>
 			)}
 			{friendRequestPopup && (
 				<div className="popup">
 					<div className="popup-title">
-						Demande d'amis recu
+						{t("popups.friend_recive")}
 					</div>
 					<div className="popup-text">
-						{friendRequestPopup} t'a envoer une demande
+						{friendRequestPopup} {t("popups.friend_recive_text")}
+					</div>
+				</div>
+			)}
+			{acceptedFriendPopup && (
+				<div className="popup">
+					<div className="popup-title">
+						{t("popups.friend_accepted")}
+					</div>
+					<div className="popup-text">
+						{friendRequestPopup} {t("popups.friend_accepted_text")}
 					</div>
 				</div>
 			)}
 			 {messagePopup && (
 				<div className="popup">
 					<div className="popup-title">
-						Nouveau message
+						{t("popups.message")}
 					</div>
 					<div className="popup-text">
-						{messagePopup} ta envoyer un message
+						{messagePopup} {t("popups.message_text")}
 					</div>
 				</div>
 			)}

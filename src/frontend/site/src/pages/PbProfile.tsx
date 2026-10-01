@@ -31,16 +31,19 @@ export default function ProfilePage() {
 	useEffect(() => {fetch_player()}, [username]);
 
 
-	if (error) return <p>ERROR</p>;
-	if (!player) return <p>{t("text.loading")}</p>;
+	if (error)
+		return <p>{t("error.server")}</p>;
+	if (!player) 
+		return <p>{t("loading")}</p>;
 	return (
 		<div className="pb-profile-page">
-			<section className="profile">
+			<h1>{t("pb-profile-page.title").replace("%username", username || "")}</h1>
+			<div className="profile-info">
 				<div className="name">
-					<strong>Pseudo :</strong> {username}
+					<strong>{t("pb-profile-page.name")}: </strong> {username}
 				</div>
 				<div className="bio">
-					<strong>Bio :</strong>
+					<strong>{t("pb-profile-page.bio")}: </strong>
 					<br />
 					<textarea
 						className="bio-textarea"
@@ -49,27 +52,30 @@ export default function ProfilePage() {
 					/>
 				</div>
 				<div className="country">
-					<strong>Country: </strong>{player.country} {countries.find(country => country.code === player.country)?.flag}
+					<strong>{t("pb-profile-page.country")}: </strong>{player.country} {countries.find(country => country.code === player.country)?.flag}
 				</div>
 				<div className="join-date">
-					<strong>Join-date: </strong> {date}
+					<strong>{t("pb-profile-page.join-date")}: </strong> {date}
 				</div>
+
+			</div>
+			<div className="games-info">
 				<div className="elo">
-					<strong>Elo: </strong> {player.elo}
+					<strong>{t("pb-profile-page.elo")}: </strong> {player.elo}
 				</div>
 				<div className="streak">
-					<strong>Streak: </strong> {player.streak}
+					<strong>{t("pb-profile-page.streak")}: </strong> {player.streak}
 				</div>
 				<div className="win-count">
-					<strong>Win count: </strong> {player.win_count}
+					<strong>{t("pb-profile-page.win-count")}: </strong> {player.win_count}
 				</div>
 				<div className="loss-count">
-					<strong>Loss count: </strong> {player.loss_count}
+					<strong>{t("pb-profile-page.loss-count")}: </strong> {player.loss_count}
 				</div>
 				<div className="placed">
-					<strong>Placed: </strong> {player.placed}
+					<strong>{t("pb-profile-page.placed")}: </strong> {player.placed}
 				</div>
-			</section>
+			</div>
 		</div>
 	) 
 }

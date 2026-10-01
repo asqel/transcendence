@@ -1,16 +1,18 @@
+import { useTranslation } from "react-i18next"
+
 function TermeOfService() {
+    const [t] = useTranslation();
+
     return (
-        <div className="terme-of-service-page">
-            <p>
-                <h2>General rule</h2>
-                <p>do not ddos</p>
-                <h2>Chat Rules</h2>
-                <p>Do not insulte pepole</p>
-                <h2>Game rule</h2>
-                <p>Any try of cheating is forbiden</p>
-                <h2>Account deletion</h2>
-                <p>You can delete your account in Profile page</p>
-            </p>
+        <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+            <h2>{t("terms-of-service.general_rule")}</h2>
+            <p>{t("terms-of-service.general_rule_text")}</p>
+            <h2>{t("terms-of-service.chat_rule")}</h2>
+            <p>{t("terms-of-service.chat_rule_text")}</p>
+            <h2>{t("terms-of-service.game_rule")}</h2>
+            <p>{t("terms-of-service.game_rule_text")}</p>
+            <h2>{t("terms-of-service.account_deletion")}</h2>
+            <p>{t("terms-of-service.account_deletion_text")}</p>
         </div>
     )
 }

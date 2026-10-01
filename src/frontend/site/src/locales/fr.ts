@@ -1,4 +1,11 @@
 export default {
+	"home": {
+		"title": "Bienvenue sur Transcendance⁴",
+		"can_play": "Vous pouvez jouer ici",
+		"play": "Jouer",
+		"can_login": "Vous pouvez vous connecter ou inscrire ici",
+		"login": "Connection/Inscription",
+	},
 	"login-page": {
 		"signin": "Connection",
 		"signup": "Inscription",
@@ -15,6 +22,17 @@ export default {
 			"462": "Les mots de passes ne correspondent pas",
 		}
 	},
+	"history-page": {
+		"player1": "Joueur 1",
+		"player2": "Joueur 2",
+		"winner": "Gagnant",
+		"date": "Date",
+	},
+	"leaderboard-page": {
+		"rank": "Rang",
+		"player": "Joueur",
+		"elo": "Elo",
+	},
 	"player_search-page": {
 		"find_player": "Recherche un joueur",
 		"username": "Entre le nom d'utilisateur",
@@ -22,6 +40,40 @@ export default {
 		"error": {
 			"not_found": "Utilisateur introuvable",
 		},
+	},
+	"pb-profile-page": {
+		"title": "Profile de %username",
+		"name": "Nom d'utilisateur",
+		"bio": "Bio",
+		"country": "Pays",
+		"join-date": "Date d'inscription",
+		"elo": "Elo",
+		"streak": "Serie",
+		"win-count": "Nombre de victoire",
+		"loss-count": "Nombre de defaites",
+		"placed": "Piece pose",
+	},
+	"pr-profile-page": {
+		"title": "Mon profile",
+		"name": "Nom d'utilisateur",
+		"email": "Email",
+		"email_already_send": "Email deja envoyer",
+		"email_send": "Email envoyer",
+		"send_email": "Envoyer le mail",
+		"bio": "Bio",
+		"hisotry": "Historique",
+		"dl-data": "Telecharger ces donnes",
+		"danger-zone": "Zone dangereuse",
+		"delete-account": "Supprimer mon compte",
+		"achievements": "Succes",
+		"delete-popup": "Supprimer son compte",
+		"delete_consequence": "Cette action est irreversible!",
+		"enter_password": "Veuillez entrer votre mot de passe",
+		"password": "Mot de passe",
+		"cancel": "Annuler",
+		"deleting": "Supression...",
+		"confirm_delete": "Valdier la supression",
+		"delete_error": "Mot de passe incorrect",
 	},
 	"play-page": {
 		"play": "Jouer",
@@ -75,12 +127,23 @@ export default {
 		"privacy-policy": "Politique de confidentialite",
 		"terme-of-service": "Condition d'utilisatioon",
 	},
+	"popups": {
+		"achievement": "🏆 Achievement débloqué !",
+		"achievement_text": "Vous venez de debloquer: ",
+		"friend_recive": "Demande d'amis recu",
+		"friend_recive_text": "t'a envoyer une demande d'ami",
+		"friend_accepted": "Demande d'amis accepter",
+		"friend_accepted_text": "a acceper ta demande d'ami",
+		"message": "Nouveau message",
+		"message_text": "vous a envoyer un message",
+	},
 	"error": {
 		"default": "Une erreur est survenue",
-		"ws-error": "Connection au serveur impossible"
+		"server": "Impossible de se conecter au serveur",
+		"ws-error": "Connection au serveur impossible",
 	},
+	"404": "Erreur 404",
 	"loading": "Chargement...",
-
 	"achievements": {
 		"0": {"name": "Le commencement", "des": "creer un compte" },
 		"1": {"name": "La haut", "des": "Gagner verticalement" },

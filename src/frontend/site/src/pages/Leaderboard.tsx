@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { globalApi, type LeaderboardResponse} from "../api";
+import { useTranslation } from "react-i18next";
 import "./Leaderboard.css"
 
 function Leaderboard() {
+    const [t] = useTranslation()
     const [loading, setLoading] = useState<boolean>(false);
     const [leaderboard, setLeaderboard] = useState<LeaderboardResponse|null>(null);
     const [error, setError] = useState<boolean>(false);
@@ -40,9 +42,9 @@ function Leaderboard() {
         <div className="leaderboard-page">
             <table className="leaderboard">
                 <tr>
-                    <th>Rank</th>
-                    <th>Player</th>
-                    <th>Elo</th>
+                    <th>{t("leaderboard-page.rank")}</th>
+                    <th>{t("leaderboard-page.player")}</th>
+                    <th>{t("leaderboard-page.elo")}</th>
                 </tr>
                 {leaderboard?.board.map((player, index) => (
                     <tr key={index}>
@@ -54,7 +56,7 @@ function Leaderboard() {
             </table>
             { leaderboard?.self &&
                 <div className="self">
-                    <p>Rank: {leaderboard?.self}</p>
+                    <p>{t("leaderboard-page.rank")}: {leaderboard?.self}</p>
                 </div>
             }
         </div>
