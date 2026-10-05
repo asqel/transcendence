@@ -203,6 +203,8 @@ def join_game(ws, data):
 	if (game is None or game.password != password):
 		return send(ws, OPC_JOIN, "b", OPC_ERR_NOFOUND)
 	if (ws.user is None):
+		if (game.ai):
+			return send(ws, OPC_JOIN, "b", OPC_ERR_NOFOUND)
 		return game.join_spectator(ws)
 	with game.lock:
 		if (game.state == STATE_WAIT):
@@ -382,10 +384,13 @@ class Game:
 			if (self.is_again(player.idx)):
 				return
 			self.set_again(player.idx)
-			self.get_other_player(player).send(OPC_AGAIN, "")
+			if (self.ai):
+				self.set_again(2)
+			else:
+				self.get_other_player(player).send(OPC_AGAIN, "")
 
 			if (not self.is_again()):
-				return ;
+				return
 
 			self.to_spectators(OPC_AGAIN, "")
 			self.again_state = 0
@@ -399,10 +404,16 @@ class Game:
 
 			self.player_1.send(OPC_SET_TURN, "b", self.state)
 			self.player_2.send(OPC_SET_TURN, "b", self.state)
+			
+			if (self.ai and self.state == STATE_TURN2):
+				self.on_ai_place()
 
 			self.again_count += 1
+
 			if (self.again_count == 5):
 				api.ach.gain(self.player_1.user, api.ach.ACH_INF)
+				if (not self.ai):
+					api.ach.gain(self.player_2.user, api.ach.ACH_INF)
 				api.ach.gain(self.player_2.user, api.ach.ACH_INF)
 				self.reset_afk()
 	
@@ -432,25 +443,37 @@ class Game:
 				return OPC_ERR_TURN
 			if (x < 0 or x >= self.width):
 				return OPC_ERR_RANGE
-
 			if (self.board[0][x] != 0):
 				return OPC_ERR_RANGE
-
+			
 			y = self.height - 1
 			while (self.board[y][x] != 0):
 				y -= 1
 			self.board[y][x] = player.idx
 			player.number_placed += 1
-
-			self.get_other_player(player).send(OPC_PLACE3, "bw", player.idx, x)
-			player.send(OPC_PLACE3, "bw", player.idx, x)
-			self.to_spectators(OPC_PLACE3, "bw", x, player.idx)
-			self.change_turn()
+			self.get_other_player(player).send(
+				OPC_PLACE3,
+				"bw",
+				player.idx,
+				x
+			)
+			player.send(
+				OPC_PLACE3,
+				"bw",
+				player.idx,
+				x
+			)
+			self.to_spectators(
+				OPC_PLACE3,
+				"bw",
+				x,
+				player.idx
+			)
 			self.check_win(player, x, y)
-
-			if self.ai and self.state != STATE_END:
+			if (self.state != STATE_END):
+				self.change_turn()
+			if (self.ai and self.state != STATE_END):
 				self.on_ai_place()
-
 			return OPC_ERR_OK
 
 	def to_spectators(self, *args, **kwargs):
@@ -550,11 +573,12 @@ class Game:
 	
 	def handle_text(self, player: Player | None, message: str):
 		if (player):
-			if (message.upper() == 'GG' and self.state == STATE_END):
-				api.ach.gain(player.user, api.ach.ACH_GG)
-			if (message == ':3'):
-				api.ach.gain(player.user, api.ach.ACH_CUTE)
-			api.ach.gain(player.user, api.ach.ACH_EXCL)
+			if (not self.ai):
+				if (message.upper() == 'GG' and self.state == STATE_END):
+					api.ach.gain(player.user, api.ach.ACH_GG)
+				if (message == ':3'):
+					api.ach.gain(player.user, api.ach.ACH_CUTE)
+				api.ach.gain(player.user, api.ach.ACH_EXCL)
 
 			message = f"{player.user.username}: {message}"
 			if (self.player_1):
@@ -563,11 +587,20 @@ class Game:
 				self.player_2.send(OPC_SEND, "bs", OPC_ERR_OK, message)
 
 		else:
-			self.to_spectators(OPC_TEXT, "bs", OPC_ERR_OK, message)
+			self.to_spectators(OPC_SEND, "bs", OPC_ERR_OK, message)
 	
 	def on_disco(self, ws):
 		global games
 		with self.lock:
+			if(self.ai):
+				player = self.get_player_from_ws(ws)
+				if (not player):
+					return self.remove_spectator(ws)
+				self.to_spectators(OPC_LEAVE, "")
+				self.clear_spectators()
+				if (self.id in games):
+					del games[self.id]
+				return
 			if (ws.game.state == STATE_WAIT):
 				player = self.get_player_from_ws(ws)
 				if (not player):
@@ -615,7 +648,7 @@ class Game:
 				api.ach.gain(opponent.user, api.ach.ACH_FORF)
 				opponent.send(OPC_LEAVE, "")
 				opponent.send(OPC_WIN, "b", opponent.idx)
-				self.register_win(opponent.idx);
+				self.register_win(opponent.idx)
 				return 
 
 			if (self.last_played + AFK_TIME < timezone.now()):
@@ -630,7 +663,7 @@ class Game:
 				return 
 
 			api.ach.gain(opponent.user, api.ach.ACH_FORF)
-			opponent.send(OPC_LEAVE, "");
+			opponent.send(OPC_LEAVE, "")
 			opponent.send(OPC_WIN, "b", opponent.idx)
 			self.register_win(opponent.idx)
 			self.state = STATE_END
@@ -687,26 +720,25 @@ class Game:
 
 	def on_ai_place(self):
 		column = get_best_move(self.board, self.ai_difficulty)
-		if column is None:
+		if (column is None):
 			return
-	
-	y = self.height - 1
-	while self.board[y][column] != 0:
-		y -= 1
-	
-	self.board[y][column] = 2
-	self.player_2.number_placed += 1
-	self.player_1.send(
-        OPC_PLACE3,
-        "bw",
-        2,
-        column
-    )
-	self.to_spectators(
-        OPC_PLACE3,
-        "bw",
-        column,
-        2
-    )
-	self.change_turn()
-	self.check_win(self.player_2, column, y)
+		y = self.height - 1
+		while (self.board[y][column] != 0):
+			y -= 1
+		self.board[y][column] = 2
+		self.player_2.number_placed += 1
+		self.player_1.send(
+			OPC_PLACE3,
+			"bw",
+			2,
+			column
+		)
+		self.to_spectators(
+			OPC_PLACE3,
+			"bw",
+			column,
+			2
+		)
+		self.check_win(self.player_2, column, y)
+		if (self.state != STATE_END):
+			self.change_turn()
