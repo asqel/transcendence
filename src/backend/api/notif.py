@@ -22,7 +22,6 @@ def send_msg(user, username):
 def send_req_accept(to_who_name, from_who_name):
 	to_who = User.objects.filter(username=to_who_name).first()
 	from_who = User.objects.filter(username=from_who_name).first()
-	api.utils.log("CCCC", to_who_name, to_who, from_who_name, from_who)
 	if (to_who_name is None or from_who is None):
 		return
 

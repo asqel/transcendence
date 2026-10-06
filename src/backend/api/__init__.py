@@ -7,4 +7,5 @@ from . import tmp
 from . import board
 from . import notif
 from . import friend
+from . import coreIA
 from . import leaderboard
