@@ -30,29 +30,36 @@ function Leaderboard() {
 
     if (loading) {
         return (
-            <div>Loading</div>   
+            <div>{t("loading")}</div>   
         )
     }
     if (error) {
         return (
-            <div>error</div>   
+            <div>{t("error.server")}</div>   
         )
     }
     return (
         <div className="leaderboard-page">
             <table className="leaderboard">
-                <tr>
-                    <th>{t("leaderboard-page.rank")}</th>
-                    <th>{t("leaderboard-page.player")}</th>
-                    <th>{t("leaderboard-page.elo")}</th>
-                </tr>
-                {leaderboard?.board.map((player, index) => (
-                    <tr key={index}>
-                        <td>#{index + 1}</td>
-                        <td>{player[0]}</td>
-                        <td>{player[1]}</td>
+                {leaderboard ? (
+                    <>
+                    <tr>
+                        <th>{t("leaderboard-page.rank")}</th>
+                        <th>{t("leaderboard-page.player")}</th>
+                        <th>{t("leaderboard-page.elo")}</th>
                     </tr>
-                ))}
+                    {leaderboard.board.map((player, index) => (
+                        <tr key={index}>
+                            <td>#{index + 1}</td>
+                            <td>{player[0]}</td>
+                            <td>{player[1]}</td>
+                        </tr>
+                    ))}
+                    </>
+
+                ):(
+                        <p>{t("leaderboard-page.no_data")}</p>
+                )}
             </table>
             { leaderboard?.self &&
                 <div className="self">

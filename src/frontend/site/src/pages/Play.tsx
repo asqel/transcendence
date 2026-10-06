@@ -122,7 +122,6 @@ function Play() {
 			}
 		}
 		else if (bytes[0] === OPC_LEAVE) {
-			console.log("leave_log");
 			if (!autentified.current)
 				window.location.href = "/play";
 			setOpLeft(true);
@@ -138,7 +137,6 @@ function Play() {
 		else if (bytes[0] === OPC_TURN) {
 			const player = bytes[1] as (1|2);
 			setCurrentPlayer(player);
-			console.log("turn: ", player);
 			if (player === opponent.current)
 				startTurnTimer();
 			else
