@@ -1,0 +1,17 @@
+[
+    {"image": "/assets/coin/coin.png"},
+	{"image": "/assets/coin/arrow-up.png"},
+    {"image": "/assets/coin/creature.png"},
+    {"image": "/assets/coin/equal.png"},
+    {"image": "/assets/coin/infinity.png" },
+    {"image": "/assets/coin/sun.png"},
+    {"image": "/assets/coin/butterfly.png" },
+    {"image": "/assets/coin/crown.png" },
+    {"image": "/assets/coin/exclamation.png" },
+    {"image": "/assets/coin/moon.png"},
+    {"image": "/assets/coin/poop.png"},
+	{"image": "/assets/coin/parallel-worlds.png"},
+	{"image": "/assets/coin/colon-three.png "},
+	{"image": "/assets/coin/cloud.png "},
+	{"image": "/assets/coin/dots.png "}
+]

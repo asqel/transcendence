@@ -1,0 +1,35 @@
+.player-search-page {
+  width: 100%;
+  height: 100%;
+}
+
+.container {
+  width: 60%;
+  margin: 5% auto;
+  padding: 4%;
+  box-sizing: border-box;
+  background: var(--zone-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.search-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1dvh;
+  box-sizing: border-box;
+}
+
+.search-wrapper input {
+  background: var(--bg);
+}
+
+.search-error {
+  margin: 0;
+  padding: 2% 4%;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+  text-align: center;
+  color: #f87171;
+  box-sizing: border-box;
+}

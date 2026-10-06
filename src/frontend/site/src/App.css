@@ -1,0 +1,66 @@
+/* =========================
+STRUCTURE DE L'APPLICATION
+========================= */
+
+.app {
+	height: 100dvw;
+	height: 100dvh;
+	box-sizing: border-box;
+
+	display: flex;
+	flex-direction: column;
+}
+
+.app-content {
+	flex: 1 1 auto;
+	min-width: 0;
+	min-height: 0;
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+}
+
+
+/* =========================
+NAVIGATION
+========================= */
+
+.navbar {
+	min-width: 0;
+	min-height: 0;
+	display: flex;
+	justify-content: space-between;
+	padding: 0.6dvh 1dvw;
+}
+.nav-left,
+.nav-right {
+	min-width: 0;
+	min-height: 0;
+	display: flex;
+	flex-direction: row;
+	gap: 1dvw;
+}
+
+.legal-button {
+	display: flex;
+	flex-direction: column;
+}
+
+.legal-button button{
+	font-size: 0.5em;
+}
+
+.navbar .user {
+	display: flex;
+	flex-direction: row;
+	gap: 1dvw;
+}
+
+.navbar button {
+	padding: 0.8dvh 1dvw;
+	background: none;
+}
+
+.navbar .logout	{
+	background: var(--utils-color);
+}

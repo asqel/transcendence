@@ -1,4 +1,5 @@
 import api
+from django.contrib.auth.models import User
 
 def get_list(user) -> list:
 	lst = api.tmp.get(user, "notif")
@@ -25,4 +26,4 @@ def send_req_accept(to_who_name, from_who_name):
 		return
 
 	for i in get_list(to_who):
-		i.send_req_accept(from_who)
+		i.send_req_accept(from_who_name)

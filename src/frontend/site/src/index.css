@@ -1,0 +1,102 @@
+:root {
+	--text: whitesmoke;
+	--text-gray: gray;
+	--bg: #16171d;
+	--zone-bg: #1F2028;
+	--border: #3a3b48;
+
+	--utils-color: #aa3bff;
+	--utils-color-darker: #6e17b0;
+
+	--sans: system-ui, sans-serif;
+	--heading: system-ui, sans-serif;
+	--mono: ui-monospace, monospace;
+
+	--font-size: min(1.8dvh, 1.8dvw);
+
+
+
+	font-family: var(--sans);
+	font-size: var(--font-size);
+
+	color: var(--text);
+	background: var(--bg);
+}
+
+body {
+	margin: 0;
+}
+
+
+button {
+	padding: 1.2dvh 1.4dvw;
+ 	font-weight: 600;
+	font-size: var(--font-size);
+	border: 1px solid #2a2d34;
+	border-radius: 10px;
+	color: white;
+	background: var(--utils-color);
+	cursor: pointer;
+}
+
+button:hover {
+	background: var(--utils-color-darker);
+}
+
+button:disabled {
+	cursor: not;
+	opacity: 60%;
+}
+
+input {
+	padding: 1.2dvh 1.4dvw;
+	font-size: var(--font-size);
+	background: var(--zone-bg);
+	color: var(--text);
+	border: none;
+	border-radius: 10px;
+}
+
+input:focus {
+	outline-color: var(--utils-color);
+	outline-style: solid;
+}
+
+input::placeholder {
+  color: var(--text-gray);
+}
+
+textarea {
+	font-size: var(--font-size);
+	background: var(--zone-bg);
+	color: var(--text);
+	border: none;
+	border-radius: 10px;
+	resize: none;
+}
+
+textarea:focus {
+	outline-color: var(--utils-color);
+	outline-style: solid;
+}
+
+select {
+	font-size: var(--font-size);
+	background: var(--zone-bg);
+	color: var(--text);
+	border: none;
+	border-radius: 10px;
+}
+
+select:focus {
+	outline-color: var(--utils-color);
+	outline-style: solid;
+}
+
+option {
+	font-size: var(--font-size);
+	background: var(--zone-bg);
+}
+option:hover {
+	background: var(--utils-color);
+}

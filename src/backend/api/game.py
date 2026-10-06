@@ -553,6 +553,16 @@ class Game:
 
 			winner_stats.save()
 			looser_stats.save()
+
+			if (7 <= timezone.now().hour < 20):
+				api.ach.gain(winner.user, api.ach.ACH_SUN)
+			else:
+				api.ach.gain(winner.user, api.ach.ACH_MOON)
+
+			if (winner_stats.streak >= 5):
+				api.ach.gain(winner.user, api.ach.ACH_WIN_STREAK)
+			if (looser_stats.streak <= -5):
+				api.ach.gain(looser.user, api.ach.ACH_POOP)
 		else:
 			stats1 = Stats.objects.filter(user=self.player_1.user).filter()
 			stats2 = Stats.objects.filter(user=self.player_2.user).filter()

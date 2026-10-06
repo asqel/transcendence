@@ -1,0 +1,3 @@
+services:
+  frontend:
+    command: ./dev.sh
