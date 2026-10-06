@@ -6,9 +6,9 @@ PLAYER = 1
 AI = 2
 
 DIFFICULTIES = {
-    "easy": 2,
-    "normal": 4,
-    "hard": 6,
+    "easy": 1,
+    "normal": 2,
+    "hard": 4,
 }
 
 
@@ -68,11 +68,10 @@ def check_win(board, player):
 
     return False
 
-
 def evaluate_window(window):
     score = 0
     ai_count = window.count(AI)
-    player_count == window.count(PLAYER)
+    player_count = window.count(PLAYER)
     empty_count = window.count(EMPTY)
 
     if ai_count == 4:
