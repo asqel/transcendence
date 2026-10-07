@@ -1,3 +1,5 @@
+import random
+
 ROWS = 6
 COLS = 7
 
@@ -201,13 +203,40 @@ def minimax(board, depth, maximizing, alpha, beta):
 
 def get_best_move(board, difficulty):
     depth = DIFFICULTIES[difficulty]
+    valid_moves = get_valid_moves(board)
+    moves = []
 
-    column, _ = minimax(
-        board,
-        depth,
-        True,
-        -float("inf"),
-        float("inf")
-    )
+    for col in valid_moves:
+        new_board = make_move(board, col, AI)
 
-    return column
+        if check_win(new_board, AI):
+            score = 1000000
+        else:
+            _, score = minimax(
+                new_board,
+                depth - 1,
+                False,
+                -float("inf"),
+                float("inf")    
+            )
+        moves.append((col, score))
+
+    moves.sort(key=lambda move: move[1], reverse=True)
+
+    if difficulty == "easy":
+        count = 4
+    elif difficulty == "normal":
+        count = 3
+    else:
+        count = 2
+
+    top_moves = moves[:count]
+    columns = [move[0] for move in top_moves]
+    weights = []
+
+    for index in range(len(top_moves)):
+        weights.append(len(top_moves) - index)
+
+    columns = [move[0] for move in top_moves]
+
+    return random.choices(columns, weights=weights, k=1)[0]
