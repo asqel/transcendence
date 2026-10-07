@@ -174,7 +174,6 @@ export default {
     "error": {
         "default": "Une erreur est survenue",
         "server": "Impossible de se connecter au serveur",
-        "ws-error": "Connexion au serveur impossible",
     },
     "404": "Erreur 404",
     "loading": "Chargement...",

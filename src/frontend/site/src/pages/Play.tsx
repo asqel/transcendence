@@ -335,17 +335,7 @@ function Play() {
 		}
 	}, [rematchSelf, rematchOp])
 
-
-	if (wsError) {
-		return (
-			<div className="page-play">
-				<p className="ws-error">
-					{t("error.ws-error")}
-				</p>
-			</div>
-		)
-	}
-	if (!connected) {
+	if (wsError || !connected) {
 		return (
 			<div className="page-play">
 				<p>
