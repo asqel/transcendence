@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom"
+import { useTranslation } from "react-i18next";
 import { useAuth } from '../context/AuthContext'
 import { userApi } from "../api";
 
 function ConfirmDelete() {
+	const [t] = useTranslation();
 	const { logout } = useAuth()
 	const [searchParams] = useSearchParams()
 	const navigate = useNavigate()
@@ -16,7 +18,7 @@ function ConfirmDelete() {
 	async function sendConfirm() {
 		if (!token || !username)
 			navigate("/404");
-		else
+		else {
 			try {
 				setLoading(true)
 				await userApi.confirm_delete(token, username);
@@ -29,13 +31,13 @@ function ConfirmDelete() {
 				logout();
 				navigate("/")
 			}
-			
+		}
 	}
 
 	return (
 		<div style={{display: "flex", justifyContent: "center", margin: "20%"}}>
-			<button onClick={sendConfirm}>{loading ? "loading" : "confirm"}</button>
-			{error && <p>error</p>}
+			<button onClick={sendConfirm}>{loading ? t("loading") : t("confirm")}</button>
+			{error && <p>{t("error.default")}</p>}
 		</div>
 	)
 	

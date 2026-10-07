@@ -35,7 +35,7 @@ export default function UserSearchPage() {
 					<div className="search-wrapper">
 						<input
 							value={query}
-							onChange={(e) => setQuery(e.target.value)}
+							onChange={(e) => {setQuery(e.target.value); setError("")}}
 							onKeyDown={(e) => {
 							if (e.key === "Enter") handleSearch()
 							}}
