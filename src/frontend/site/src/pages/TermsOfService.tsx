@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next"
-import { authApi } from "../api";
 
 function TermeOfService() {
     const [t] = useTranslation();

@@ -6,6 +6,8 @@ import secrets
 import threading
 from django.utils import timezone
 from datetime import timedelta
+from coreIA import get_best_move
+
 
 auth = JWTAuthentication()
 
@@ -175,6 +177,14 @@ def create_game(ws, data):
 	ws.game = game
 	ws.player = Player(ws, ws.user, 1)
 	game.player_1 = ws.player
+	if game.ai:
+		game.player_2 = Player(None, None, 2)
+		game.player_2.game = game
+		send(ws, OPC_SET_TURN, "b", STATE_TURN1)
+		game.reset_afk()
+		game.state = STATE_TURN1
+
+
 	game.player_1.game = game
 
 	send(ws, OPC_CREATE, "bs", OPC_ERR_OK, game_id)
@@ -199,6 +209,8 @@ def join_game(ws, data):
 	if (game is None or game.password != password):
 		return send(ws, OPC_JOIN, "b", OPC_ERR_NOFOUND)
 	if (ws.user is None):
+		if (game.ai):
+			return send(ws, OPC_JOIN, "b", OPC_ERR_NOFOUND)
 		return game.join_spectator(ws)
 	with game.lock:
 		if (game.state == STATE_WAIT):
@@ -273,6 +285,8 @@ class Game:
 		self.player_2 = None
 		self.password = password
 		self.type = game_type
+		self.ai = game_type == 1
+		self.ai_difficulty = "normal"
 		self.spectators = []
 		self.state = 0
 		self.width = 7
@@ -376,10 +390,14 @@ class Game:
 			if (self.is_again(player.idx)):
 				return
 			self.set_again(player.idx)
-			self.get_other_player(player).send(OPC_AGAIN, "")
+			if (self.ai):
+				self.set_again(2)
+				self.player_1.send(OPC_AGAIN, "")
+			else:
+				self.get_other_player(player).send(OPC_AGAIN, "")
 
-			if (not self.is_again()):
-				return ;
+			if (not self.is_again() and not self.ai):
+				return
 
 			self.to_spectators(OPC_AGAIN, "")
 			self.again_state = 0
@@ -393,11 +411,18 @@ class Game:
 
 			self.player_1.send(OPC_SET_TURN, "b", self.state)
 			self.player_2.send(OPC_SET_TURN, "b", self.state)
+			
+			if (self.ai and self.state == STATE_TURN2):
+				self.on_ai_place()
+				self.reset_afk()
+
 
 			self.again_count += 1
+
 			if (self.again_count == 5):
-				api.ach.gain(self.player_1.user, api.ach.ACH_INF)
-				api.ach.gain(self.player_2.user, api.ach.ACH_INF)
+				if (not self.ai):
+					api.ach.gain(self.player_1.user, api.ach.ACH_INF)
+					api.ach.gain(self.player_2.user, api.ach.ACH_INF)
 				self.reset_afk()
 	
 	def is_turn(self, player: Player) -> bool:
@@ -426,22 +451,37 @@ class Game:
 				return OPC_ERR_TURN
 			if (x < 0 or x >= self.width):
 				return OPC_ERR_RANGE
-
 			if (self.board[0][x] != 0):
 				return OPC_ERR_RANGE
-
+			
 			y = self.height - 1
 			while (self.board[y][x] != 0):
 				y -= 1
 			self.board[y][x] = player.idx
 			player.number_placed += 1
-
-			self.get_other_player(player).send(OPC_PLACE3, "bw", player.idx, x)
-			player.send(OPC_PLACE3, "bw", player.idx, x)
-			self.to_spectators(OPC_PLACE3, "bw", x, player.idx)
-			self.change_turn()
+			self.get_other_player(player).send(
+				OPC_PLACE3,
+				"bw",
+				player.idx,
+				x
+			)
+			player.send(
+				OPC_PLACE3,
+				"bw",
+				player.idx,
+				x
+			)
+			self.to_spectators(
+				OPC_PLACE3,
+				"bw",
+				x,
+				player.idx
+			)
 			self.check_win(player, x, y)
-
+			if (self.state != STATE_END):
+				self.change_turn()
+			if (self.ai and self.state != STATE_END):
+				self.on_ai_place()
 			return OPC_ERR_OK
 
 	def to_spectators(self, *args, **kwargs):
@@ -458,15 +498,17 @@ class Game:
 			is_win += 1
 		if (api.board.do_win_vert(self.board, player.idx, x, y)):
 			is_win += 1
-			api.ach.gain(player.user, api.ach.ACH_VERT)
+			if (player.user):
+				api.ach.gain(player.user, api.ach.ACH_VERT)
 
-		if (is_win >= 2):
+		if (is_win >= 2 and player.user):
 			api.ach.gain(player.user, api.ach.ACH_SECRET)
 
 		if (is_win):
 			self.player_1.send(OPC_WIN, "b", player.idx)
 			self.player_2.send(OPC_WIN, "b", player.idx)
-			self.to_spectators(OPC_WIN2, "s", player.user.username)
+			if (player.user):
+				self.to_spectators(OPC_WIN2, "s", player.user.username)
 
 			self.state = STATE_END
 			self.register_win(player.idx)
@@ -476,13 +518,16 @@ class Game:
 			self.player_2.send(OPC_WIN, "b", 3)
 			self.to_spectators(OPC_WIN2, "s", "")
 
-			api.ach.gain(self.player_1.user, api.ach.ACH_TIE)
-			api.ach.gain(self.player_2.user, api.ach.ACH_TIE)
+			if (self.player_2.user):
+				api.ach.gain(self.player_1.user, api.ach.ACH_TIE)
+				api.ach.gain(self.player_2.user, api.ach.ACH_TIE)
 
 			self.state = STATE_END
 			self.register_win(0)
 
 	def register_win(self, who: int):
+		if self.ai:
+			return
 		models.Game.objects.create(user1=self.player_1.user, user2=self.player_2.user, winner=who)
 
 		if (who != 0):
@@ -498,6 +543,8 @@ class Game:
 				winner_stats.streak = 1
 			else:
 				winner_stats.streak += 1
+				if (winner_stats.streak >= 5):
+					api.ach.gain(winner.user, api.ach.ACH_WIN_STREAK)
 
 			looser_stats.number_loss += 1
 			looser_stats.number_placed += looser.number_placed
@@ -505,6 +552,8 @@ class Game:
 				looser_stats.streak = -1
 			else:
 				looser_stats.streak -= 1
+				if (looser_stats.streak <= 5):
+					api.ach.gain(looser.user, api.ach.ACH_POOP)
 
 			winner_stats.elo, looser_stats.elo = compute_elo(winner_stats.elo, looser_stats.elo, 1)
 
@@ -521,14 +570,14 @@ class Game:
 			if (looser_stats.streak <= -5):
 				api.ach.gain(looser.user, api.ach.ACH_POOP)
 		else:
-			stats1 = Stats.objects.filter(user=self.player_1.user).filter()
-			stats2 = Stats.objects.filter(user=self.player_2.user).filter()
+			stats1 = Stats.objects.filter(user=self.player_1.user).filter().first()
+			stats2 = Stats.objects.filter(user=self.player_2.user).filter().first()
 
 			stats1.streak = 0
 			stats2.streak = 0
 			stats1.number_placed += self.player_1.number_placed
 			stats2.number_placed += self.player_2.number_placed
-			stat1.elo, stats2.elo = compute_elo(stats1.elo, stats2.elo, 0)
+			stats1.elo, stats2.elo = compute_elo(stats1.elo, stats2.elo, 0)
 			stats1.save()
 			stats2.save()
 
@@ -540,11 +589,12 @@ class Game:
 	
 	def handle_text(self, player: Player | None, message: str):
 		if (player):
-			if (message.upper() == 'GG' and self.state == STATE_END):
-				api.ach.gain(player.user, api.ach.ACH_GG)
-			if (message == ':3'):
-				api.ach.gain(player.user, api.ach.ACH_CUTE)
-			api.ach.gain(player.user, api.ach.ACH_EXCL)
+			if (not self.ai):
+				if (message.upper() == 'GG' and self.state == STATE_END):
+					api.ach.gain(player.user, api.ach.ACH_GG)
+				if (message == ':3'):
+					api.ach.gain(player.user, api.ach.ACH_CUTE)
+				api.ach.gain(player.user, api.ach.ACH_EXCL)
 
 			message = f"{player.user.username}: {message}"
 			if (self.player_1):
@@ -558,6 +608,15 @@ class Game:
 	def on_disco(self, ws):
 		global games
 		with self.lock:
+			if(self.ai):
+				player = self.get_player_from_ws(ws)
+				if (not player):
+					return self.remove_spectator(ws)
+				self.to_spectators(OPC_LEAVE, "")
+				self.clear_spectators()
+				if (self.id in games):
+					del games[self.id]
+				return
 			if (ws.game.state == STATE_WAIT):
 				player = self.get_player_from_ws(ws)
 				if (not player):
@@ -605,7 +664,7 @@ class Game:
 				api.ach.gain(opponent.user, api.ach.ACH_FORF)
 				opponent.send(OPC_LEAVE, "")
 				opponent.send(OPC_WIN, "b", opponent.idx)
-				self.register_win(opponent.idx);
+				self.register_win(opponent.idx)
 				return 
 
 			if (self.last_played + AFK_TIME < timezone.now()):
@@ -620,7 +679,7 @@ class Game:
 				return 
 
 			api.ach.gain(opponent.user, api.ach.ACH_FORF)
-			opponent.send(OPC_LEAVE, "");
+			opponent.send(OPC_LEAVE, "")
 			opponent.send(OPC_WIN, "b", opponent.idx)
 			self.register_win(opponent.idx)
 			self.state = STATE_END
@@ -674,3 +733,28 @@ class Game:
 		for i in self.spectators:
 			i.game = None
 		self.spectators = []
+
+	def on_ai_place(self):
+		column = api.coreIA.get_best_move(self.board, self.ai_difficulty)
+		if (column is None):
+			return
+		y = self.height - 1
+		while (self.board[y][column] != 0):
+			y -= 1
+		self.board[y][column] = 2
+		self.player_2.number_placed += 1
+		self.player_1.send(
+			OPC_PLACE3,
+			"bw",
+			2,
+			column
+		)
+		self.to_spectators(
+			OPC_PLACE3,
+			"bw",
+			column,
+			2
+		)
+		self.check_win(self.player_2, column, y)
+		if (self.state != STATE_END):
+			self.change_turn()

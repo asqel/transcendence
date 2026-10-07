@@ -45,7 +45,7 @@ http {
 
         $LOCATION_ROOT
         location /api/ {
-            proxy_pass https://10.18.170.78;
+            proxy_pass http://backend:8000;
             proxy_http_version 1.1;
             proxy_set_header Host \$host;
             proxy_set_header X-Real-IP \$remote_addr;
@@ -53,7 +53,7 @@ http {
             proxy_set_header X-Forwarded-Proto https;
         }
         location /ws/ {
-            proxy_pass https://10.18.170.78;
+            proxy_pass http://backend:8000;
             proxy_http_version 1.1;
             proxy_set_header Upgrade \$http_upgrade;
             proxy_set_header Connection "upgrade";
@@ -73,13 +73,17 @@ NGINX_EOF
 rm -rf /var/www/html
 mkdir -p /var/www
 apk add --no-cache nodejs npm
-npm --prefix ./site install --legacy-peer-deps
+
+
+cp ./site /site-react/ -r
+
+npm --prefix /site-react install --legacy-peer-deps
 
 # --- build statique OU serveur de dev, selon le mode ---
 if [ "$MODE" = "dev" ]; then
-    npm --prefix ./site run dev -- --host 0.0.0.0 --port 5173 &
+    npm --prefix /site-react run dev -- --host 0.0.0.0 --port 5173 &
 else
-    npm --prefix ./site run build
+    npm --prefix /site-react run build
     cp -r site/dist /var/www/html
 fi
 
