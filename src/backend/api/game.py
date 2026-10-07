@@ -6,6 +6,7 @@ import secrets
 import threading
 from django.utils import timezone
 from datetime import timedelta
+from coreIA import get_best_move
 
 
 auth = JWTAuthentication()

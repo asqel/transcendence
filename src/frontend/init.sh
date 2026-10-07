@@ -73,13 +73,17 @@ NGINX_EOF
 rm -rf /var/www/html
 mkdir -p /var/www
 apk add --no-cache nodejs npm
-npm --prefix ./site install --legacy-peer-deps
+
+
+cp ./site /site-react/ -r
+
+npm --prefix /site-react install --legacy-peer-deps
 
 # --- build statique OU serveur de dev, selon le mode ---
 if [ "$MODE" = "dev" ]; then
-    npm --prefix ./site run dev -- --host 0.0.0.0 --port 5173 &
+    npm --prefix /site-react run dev -- --host 0.0.0.0 --port 5173 &
 else
-    npm --prefix ./site run build
+    npm --prefix /site-react run build
     cp -r site/dist /var/www/html
 fi
 
