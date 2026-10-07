@@ -8,6 +8,7 @@ from django.utils import timezone
 from datetime import timedelta
 from coreIA import get_best_move
 
+
 auth = JWTAuthentication()
 
 OPC_AUTH = 0xff
@@ -179,6 +180,11 @@ def create_game(ws, data):
 	if game.ai:
 		game.player_2 = Player(None, None, 2)
 		game.player_2.game = game
+		send(ws, OPC_SET_TURN, "b", STATE_TURN1)
+		game.reset_afk()
+		game.state = STATE_TURN1
+
+
 	game.player_1.game = game
 
 	send(ws, OPC_CREATE, "bs", OPC_ERR_OK, game_id)
@@ -386,10 +392,11 @@ class Game:
 			self.set_again(player.idx)
 			if (self.ai):
 				self.set_again(2)
+				self.player_1.send(OPC_AGAIN, "")
 			else:
 				self.get_other_player(player).send(OPC_AGAIN, "")
 
-			if (not self.is_again()):
+			if (not self.is_again() and not self.ai):
 				return
 
 			self.to_spectators(OPC_AGAIN, "")
@@ -407,14 +414,15 @@ class Game:
 			
 			if (self.ai and self.state == STATE_TURN2):
 				self.on_ai_place()
+				self.reset_afk()
+
 
 			self.again_count += 1
 
 			if (self.again_count == 5):
-				api.ach.gain(self.player_1.user, api.ach.ACH_INF)
 				if (not self.ai):
+					api.ach.gain(self.player_1.user, api.ach.ACH_INF)
 					api.ach.gain(self.player_2.user, api.ach.ACH_INF)
-				api.ach.gain(self.player_2.user, api.ach.ACH_INF)
 				self.reset_afk()
 	
 	def is_turn(self, player: Player) -> bool:
@@ -490,15 +498,17 @@ class Game:
 			is_win += 1
 		if (api.board.do_win_vert(self.board, player.idx, x, y)):
 			is_win += 1
-			api.ach.gain(player.user, api.ach.ACH_VERT)
+			if (player.user):
+				api.ach.gain(player.user, api.ach.ACH_VERT)
 
-		if (is_win >= 2):
+		if (is_win >= 2 and player.user):
 			api.ach.gain(player.user, api.ach.ACH_SECRET)
 
 		if (is_win):
 			self.player_1.send(OPC_WIN, "b", player.idx)
 			self.player_2.send(OPC_WIN, "b", player.idx)
-			self.to_spectators(OPC_WIN2, "s", player.user.username)
+			if (player.user):
+				self.to_spectators(OPC_WIN2, "s", player.user.username)
 
 			self.state = STATE_END
 			self.register_win(player.idx)
@@ -508,8 +518,9 @@ class Game:
 			self.player_2.send(OPC_WIN, "b", 3)
 			self.to_spectators(OPC_WIN2, "s", "")
 
-			api.ach.gain(self.player_1.user, api.ach.ACH_TIE)
-			api.ach.gain(self.player_2.user, api.ach.ACH_TIE)
+			if (self.player_2.user):
+				api.ach.gain(self.player_1.user, api.ach.ACH_TIE)
+				api.ach.gain(self.player_2.user, api.ach.ACH_TIE)
 
 			self.state = STATE_END
 			self.register_win(0)
@@ -724,7 +735,7 @@ class Game:
 		self.spectators = []
 
 	def on_ai_place(self):
-		column = get_best_move(self.board, self.ai_difficulty)
+		column = api.coreIA.get_best_move(self.board, self.ai_difficulty)
 		if (column is None):
 			return
 		y = self.height - 1

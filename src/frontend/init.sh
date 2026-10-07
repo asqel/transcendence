@@ -45,7 +45,7 @@ http {
 
         $LOCATION_ROOT
         location /api/ {
-            proxy_pass https://10.18.170.78;
+            proxy_pass http://backend:8000;
             proxy_http_version 1.1;
             proxy_set_header Host \$host;
             proxy_set_header X-Real-IP \$remote_addr;
@@ -53,7 +53,7 @@ http {
             proxy_set_header X-Forwarded-Proto https;
         }
         location /ws/ {
-            proxy_pass https://10.18.170.78;
+            proxy_pass http://backend:8000;
             proxy_http_version 1.1;
             proxy_set_header Upgrade \$http_upgrade;
             proxy_set_header Connection "upgrade";
