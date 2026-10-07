@@ -64,20 +64,27 @@ function History() {
     return (
         <div className="history-page">
             <table className="history">
-                <tr>
-                    <th>{t("history-page.player1")}</th>
-                    <th>{t("history-page.player2")}</th>
-                    <th>{t("history-page.winner")}</th>
-                    <th>{t("history-page.date")}</th>
-                </tr>
-                {history?.map((game, index) => (
-                    <tr key={index}>
-                        <td>{game.player1}</td>
-                        <td>{game.player2}</td>
-                        <td>{getWiner(game)}</td>
-                        <td>{formatGameDate(game.date)}</td>
-                    </tr>
-                ))}
+                {history ? (
+                    <>
+                        <tr>
+                            <th>{t("history-page.player1")}</th>
+                            <th>{t("history-page.player2")}</th>
+                            <th>{t("history-page.winner")}</th>
+                            <th>{t("history-page.date")}</th>
+                        </tr>
+                        {history?.map((game, index) => (
+                            <tr key={index}>
+                                <td>{game.player1}</td>
+                                <td>{game.player2}</td>
+                                <td>{getWiner(game)}</td>
+                                <td>{formatGameDate(game.date)}</td>
+                            </tr>
+                        ))}
+                    </>
+
+                ):(
+                    <p>{t("history-page.no_data")}</p>
+                )}
             </table>
         </div>
     )
