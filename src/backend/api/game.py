@@ -541,17 +541,14 @@ class Game:
 				winner_stats.streak = 1
 			else:
 				winner_stats.streak += 1
-				if (winner_stats.streak >= 5):
-					api.ach.gain(winner.user, api.ach.ACH_WIN_STREAK)
 
-			looser_stats.number_loss += 1
-			looser_stats.number_placed += looser.number_placed
 			if (looser_stats.streak > 0):
 				looser_stats.streak = -1
 			else:
-				looser_stats.streak -= 1
-				if (looser_stats.streak <= 5):
-					api.ach.gain(looser.user, api.ach.ACH_POOP)
+				looser_stats.streak -= 1;			
+
+			looser_stats.number_loss += 1
+			looser_stats.number_placed += looser.number_placed
 
 			winner_stats.elo, looser_stats.elo = compute_elo(winner_stats.elo, looser_stats.elo, 1)
 
