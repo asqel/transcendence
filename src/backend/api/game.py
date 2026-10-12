@@ -47,7 +47,7 @@ STATE_END = 4
 
 STR_ENCODING = 'utf-8' 
 
-games = {}
+games: dict[str, 'Game'] = {}
 
 alphabet = "0123456789"
 alphabet += ''.join([chr(i) for i in range(ord('a'), ord('z') + 1)])
@@ -178,6 +178,7 @@ def create_game(ws, data):
 	if game.ai:
 		game.player_2 = Player(None, None, 2)
 		game.player_2.game = game
+		game.ai_should = False
 		send(ws, OPC_SET_TURN, "b", STATE_TURN1)
 		game.reset_afk()
 		game.state = STATE_TURN1
@@ -411,7 +412,7 @@ class Game:
 			self.player_2.send(OPC_SET_TURN, "b", self.state)
 			
 			if (self.ai and self.state == STATE_TURN2):
-				self.on_ai_place()
+				self.ai_should_place()
 				self.reset_afk()
 
 
@@ -479,7 +480,7 @@ class Game:
 			if (self.state != STATE_END):
 				self.change_turn()
 			if (self.ai and self.state != STATE_END):
-				self.on_ai_place()
+				self.ai_should_place()
 			return OPC_ERR_OK
 
 	def to_spectators(self, *args, **kwargs):
@@ -756,3 +757,7 @@ class Game:
 		self.check_win(self.player_2, column, y)
 		if (self.state != STATE_END):
 			self.change_turn()
+
+	def ai_should_place(self):
+		self.ai_should = True
+		self.ai_time = timezone.now() + timedelta(seconds = 0.75)
