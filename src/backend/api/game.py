@@ -497,10 +497,10 @@ class Game:
 			is_win += 1
 		if (api.board.do_win_vert(self.board, player.idx, x, y)):
 			is_win += 1
-			if (player.user):
+			if (player.user and not self.ai):
 				api.ach.gain(player.user, api.ach.ACH_VERT)
 
-		if (is_win >= 2 and player.user):
+		if (is_win >= 2 and player.user and not self.ai):
 			api.ach.gain(player.user, api.ach.ACH_SECRET)
 
 		if (is_win):
@@ -517,7 +517,7 @@ class Game:
 			self.player_2.send(OPC_WIN, "b", 3)
 			self.to_spectators(OPC_WIN2, "s", "")
 
-			if (self.player_2.user):
+			if (self.player_2.user and not self.ai):
 				api.ach.gain(self.player_1.user, api.ach.ACH_TIE)
 				api.ach.gain(self.player_2.user, api.ach.ACH_TIE)
 
@@ -542,8 +542,6 @@ class Game:
 				winner_stats.streak = 1
 			else:
 				winner_stats.streak += 1
-				if (winner_stats.streak >= 5):
-					api.ach.gain(winner.user, api.ach.ACH_WIN_STREAK)
 
 			looser_stats.number_loss += 1
 			looser_stats.number_placed += looser.number_placed
@@ -551,8 +549,6 @@ class Game:
 				looser_stats.streak = -1
 			else:
 				looser_stats.streak -= 1
-				if (looser_stats.streak <= 5):
-					api.ach.gain(looser.user, api.ach.ACH_POOP)
 
 			winner_stats.elo, looser_stats.elo = compute_elo(winner_stats.elo, looser_stats.elo, 1)
 
