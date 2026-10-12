@@ -84,7 +84,7 @@ if [ "$MODE" = "dev" ]; then
     npm --prefix /site-react run dev -- --host 0.0.0.0 --port 5173 &
 else
     npm --prefix /site-react run build
-    cp -r site/dist /var/www/html
+    cp -r /site-react/dist /var/www/html
 fi
 
 mkdir -p /run/nginx
