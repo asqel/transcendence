@@ -37,9 +37,7 @@ function Profile() {
 	async function fetchProfile() {
 		try {
 			setLoadingProfile(true)
-			console.log("getting user");
 			const rec_self: SelfResponse = await userApi.get_user()
-			console.log(rec_self);
 			setSelf(rec_self)
 			const rec_user: UserResponse = await userApi.get_user(rec_self.username)
 			setBio(rec_user.bio);
@@ -119,7 +117,7 @@ function Profile() {
 			setSelectedSkin(index)
 		}
 		catch (error) {
-			console.error(error)
+			console.log(error)
 		}
 		finally {
 			setLoadingSkin(null)

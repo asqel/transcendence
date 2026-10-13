@@ -130,7 +130,6 @@ function Friends() {
 		}
 		else if (bytes[0] === OPC_CHAT) {
 			if (bytes[1] === 0) {
-				console.log(bytes);
 				let usr: string;
 				if (bytes[2] === 0 && user) {
 					usr = user.username;

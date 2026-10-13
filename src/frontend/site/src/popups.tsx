@@ -73,7 +73,7 @@ function Popups() {
 			try {
 				wsRef.current.send(token);
 			} catch (error) {
-				console.error("Erreur d'envoi du token:", error);
+				console.log("error-token:", error);
 			}
 		}
 	}
@@ -97,7 +97,7 @@ function Popups() {
 			}
 		}
 		ws.onerror = (error) => {
-			console.log("Erreur WebSocket notif:", error);
+			console.log("popups-ws-error", error);
 			wsRef.current = null
 		}
 		ws.onmessage = handleMessage

@@ -298,7 +298,7 @@ function Play() {
         
         ws.onerror = (error) => {
             setWsError(true);
-            console.error('WebSocket error:', error);
+            console.log('WebSocket error:', error);
             wsRef.current = null;
         };
         
