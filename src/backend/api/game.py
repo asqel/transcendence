@@ -47,7 +47,7 @@ STATE_END = 4
 
 STR_ENCODING = 'utf-8' 
 
-games = {}
+games: dict[str, 'Game'] = {}
 
 alphabet = "0123456789"
 alphabet += ''.join([chr(i) for i in range(ord('a'), ord('z') + 1)])
@@ -178,6 +178,7 @@ def create_game(ws, data):
 	if game.ai:
 		game.player_2 = Player(None, None, 2)
 		game.player_2.game = game
+		game.ai_should = False
 		send(ws, OPC_SET_TURN, "b", STATE_TURN1)
 		game.reset_afk()
 		game.state = STATE_TURN1
@@ -411,7 +412,7 @@ class Game:
 			self.player_2.send(OPC_SET_TURN, "b", self.state)
 			
 			if (self.ai and self.state == STATE_TURN2):
-				self.on_ai_place()
+				self.ai_should_place()
 				self.reset_afk()
 
 
@@ -479,7 +480,7 @@ class Game:
 			if (self.state != STATE_END):
 				self.change_turn()
 			if (self.ai and self.state != STATE_END):
-				self.on_ai_place()
+				self.ai_should_place()
 			return OPC_ERR_OK
 
 	def to_spectators(self, *args, **kwargs):
@@ -496,10 +497,10 @@ class Game:
 			is_win += 1
 		if (api.board.do_win_vert(self.board, player.idx, x, y)):
 			is_win += 1
-			if (player.user):
+			if (player.user and not self.ai):
 				api.ach.gain(player.user, api.ach.ACH_VERT)
 
-		if (is_win >= 2 and player.user):
+		if (is_win >= 2 and player.user and not self.ai):
 			api.ach.gain(player.user, api.ach.ACH_SECRET)
 
 		if (is_win):
@@ -516,7 +517,7 @@ class Game:
 			self.player_2.send(OPC_WIN, "b", 3)
 			self.to_spectators(OPC_WIN2, "s", "")
 
-			if (self.player_2.user):
+			if (self.player_2.user and not self.ai):
 				api.ach.gain(self.player_1.user, api.ach.ACH_TIE)
 				api.ach.gain(self.player_2.user, api.ach.ACH_TIE)
 
@@ -541,8 +542,6 @@ class Game:
 				winner_stats.streak = 1
 			else:
 				winner_stats.streak += 1
-				if (winner_stats.streak >= 5):
-					api.ach.gain(winner.user, api.ach.ACH_WIN_STREAK)
 
 			looser_stats.number_loss += 1
 			looser_stats.number_placed += looser.number_placed
@@ -550,8 +549,6 @@ class Game:
 				looser_stats.streak = -1
 			else:
 				looser_stats.streak -= 1
-				if (looser_stats.streak <= 5):
-					api.ach.gain(looser.user, api.ach.ACH_POOP)
 
 			winner_stats.elo, looser_stats.elo = compute_elo(winner_stats.elo, looser_stats.elo, 1)
 
@@ -756,3 +753,7 @@ class Game:
 		self.check_win(self.player_2, column, y)
 		if (self.state != STATE_END):
 			self.change_turn()
+
+	def ai_should_place(self):
+		self.ai_should = True
+		self.ai_time = timezone.now() + timedelta(seconds = 0.75)
