@@ -179,7 +179,7 @@ def set_info(request):
 			return common.error(400, "Bio too long", 400)
 		Profile.objects.filter(user=request.user).update(bio=value)
 	elif (key == "country"):
-		if (len(value) > 2 and (value == "LG" or pycountry.countries.get(alpha_2=value) is not None)):
+		if (len(value) > 2 or (value != "LG" and pycountry.countries.get(alpha_2=value) is None)):
 			return common.error("Country identifier too long", 400)
 		if (value == "LG"):
 			api.ach.gain(request.user, api.ach.ACH_FOUNTAIN)
