@@ -13,8 +13,7 @@ function Leaderboard() {
         setLoading(true);
         try{
             const res = await globalApi.get_leaderboard()
-             setLeaderboard(res)
-             console.log(res);
+            setLeaderboard(res)
         }
         catch {
             setError(true);
