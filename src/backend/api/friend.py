@@ -16,6 +16,8 @@ def find_friendness(user1, user2):
 	return Friendness.objects.filter(lesser=user2, greater=user1).first()
 
 def send_request(self_user, username):
+	if (self_user.username == username):
+		return ERR_NOT_FOUND
 	user2 = User.objects.filter(username=username).first()
 	if user2 is None:
 		return ERR_NOT_FOUND
