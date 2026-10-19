@@ -150,6 +150,9 @@ A Friends page is available where you can add, remove, view pending requests, an
 ### Achievements and skin
 There is an achievement and skin system available. By completing certain actions, you'll unlock an achievement; you can then select it to receive the corresponding skin, which will then be visible in your games.
 
+### IA Opponent
+There a possibility to play against an "IA" to train yourself before playing against real opponent, the difficlty is moderated and can help you improve yourself.
+
 # Modules
 
 # Individual Contributions
@@ -162,3 +165,6 @@ I handled the entire React implementation, including the front-end API—which c
 I ran into several difficulties while learning React because I was using it with TypeScript and had to learn that language at the same time, as well as CSS, which I also had to learn.
 
 ## guviure
+
+I began by laying the groundwork for the front end, specifically the header bar and the design of the buttons. I then quickly moved on to developing an algorithm that would allow players to compete against an "AI."  
+My main challenges were learning HTML and CSS, as well as adapting to Python for the "AI" component.  
