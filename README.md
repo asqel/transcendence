@@ -1,45 +1,4 @@
-*This project has been created as part of the 42 curriculum by axlleres, lucmansa, guviure*999\
-,
-,,mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm'
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- nbbb
+*This project has been created as part of the 42 curriculum by axlleres, lucmansa, guviure*
 
 # Description
 This project is call Transcendence, and it consist to an online connect four,
@@ -75,21 +34,25 @@ react official documentation.
 
 AI was use for exemple or function explanation. It was also use for listing css variable
 
+### Backend
+
+python doc
+
 # Team information
 
 ### axlleres
-Team leader, backend
+Team leader, backend manager
 
 ### lucmansa
-frontend
+frontend manager, react and styling imprementation
 
 ### guviure
-AI algorithm and implementation, bug-testing and fixer
+AI algorithm creation and implementation, bug-testing and fixer
 
 # Project management
-We meet every day do work togetheer to implement feature across fontend and backend and backend and IA algorythm
+We meet 4–5 times a week to work togetheer,implement feature across fontend and backend,backend and IA algorythm
 
-Github whas use to store the project online, git branch ase use to separete work
+Github whas use to store the project online, Git was used to separate the project's progress into branches
 
 For distance communitication we use Discord with a private group
 
@@ -97,7 +60,8 @@ For distance communitication we use Discord with a private group
 # Technical Stack
 
 ### Frontend
-frontend use react for frontend, styling is css writing by hand
+frontend use react for frontend, styling is pure css
+React was chosen for its ease of use; there are many tutorials and resources available.
 
 ### Backend
 backend use django
@@ -105,9 +69,10 @@ for it simplicity and efficacity
 
 ### Database
 Database is mariadb
-for it simplicity and efficacity
+MariaDB was chosen for its simplicity and robustness, which have been proven over time.
 
 # Database shema
+
 ### User
 Internal Django table
 - id `unique Integer`
@@ -176,13 +141,14 @@ Uses the same system as `Friendness`, is\_from\_lesser is used to identify is th
 # Features List
 
 ### Connect four
-an online connect four
+An online Connect 4 game where you can play against other people by sharing the game code with them, or play against an AI.
+You can also watch other people's games as a spectator.
 
 ### friends
-an friends page, to chat
+A Friends page is available where you can add, remove, view pending requests, and, most importantly, send messages to your friends.
 
 ### Achievements and skin
-
+There is an achievement and skin system available. By completing certain actions, you'll unlock an achievement; you can then select it to receive the corresponding skin, which will then be visible in your games.
 
 # Modules
 
@@ -191,6 +157,8 @@ an friends page, to chat
 ## axlleres
 
 ## lucmansa
-all frontend, react implementation, html and css
+I handled the entire React implementation, including the front-end API—which constantly sends requests to the back end to retrieve the desired information—as well as the HTML page structure and the visual design using CSS.
+
+I ran into several difficulties while learning React because I was using it with TypeScript and had to learn that language at the same time, as well as CSS, which I also had to learn.
 
 ## guviure
