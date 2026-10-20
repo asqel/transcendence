@@ -5,6 +5,11 @@ export default {
         "play": "Play",
         "can_login": "You can log in or sign up here",
         "login": "Login/Sign up",
+        "intro": "Welcome to Transcendance⁴, our little end-of-curriculum project at 42! The idea is simple: it's a good old-fashioned game of Connect Four.",
+        "rules_title": "A quick reminder of the rules, just in case:",
+        "rules": "You face a 6 x 7 grid and your goal is to line up 4 of your discs horizontally, vertically or diagonally. The first of the two players to do so wins, so watch out for your opponent's discs!",
+        "dontworry": "And if you want to practice before facing real players, you can play against our AI, which offers 3 difficulty levels.",
+        "have_fun": "Now all you have to do is log in or sign up, and you can start playing!",
     },
     "login-page": {
         "signin": "Login",

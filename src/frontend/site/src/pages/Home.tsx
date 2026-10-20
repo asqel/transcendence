@@ -11,6 +11,13 @@ function Home() {
 	return (
 		<div className="home-page">
 			<h1>{t("home.title")}</h1>
+			<div className="home-text">
+				<p>{t("home.intro")}</p>
+				<h2>{t("home.rules_title")}</h2>
+				<p>{t("home.rules")}</p>
+				<p>{t("home.dontworry")}</p>
+				<p>{t("home.have_fun")}</p>
+			</div>
 			<div className="elements">
 				{user ? (
 					<>
