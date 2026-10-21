@@ -22,7 +22,6 @@ const OPC_WIN = 0x12 //(id)
 const OPC_WIN_SPEC = 0x14 //(name)
 const OPC_REMATCH = 0x13
 
-
 function Play() {
 	const {t} = useTranslation()
 	const navigate = useNavigate()
@@ -57,6 +56,7 @@ function Play() {
 	const [rematchOp, setRemathOp] = useState<0|1>(0);
 	const turnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const [opAkf, setOpAkf] = useState<boolean>(false);
+	const [aiDifficulty, setAiDifficulty] = useState("normal");
 
 	function sender(nb: number, val: string | number | null = null) {
 		const bytes: Array<number> = [];
@@ -373,12 +373,23 @@ function Play() {
 							<button onClick={() => handleCreateGame(0)}>
 								{t("play-page.create_multi")}
 							</button>
-							<button onClick={() => handleCreateGame(1)}>
-								{t("play-page.create_ai")}
-							</button>
-						</div>
 
-						
+							<div className="ai-section">
+								<button onClick={() => handleCreateGame(1)}>
+									{t("play-page.create_ai")}
+									</button>
+									
+									<select
+										value={aiDifficulty}
+										onChange={(e) => setAiDifficulty(e.target.value)}
+										className="ai-difficulty"
+									>
+        								<option value="easy">Facile</option>
+        								<option value="normal">Normal</option>
+        								<option value="hard">Difficile</option>
+    								</select>
+								</div>
+						</div>
 					)}
 				</div>
 				</>
