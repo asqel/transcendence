@@ -11,18 +11,16 @@ you can play connect four within IA or other player, you can have friends, you c
 You need **docker** and **openssl** to launch the project
 
 ### Certificates
-you will need to create the ssl certificates in the frontend
-
-create the `secrets` folder in`src/frontend` and execute the following command inside it to create self signed certificates, you can use your own if you have ones
+you will need to create the ssl certificates in the frontend.  
+Create the `secrets` folder in`src/frontend` and execute the following command inside it to create self signed certificates, you can use your own if you have ones
 
 ```
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout server.key -out server.crt -subj "/CN=localhost"
 ```
 
 ### .env
-you will need to create a .env file in the `src/` folder
-
-a exemple .env `exemple.env` is available 
+you will need to create a .env file in the `src/` folder  
+a exemple .env `exemple.env` is available.
 
 
 
@@ -30,61 +28,60 @@ a exemple .env `exemple.env` is available
 
 ### Frontend
 
-react official documentation.
-
-AI was use for exemple or function explanation. It was also use for listing css variable
+React official documentation on [react.dev](https://fr.react.dev/).  
+AI was use for exemple or function explanation. It was also use for listing css component.
 
 ### Backend
 
-Django documentation
+Django documentation.
 
-# Team information
+Website of Lycee Stanislas, a website that explain the fondamentals of Minimax the algorythm for a connect four's IA. [link here](http://lycee.stanislas.info.free.fr/Projet/Puissance/Puissance.html)  
+Also an Exercice to better understanding and application of Minimax : [link here](https://clemdelasalle.fr/media_in_docs/Pr%C3%A9pa+Informatique+PT%20+TPs+%5BTP%5DPuissance4.pdf/).
+
+
+# Team information  
 
 ### axlleres
-Team leader, backend manager
-
-### lucmansa
-frontend manager, react and styling imprementation
+Team leader, backend manager.
+### lucmansa  
+Frontend manager, react and styling imprementation.
 
 ### guviure
 AI algorithm creation and implementation, bug-testing and fixer
 
 # Project management
-We meet 4–5 times a week to work togetheer,implement feature across fontend and backend,backend and IA algorythm
-
-Github whas use to store the project online, Git was used to separate the project's progress into branches
-
+We meet 4–5 times a week to work togetheer,implement feature across fontend and backend,backend and IA algorythm.  
+Github whas use to store the project online, Git was used to separate the project's progress into branches.  
 For distance communitication we use Discord with a private group
-
 
 # Technical Stack
 
-### Frontend
-frontend use react for frontend, styling is pure css
-React was chosen for its ease of use; there are many tutorials and resources available.
+### Frontend  
+Frontend use react for frontend, styling is pure css.  
+React was chosen for its ease of use; there are many tutorials and resources available.  
 
 ### Backend
-backend use django
-for it simplicity and efficacity
+Backend use django.  
+For it simplicity and efficacity.  
 
 ### Database
-Database is mariadb
-MariaDB was chosen for its simplicity and robustness, which have been proven over time.
+Database is mariadb.  
+MariaDB was chosen for its simplicity and robustness, which have been proven over time.  
 
 # Database shema
 
 ### User
-Internal Django table
-- id `unique Integer`
-- email `string`
-- password `hashed string`
+Internal Django table :  
+- id `unique Integer`  
+- email `string`  
+- password `hashed string`  
 
 ### Profile
 - user `User foreign key`
 - bio `1000 character string`
 - country `2 character string`
-- join\_date `date iso format`
-- email\_confirmed `boolean`
+- join\_date `date iso format`  
+- email\_confirmed `boolean`  
 
 ### Game
 Created when a game is finished, winner set to 0 meaning a tie
@@ -141,7 +138,7 @@ Uses the same system as `Friendness`, is\_from\_lesser is used to identify is th
 # Features List
 
 ### Connect four
-An online Connect 4 game where you can play against other people by sharing the game code with them, or play against an AI.
+An online Connect 4 game where you can play against other people by sharing the game code with them, or play against an AI.  
 You can also watch other people's games as a spectator.
 
 ### friends
@@ -170,14 +167,14 @@ There a possibility to play against an "IA" to train yourself before playing aga
 # Individual Contributions
 
 ## axlleres
-I designed the internal api and game system using Django
+I designed the internal api and game system using Django.
 
 ## lucmansa
-I handled the entire React implementation, including the front-end API—which constantly sends requests to the back end to retrieve the desired information—as well as the HTML page structure and the visual design using CSS.
-
+I handled the entire React implementation, including the front-end API—which constantly sends requests to the back end to retrieve the desired information—as well as the HTML page structure and the visual design using CSS.  
 I ran into several difficulties while learning React because I was using it with TypeScript and had to learn that language at the same time, as well as CSS, which I also had to learn.
 
 ## guviure
 
-I began by laying the groundwork for the front end, specifically the header bar and the design of the buttons. I then quickly moved on to developing an algorithm that would allow players to compete against an "AI."  
+I began by laying the groundwork for the front end, specifically the header bar and the design of the buttons.  
+I then quickly moved on to developing an algorithm that would allow players to compete against an "AI."  
 My main challenges were learning HTML and CSS, as well as adapting to Python for the "AI" component.  
