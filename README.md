@@ -36,7 +36,7 @@ AI was use for exemple or function explanation. It was also use for listing css 
 
 ### Backend
 
-python doc
+Django documentation
 
 # Team information
 
@@ -154,10 +154,23 @@ There is an achievement and skin system available. By completing certain actions
 There a possibility to play against an "IA" to train yourself before playing against real opponent, the difficlty is moderated and can help you improve yourself.
 
 # Modules
+- (Major) Framework for frontend and backend
+- (Major) Realtime feature with websocket
+- (Minor) ORM 
+- (Minor) Support for multiple languages using *i18n* (english, french, spanish)
+- (Minor) Support for additional browser (firefox, chrome, epiphany/safari)
+- (Minor) Game statistics and match history
+- (Major) Introduce an AI oppponent
+- (Major) A complete web-based game
+- (Major) Remote players
+- (Minor) Gamification system (achievements, rewards as skins, leaderboard)
+- (Minor) Spectator mode for matches
+- (Minor) GDPR compliance
 
 # Individual Contributions
 
 ## axlleres
+I designed the internal api and game system using Django
 
 ## lucmansa
 I handled the entire React implementation, including the front-end API—which constantly sends requests to the back end to retrieve the desired information—as well as the HTML page structure and the visual design using CSS.
