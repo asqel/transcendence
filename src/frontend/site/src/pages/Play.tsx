@@ -56,7 +56,7 @@ function Play() {
 	const [rematchOp, setRemathOp] = useState<0|1>(0);
 	const turnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const [opAkf, setOpAkf] = useState<boolean>(false);
-	const [aiDifficulty, setAiDifficulty] = useState("normal");
+	const [aiDifficulty, setAiDifficulty] = useState<number>(2);
 
 	function sender(nb: number, val: string | number | null = null) {
 		const bytes: Array<number> = [];
@@ -175,20 +175,11 @@ function Play() {
 	}
 
 	function handleCreateGame(val: number) {
-    	if (val === 1) {
-        	if (aiDifficulty === "easy")
-				val = 1;
-        	else if (aiDifficulty === "normal")
-            	val = 2;
-        	else
-            	val = 3;
-    	}
-
-    sender(OPC_AUTH, localStorage.getItem("access"));
-    sender(OPC_CREATE, val);
-    self.current = 1;
-    opponent.current = 2;
-}
+		sender(OPC_AUTH, localStorage.getItem("access"));
+		sender(OPC_CREATE, val);
+		self.current = 1;
+		opponent.current = 2;
+	}
 
 	function handleJoin() {
 		if (!codeInput.trim())
@@ -384,18 +375,18 @@ function Play() {
 							</button>
 
 							<div className="ai-section">
-								<button onClick={() => handleCreateGame(1)}>
+								<button onClick={() => handleCreateGame(aiDifficulty)}>
 									{t("play-page.create_ai")}
 									</button>
 									
 									<select
 										value={aiDifficulty}
-										onChange={(e) => setAiDifficulty(e.target.value)}
+										onChange={(e) => setAiDifficulty(Number(e.target.value))}
 										className="ai-difficulty"
 									>
-        								<option value="easy">Facile</option>
-        								<option value="normal">Normal</option>
-        								<option value="hard">Difficile</option>
+        								<option value={1}>Facile</option>
+        								<option value={2}>Normal</option>
+        								<option value={3}>Difficile</option>
     								</select>
 								</div>
 						</div>
