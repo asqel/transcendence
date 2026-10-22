@@ -175,11 +175,20 @@ function Play() {
 	}
 
 	function handleCreateGame(val: number) {
-		sender(OPC_AUTH, localStorage.getItem("access"));
-		sender(OPC_CREATE, val);
-		self.current = 1;
-		opponent.current = 2
-	}
+    	if (val === 1) {
+        	if (aiDifficulty === "easy")
+				val = 1;
+        	else if (aiDifficulty === "normal")
+            	val = 2;
+        	else
+            	val = 3;
+    	}
+
+    sender(OPC_AUTH, localStorage.getItem("access"));
+    sender(OPC_CREATE, val);
+    self.current = 1;
+    opponent.current = 2;
+}
 
 	function handleJoin() {
 		if (!codeInput.trim())

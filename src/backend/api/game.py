@@ -284,8 +284,12 @@ class Game:
 		self.player_2 = None
 		self.password = password
 		self.type = game_type
-		self.ai = game_type == 1
-		self.ai_difficulty = "normal"
+		self.ai = game_type != 0
+		self.ai_difficulty = {
+			1: "easy",
+			2: "normal",
+			3: "hard"
+		}.get(game_type, "normal")
 		self.spectators = []
 		self.state = 0
 		self.width = 7

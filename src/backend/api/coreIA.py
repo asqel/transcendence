@@ -224,9 +224,9 @@ def get_best_move(board, difficulty):
     moves.sort(key=lambda move: move[1], reverse=True)
 
     if difficulty == "easy":
-        count = 5
-    elif difficulty == "normal":
         count = 4
+    elif difficulty == "normal":
+        count = 3
     else:
         count = 2
 
