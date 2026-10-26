@@ -76,7 +76,6 @@ function Play() {
 			wsRef.current?.send(new Uint8Array(bytes));
 		}
 		catch {
-			console.log("sender error");
 		}
 	}
 
@@ -85,8 +84,6 @@ function Play() {
 		if (bytes[0] === OPC_AUTH) {
 			if (bytes[1] === 0)
 				autentified.current = true;
-			else
-				console.log("auth_error: ", bytes[1]);
 		}
 		else if (bytes[0] === OPC_CREATE) {
 			if (bytes[1] === 0) {
@@ -94,8 +91,6 @@ function Play() {
 				const str = decoder.decode(bytes.subarray(2));
 				setpartId(str);
 			}
-			else
-				console.log("create_error: ", bytes[1]);
 			
 		}
 		else if (bytes[0] === OPC_JOIN) {
@@ -104,7 +99,6 @@ function Play() {
 				selfSkin.current = bytes[3];
 			}
 			else {
-				console.log("join_error: ", bytes[1]);
 				setpartId(null);
 			}
 		}
@@ -141,10 +135,6 @@ function Play() {
 				startTurnTimer();
 			else
 				stopTurnTimer();
-		}
-		else if (bytes[0] === OPC_PLACE) {
-			if (bytes[1] !== 0)
-				console.log("placed_error:" + bytes[1]);
 		}
 
 		else if (bytes[0] === OPC_PLACED_PLAYER) {
@@ -296,9 +286,8 @@ function Play() {
             wsRef.current = null;
         };
         
-        ws.onerror = (error) => {
+        ws.onerror = () => {
             setWsError(true);
-            console.log('WebSocket error:', error);
             wsRef.current = null;
         };
         

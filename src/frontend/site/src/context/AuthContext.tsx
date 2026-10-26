@@ -39,7 +39,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				setUser({ username: data.username  });
 			}
 			catch (error) {
-				console.log("getName_error")
 			}
 		}
 		setLoading(false);
