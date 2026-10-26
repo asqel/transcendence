@@ -10,7 +10,6 @@ ERR_ALREADY_SENT = 4
 ERR_ALREADY_RECV = 5
 
 def find_friendness(user1, user2):
-	api.utils.log(user1, user2, "are they fwend", type(user1), type(user2))
 	if user1.id < user2.id:
 		return Friendness.objects.filter(lesser=user1, greater=user2).first()
 	return Friendness.objects.filter(lesser=user2, greater=user1).first()

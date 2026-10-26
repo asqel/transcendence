@@ -199,7 +199,6 @@ def ask_confirm_email(request):
 	
 	email_confirm = EmailConfirm.objects.filter(user=request.user).first()
 	email_confirm.token = secrets.token_urlsafe(32)
-	api.utils.log(email_confirm.expires_at + timedelta(hours=1), timezone.now())
 	if (email_confirm.expires_at > timezone.now()):
 		return common.error("too much request", 429)
 	email_confirm.expires_at = timezone.now() + timedelta(hours=1)

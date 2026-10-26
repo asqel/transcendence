@@ -97,7 +97,10 @@ export default {
         "rematch": "Rejouer",
         "quit": "Quitter",
         "forfeit": "Abandonner",
-        "copy": "Copier l'ID de la partie"
+        "copy": "Copier l'ID de la partie",
+        "easy": "Facile",
+        "normal": "Normale",
+        "hard": "Difficile",
     },
     "friends-page": {
         "add_friend": "Ajouter un ami",

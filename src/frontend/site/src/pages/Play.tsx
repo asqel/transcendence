@@ -384,9 +384,9 @@ function Play() {
 										onChange={(e) => setAiDifficulty(Number(e.target.value))}
 										className="ai-difficulty"
 									>
-        								<option value={1}>Facile</option>
-        								<option value={2}>Normal</option>
-        								<option value={3}>Difficile</option>
+        								<option value={1}>{t("play-page.easy")}</option>
+        								<option value={2}>{t("play-page.normal")}</option>
+        								<option value={3}>{t("play-page.hard")}</option>
     								</select>
 								</div>
 						</div>

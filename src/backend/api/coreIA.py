@@ -1,4 +1,5 @@
 import random
+import api
 
 ROWS = 6
 COLS = 7
@@ -9,7 +10,7 @@ AI = 2
 
 DIFFICULTIES = {
     "easy": 1,
-    "normal": 2,
+    "normal": 3,
     "hard": 4,
 }
 
@@ -224,11 +225,11 @@ def get_best_move(board, difficulty):
     moves.sort(key=lambda move: move[1], reverse=True)
 
     if difficulty == "easy":
-        count = 4
-    elif difficulty == "normal":
         count = 3
-    else:
+    elif difficulty == "normal":
         count = 2
+    else:
+        count = 1
 
     top_moves = moves[:count]
     columns = [move[0] for move in top_moves]

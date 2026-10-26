@@ -97,7 +97,10 @@ export default {
         "rematch": "Rematch",
         "quit": "Quit",
         "forfeit": "Forfeit",
-        "copy": "Copy the game ID"
+        "copy": "Copy the game ID",
+        "easy": "Easy",
+        "normal": "Normal",
+        "hard": "Hard",
     },
     "friends-page": {
         "add_friend": "Add a friend",

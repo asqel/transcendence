@@ -151,18 +151,33 @@ There is an achievement and skin system available. By completing certain actions
 There a possibility to play against an "IA" to train yourself before playing against real opponent, the difficlty is moderated and can help you improve yourself.
 
 # Modules
-- (Major) Framework for frontend and backend
-- (Major) Realtime feature with websocket
+- (Major) Framework for frontend and backend  
+  * Django : for simplicity.  
+  * React : it's a stable framework and is very documented.  
+- (Major) Realtime feature with websocket  
+  * useful for the game we choose, the connection between player and in game or friend list chat.  
 - (Minor) ORM 
-- (Minor) Support for multiple languages using *i18n* (english, french, spanish)
-- (Minor) Support for additional browser (firefox, chrome, epiphany/safari)
-- (Minor) Game statistics and match history
-- (Major) Introduce an AI oppponent
-- (Major) A complete web-based game
+  * clarity, stability, rules are clearly defined  
+- (Minor) Support for multiple languages using *i18n* (english, french, spanish)  
+  * for accessibility purpose  
+- (Minor) Support for additional browser (firefox, chrome, epiphany/safari)  
+  * for accessibilty purpose  
+- (Minor) Game statistics and match history  
+  * keep tracks of player's record, can share and see each other stats  
+- (Major) Introduce an AI oppponent  
+  * to train before playing against real players  
+- (Major) A complete web-based game  
+  * easy accecibitlity, low-ressource managements
 - (Major) Remote players
+  * to compete, play with friends
 - (Minor) Gamification system (achievements, rewards as skins, leaderboard)
+  * give rewards to players and goals to achieve  
 - (Minor) Spectator mode for matches
+  * to watch friends or skilled players during their game 
 - (Minor) GDPR compliance
+  * to respect the europeans laws
+
+_17 modules points_ 
 
 # Individual Contributions
 

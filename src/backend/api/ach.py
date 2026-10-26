@@ -72,7 +72,6 @@ def get(request):
 		if stats.achievement[i] == '1':
 			res[i] = True
 
-	api.utils.log(res, stats.achievement, stats.user)
 	return JsonResponse(res, safe=False)
 
 @common.endpoint("POST")

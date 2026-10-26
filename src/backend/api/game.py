@@ -144,7 +144,6 @@ def ws_auth_user(ws, data: bytes):
 	except:
 		return send(ws, OPC_AUTH, "b", OPC_ERR_GENERAL)
 	
-	api.utils.log(api.tmp.get(ws.user, "websocket"), ws, "CC")
 	if (api.tmp.get(ws.user, "websocket")):
 		ws.user = None
 		return send(ws, OPC_AUTH, "b", OPC_ERR_ALREADY_2)
@@ -153,7 +152,6 @@ def ws_auth_user(ws, data: bytes):
 
 def create_game(ws, data):
 	global games
-	api.utils.log(ws, data, ws.game, ws.user)
 	if (len(data) < 3):
 		return send(ws, OPC_CREATE, "b", OPC_ERR_GENERAL)
 	if (ws.user is None):
@@ -384,7 +382,6 @@ class Game:
 	def do_again(self, ws):
 		with self.lock:
 			player = self.get_player_from_ws(ws)
-			api.utils.log(self, ws, self.again_state, player)
 			if (player is None):
 				return 
 			if (self.state != STATE_END):
