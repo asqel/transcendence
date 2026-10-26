@@ -24,7 +24,6 @@ class FriendChatConsumer(WebsocketConsumer):
 			...
 
 	def receive(self, text_data=None, bytes_data=None):
-		api.utils.log(bytes_data)
 		if (text_data):
 			return 
 		if (len(bytes_data) < 1):
@@ -54,7 +53,6 @@ class FriendChatConsumer(WebsocketConsumer):
 				return self.send(bytes_data=b'\x02' + res.to_bytes(1))
 
 			except Exception as e:
-				api.utils.log(e)
 				return self.send(bytes_data=b'\x02\x01')
 
 		if (bytes_data[0] == 0x03):
@@ -65,8 +63,6 @@ class FriendChatConsumer(WebsocketConsumer):
 				for i in requests:
 					res += i.from_who.username.encode(encoding="utf-8")
 					res += b'/'
-					api.utils.log(i.from_who)
-				api.utils.log(requests)
 				if (len(res) > 2 and res[-1] == ord('/')):
 					res = res[:-1]
 
@@ -85,7 +81,7 @@ class FriendChatConsumer(WebsocketConsumer):
 
 				return self.send(bytes_data=b'\x04\x00' + res.to_bytes(1))
 			except Exception as e:
-				api.utils.log("E", e)
+				api.utils.log(e)
 				return self.send(bytes_data=b'\x04\x01')
 
 		if (bytes_data[0] == 0x05):
@@ -185,5 +181,5 @@ class FriendChatConsumer(WebsocketConsumer):
 				api.friend.inform_messsage(msg, self.user, self.talking_to)
 				return self.send(bytes_data=b'\x07\x00\x00' + msg.encode(encoding='utf-8'))
 			except Exception as e:
-				api.utils.log(e, e.format_exec())
+				api.utils.log(e)
 				return self.send(bytes_data=b'\x07\x01')

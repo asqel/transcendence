@@ -86,6 +86,7 @@ select {
 	color: var(--text);
 	border: none;
 	border-radius: 10px;
+	cursor: pointer;
 }
 
 select:focus {

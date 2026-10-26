@@ -10,10 +10,8 @@ class NotifConsumer(WebsocketConsumer):
 	def connect(self):
 		self.accept()
 		self.user = None
-		api.utils.log("BBB")
 
 	def disconnect(self, close_code):
-		api.utils.log("AAAAAAAA")
 		if (self.user is None):
 			return 
 
@@ -24,9 +22,7 @@ class NotifConsumer(WebsocketConsumer):
 
 	def receive(self, text_data=None, bytes_data=None):
 		if bytes_data is not None:
-			api.utils.log("|", text_data, "|")
 			return 
-		api.utils.log("|", text_data, "|")
 
 		if (self.user is not None):
 			api.tmp.get(self.user, "notif").remove(self)
@@ -39,11 +35,11 @@ class NotifConsumer(WebsocketConsumer):
 				api.tmp.set(self.user, "notif", [self])
 			else:
 				lst.append(self)
-			return self.send(bytes_data=b'\xFE');
+			return self.send(bytes_data=b'\xFE')
 
 		except Exception as e:
 			api.utils.log(e)
-			return self.send(bytes_data=b'\xFF');
+			return self.send(bytes_data=b'\xFF')
 	def send_ach_notif(self, ach):
 		self.send(bytes_data=b'\x00' + ach.to_bytes(1, "little"))
 

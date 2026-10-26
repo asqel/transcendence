@@ -5,6 +5,11 @@ export default {
         "play": "Jouer",
         "can_login": "Vous pouvez vous connecter ou vous inscrire ici",
         "login": "Connexion/Inscription",
+        "intro": "Bienvenue sur Transcendance⁴, notre petit projet de fin de cursus de 42 ! Le principe est simple : c'est un jeu de Puissance 4 tout ce qu'il y a de plus classique.",
+        "rules_title": "Petit rappel des règles au cas où :",
+        "rules": "Vous êtes face à une grille de 6 x 7 et votre but est d'aligner 4 de vos pions, horizontalement, verticalement ou en diagonale. Le premier des deux qui y parvient remporte la victoire, donc attention aux pions de votre adversaire !",
+        "dontworry": "Et si jamais vous voulez vous entraîner avant d'affronter de vrais joueurs, vous pouvez jouer contre notre IA, qui propose 3 niveaux de difficulté.",
+        "have_fun": "Il suffit maintenant de vous connecter ou de vous inscrire, et vous pourrez commencer à jouer !",
     },
     "login-page": {
         "signin": "Connexion",
@@ -92,7 +97,10 @@ export default {
         "rematch": "Rejouer",
         "quit": "Quitter",
         "forfeit": "Abandonner",
-        "copy": "Copier l'ID de la partie"
+        "copy": "Copier l'ID de la partie",
+        "easy": "Facile",
+        "normal": "Normale",
+        "hard": "Difficile",
     },
     "friends-page": {
         "add_friend": "Ajouter un ami",

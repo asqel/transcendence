@@ -1,10 +1,15 @@
 export default {
     "home": {
         "title": "Bienvenido a Transcendance⁴",
-        "can_play": "Puede jugar aquí",
+        "can_play": "Puedes jugar aquí",
         "play": "Jugar",
-        "can_login": "Puede iniciar sesión o registrarse aquí",
-        "login": "Iniciar sesión/Registrarse",
+        "can_login": "Puedes iniciar sesión o registrarte aquí",
+        "login": "Inicio de sesión/Registro",
+        "intro": "¡Bienvenido a Transcendance⁴, nuestro pequeño proyecto de fin de ciclo en 42! La idea es simple: es un juego de Conecta 4 de lo más clásico.",
+        "rules_title": "Un pequeño recordatorio de las reglas, por si acaso:",
+        "rules": "Estás frente a una cuadrícula de 6 x 7 y tu objetivo es alinear 4 de tus fichas en horizontal, vertical o diagonal. El primero de los dos que lo consiga gana, ¡así que ojo con las fichas de tu rival!",
+        "dontworry": "Y si quieres practicar antes de enfrentarte a otros jugadores, puedes jugar contra nuestra IA, que ofrece 3 niveles de dificultad.",
+        "have_fun": "Ahora solo tienes que iniciar sesión o registrarte, ¡y podrás empezar a jugar!",
     },
     "login-page": {
         "signin": "Iniciar sesión",
@@ -92,7 +97,10 @@ export default {
         "rematch": "Revancha",
         "quit": "Salir",
         "forfeit": "Rendirse",
-        "copy": "Copiar el ID de la partida"
+        "copy": "Copiar el ID de la partida",
+        "easy": "Fácil",
+        "normal": "Normal",
+        "hard": "Difícil",
     },
     "friends-page": {
         "add_friend": "Añadir un amigo",
