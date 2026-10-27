@@ -117,7 +117,6 @@ function Profile() {
 			setSelectedSkin(index)
 		}
 		catch (error) {
-			console.log(error)
 		}
 		finally {
 			setLoadingSkin(null)

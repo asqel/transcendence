@@ -63,7 +63,6 @@ function Friends() {
 				wsRef.current?.send(new Uint8Array(bytes));
 			}
 			catch {
-				console.log("sender error");
 			}
 		}
 	}
@@ -72,7 +71,6 @@ function Friends() {
 		const bytes = new Uint8Array(event.data)
 		if (bytes[0] === OPC_AUTH) {
 			if (bytes[1] !== 0) {
-				console.log("auth_error: ", bytes[1]);
 				wsRef.current?.close();
 			}           
 		}
@@ -98,13 +96,11 @@ function Friends() {
 			else {
 				setFriendsRequestsError("error");
 				setLoadingFriendsRequest(false);
-				console.log("requestList_error: ", bytes[1]);
 			}
 		}
 
 		else if (bytes[0] === OPC_REQUEST_RESPONSE) {
 			if (bytes[1] !== 0) {
-				console.log("request_error: ", bytes[1]);
 			}
 		}
 
@@ -125,8 +121,6 @@ function Friends() {
 				selectedFriend.current = str;
 				sender(OPC_REQUEST_CHAT);
 			}
-			if (bytes[1] !== 0)
-				console.log("select_friend_error: ", bytes[1])
 		}
 		else if (bytes[0] === OPC_CHAT) {
 			if (bytes[1] === 0) {
@@ -142,7 +136,6 @@ function Friends() {
 				setChatMessages((prev) => [...prev, usr + ": " + str]);
 			}
 			else {
-				console.log("chat_error: ",bytes[1]);
 			}
 		}
 		else if (bytes[0] === OPC_DELETE_FRIENDS) {
@@ -151,8 +144,6 @@ function Friends() {
 				selectedFriend.current = "";
 				sender(OPC_GET_FRIENDS_LIST);
 			}
-			else
-				console.log("delete_error: ",bytes[1]);
 		}
 	}
 
@@ -244,9 +235,8 @@ function Friends() {
 			setConnected(false);
 			wsRef.current = null;
 		};
-		ws.onerror = (error) => {
+		ws.onerror = () => {
 			setWsError(true);
-			console.log('WebSocket error:', error);
 			wsRef.current = null;
 		};
 		ws.onmessage = handleMessage;

@@ -73,7 +73,6 @@ function Popups() {
 			try {
 				wsRef.current.send(token);
 			} catch (error) {
-				console.log("error-token:", error);
 			}
 		}
 	}
@@ -96,8 +95,7 @@ function Popups() {
 				reconnectTimeoutRef.current = setTimeout(() => connect(deadline), 3000)
 			}
 		}
-		ws.onerror = (error) => {
-			console.log("popups-ws-error", error);
+		ws.onerror = () => {
 			wsRef.current = null
 		}
 		ws.onmessage = handleMessage
