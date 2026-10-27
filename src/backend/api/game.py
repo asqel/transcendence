@@ -390,10 +390,7 @@ class Game:
 			if (self.is_again(player.idx)):
 				return
 			self.set_again(player.idx)
-			if (self.ai):
-				self.set_again(2)
-				self.player_1.send(OPC_AGAIN, "")
-			else:
+			if (not self.ai):
 				self.get_other_player(player).send(OPC_AGAIN, "")
 
 			if (not self.is_again() and not self.ai):
@@ -513,6 +510,10 @@ class Game:
 			self.state = STATE_END
 			self.register_win(player.idx)
 
+			if (self.ai):
+				self.set_again(2)
+				self.player_1.send(OPC_AGAIN, "")
+
 		elif (api.board.is_board_full(self.board)):
 			self.player_1.send(OPC_WIN, "b", 3)
 			self.player_2.send(OPC_WIN, "b", 3)
@@ -521,6 +522,10 @@ class Game:
 			if (self.player_2.user and not self.ai):
 				api.ach.gain(self.player_1.user, api.ach.ACH_TIE)
 				api.ach.gain(self.player_2.user, api.ach.ACH_TIE)
+
+			if (self.ai):
+				self.set_again(2)
+				self.player_1.send(OPC_AGAIN, "")
 
 			self.state = STATE_END
 			self.register_win(0)
