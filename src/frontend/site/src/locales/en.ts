@@ -23,7 +23,7 @@ export default {
         "error": {
             "409": "Username already taken",
             "460": "Incorrect username",
-            "461": "Password too weak",
+            "461": "The password must be at least 6 characters long and contain at least one uppercase letter and one number",
             "462": "Passwords do not match",
         }
     },
@@ -66,7 +66,7 @@ export default {
         "email": "Email",
         "email_already_send": "Email already sent",
         "email_send": "Email sent",
-        "send_email": "Send the email",
+        "confirm_email": "Confirm the email",
         "bio": "Bio",
         "hisotry": "History",
         "dl-data": "Download my data",
@@ -90,7 +90,7 @@ export default {
         "create_multi": "Create the game",
         "create_ai": "Play against the AI",
         "join_string": "joined the game",
-        "as_won": "won",
+        "as_won": " won",
         "victory": "Victory",
         "defeat": "Defeat",
         "draw": "Draw",

@@ -220,7 +220,7 @@ function Profile() {
 								onClick={handleSendMail}
 								disabled={loadingConfirmMail}
 							>
-								{confirmMailError ? t("pr-profile-page.email_already_send") : (sendConfirmMail ? t("pr-profile-page.email_send") : t("pr-profile-page.send_email"))}
+								{confirmMailError ? t("pr-profile-page.email_already_send") : (sendConfirmMail ? t("pr-profile-page.email_send") : t("pr-profile-page.confirm_email"))}
 							</button>
 						)}
 					</div>

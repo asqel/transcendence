@@ -15,6 +15,7 @@ OPC_ISAUTH = 0xfe
 OPC_CREATE = 0xf0
 OPC_JOIN = 0xf1
 OPC_JOIN2 = 0xf2
+OPC_JOIN3 = 0xf4
 OPC_LEAVE = 0xf3
 OPC_SEND = 0xfa
 
@@ -316,8 +317,7 @@ class Game:
 		self.player_1.send(OPC_JOIN2, "bbs", 2, stats2.used_skin, self.player_2.user.username)
 		self.player_2.send(OPC_JOIN2, "bbs", 1, stats1.used_skin, self.player_1.user.username)
 
-		self.to_spectators(OPC_JOIN2, "bbs", 1, stats1.used_skin, self.player_1.user.username)
-		self.to_spectators(OPC_JOIN2, "bbs", 2, stats2.used_skin, self.player_2.user.username)
+		self.to_spectators(OPC_JOIN3, "bb", stats1.used_skin, stats2.used_skin)
 
 		self.player_1.send(OPC_SET_TURN, "b", STATE_TURN1)
 		self.player_2.send(OPC_SET_TURN, "b", STATE_TURN1)
@@ -335,8 +335,7 @@ class Game:
 			if (self.player_1 and self.player_2):
 				stats1 = Stats.objects.filter(user=self.player_1.user).first()
 				stats2 = Stats.objects.filter(user=self.player_2.user).first()
-				send(ws, OPC_JOIN2, "bbs", 1, stats1.used_skin, self.player_1.user.username)
-				send(ws, OPC_JOIN2, "bbs", 2, stats2.used_skin, self.player_2.user.username)
+				send(ws, OPC_JOIN3, "bb", stats1.used_skin, stats2.used_skin)
 			for x in range(self.width):
 				for y in range(self.height):
 					if (self.board[y][x]):
