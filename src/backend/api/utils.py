@@ -5,7 +5,13 @@ from django.core.exceptions import ValidationError
 import sys
 
 def is_password_strong(password: str, username: str, email: str) -> list[str]: # returns the reasons
-	return []
+	if (len(str) < 6):
+		return ["password_len"]
+	if ("ABCDEFGHIJKLMNOPQRSTUVWXYZ" not in password):
+		return ["password_missing_upper"]
+	if (password.upper() == password):
+		return ["password_upper"]
+		
 	try:
 		validate_password(password, user=User(username, email))
 		return []
