@@ -474,8 +474,8 @@ class Game:
 			self.to_spectators(
 				OPC_PLACE3,
 				"bw",
-				x,
-				player.idx
+				player.idx,
+				x
 			)
 			self.check_win(player, x, y)
 			if (self.state != STATE_END):
