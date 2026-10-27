@@ -10,6 +10,7 @@ const OPC_AUTH = 0xff
 const OPC_CREATE = 0xf0
 const OPC_JOIN = 0xf1 //(id, skin)
 const OPC_JOINED = 0xf2 //(id, skin, name)
+const OPC_JOINED_SPEC = 0xf4 //(id, skin, name)
 const OPC_LEAVE = 0xf3
 const OPC_CHAT = 0xfa
 
@@ -44,7 +45,7 @@ function Play() {
 
 	const [board, setBoard] = useState<number[]>(Array(42).fill(0))
 
-	const self = useRef<0|1|2>(0);
+	const self = useRef<1|2>(1);
 	const opponent = useRef<1|2>(2);
 	const selfSkin = useRef<number>(0);
 	const opponentSkin = useRef<number>(0);
@@ -95,26 +96,26 @@ function Play() {
 		}
 		else if (bytes[0] === OPC_JOIN) {
 			if (bytes[1] === 0) {
-				self.current = bytes[2] as 1|2;
-				selfSkin.current = bytes[3];
+				if (bytes.length > 2) {
+					self.current = bytes[2] as 1|2;
+					selfSkin.current = bytes[3];
+				}
 			}
 			else {
 				setpartId(null);
 			}
 		}
 		else if (bytes[0] === OPC_JOINED) {
-			if (self.current == 0) {
-				self.current = bytes[1] as 1|2
-				selfSkin.current = bytes[2];
-				setOpAkf(true);
-			}
-			else {
-				opponent.current = bytes[1] as 1|2;
-				opponentSkin.current = bytes[2];
-			}
+			opponent.current = bytes[1] as 1|2;
+			opponentSkin.current = bytes[2];
 			const decoder = new TextDecoder();
 			const str = decoder.decode(bytes.subarray(3));
 			setChatMessages((prev) => [...prev, str + " " + t("play-page.join_string")]);
+		}
+		else if (bytes[0] === OPC_JOINED_SPEC) {
+			selfSkin.current = bytes[1];
+			opponentSkin.current = bytes[2];
+			setOpAkf(true);
 		}
 		else if (bytes[0] === OPC_REMATCH) {
 			setRemathOp(1);
@@ -193,7 +194,7 @@ function Play() {
 			return
 		sender(OPC_JOIN, codeInput.trim());
 		setpartId(codeInput.trim());
-		self.current = 0;
+
 	}
 
 	function handleRematch() {
@@ -252,7 +253,6 @@ function Play() {
 			skin = selfSkin.current
 		else
 			skin = opponentSkin.current;
-
 		return achievements[skin].image
 	}
 
@@ -264,7 +264,7 @@ function Play() {
 
 		turnTimerRef.current = setTimeout(() => {
 			setOpAkf(true);
-		}, 20 * 1000)
+		}, 2 * 60 * 1000)
 	}
 
 	function stopTurnTimer() {
