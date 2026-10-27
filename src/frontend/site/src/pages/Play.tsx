@@ -44,7 +44,7 @@ function Play() {
 
 	const [board, setBoard] = useState<number[]>(Array(42).fill(0))
 
-	const self = useRef<1|2>(1);
+	const self = useRef<0|1|2>(0);
 	const opponent = useRef<1|2>(2);
 	const selfSkin = useRef<number>(0);
 	const opponentSkin = useRef<number>(0);
@@ -103,8 +103,15 @@ function Play() {
 			}
 		}
 		else if (bytes[0] === OPC_JOINED) {
-			opponent.current = bytes[1] as 1|2;
-			opponentSkin.current = bytes[2];
+			if (self.current == 0) {
+				self.current = bytes[1] as 1|2
+				selfSkin.current = bytes[2];
+				setOpAkf(true);
+			}
+			else {
+				opponent.current = bytes[1] as 1|2;
+				opponentSkin.current = bytes[2];
+			}
 			const decoder = new TextDecoder();
 			const str = decoder.decode(bytes.subarray(3));
 			setChatMessages((prev) => [...prev, str + " " + t("play-page.join_string")]);
@@ -186,6 +193,7 @@ function Play() {
 			return
 		sender(OPC_JOIN, codeInput.trim());
 		setpartId(codeInput.trim());
+		self.current = 0;
 	}
 
 	function handleRematch() {

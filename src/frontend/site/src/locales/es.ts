@@ -23,7 +23,7 @@ export default {
         "error": {
             "409": "Nombre de usuario ya en uso",
             "460": "Nombre de usuario incorrecto",
-            "461": "Contraseña demasiado débil",
+            "461": "La contraseña debe tener una longitud mínima de 6 caracteres y contener al menos una letra mayúscula y un número",
             "462": "Las contraseñas no coinciden",
         }
     },
@@ -66,7 +66,7 @@ export default {
         "email": "Correo electrónico",
         "email_already_send": "Correo ya enviado",
         "email_send": "Correo enviado",
-        "send_email": "Enviar el correo",
+        "confirm_email": "Confirmar el correo",
         "bio": "Biografía",
         "hisotry": "Historial",
         "dl-data": "Descargar mis datos",
@@ -90,7 +90,7 @@ export default {
         "create_multi": "Crear la partida",
         "create_ai": "Jugar contra la IA",
         "join_string": "se ha unido a la partida",
-        "as_won": "ha ganado",
+        "as_won": " ha ganado",
         "victory": "Victoria",
         "defeat": "Derrota",
         "draw": "Empate",
