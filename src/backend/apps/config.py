@@ -8,6 +8,7 @@ def loop():
 	import api
 	from django.utils import timezone
 
+	api.utils.log("THREAD STARTED")
 	while 1:
 		for i in api.game.games :
 			game = api.game.games[i]
@@ -22,7 +23,6 @@ class config(AppConfig):
 	name = "apps"
 
 	def ready(self):
-		if os.environ.get("RUN_MAIN") != "true":
-			return
-
-		threading.Thread(target=loop, daemon=True).start()
+		print("RUN_MAIN: ", os.environ.get("RUN_MAIN"), file=sys.stderr)
+		if os.environ.get("RUN_MAIN") == "true" or os.environ.get("RUN_MAIN") is None:
+			threading.Thread(target=loop, daemon=True).start()
