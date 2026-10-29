@@ -171,7 +171,7 @@ function Profile() {
 				logout();
 		}
 		catch (err) {
-			setDeleteError(t("pr-profile-page.delete_fail"));
+			setDeleteError(t("pr-profile-page.delete_error"));
 		}
 		finally {
 			setLoadingDelete(false);
