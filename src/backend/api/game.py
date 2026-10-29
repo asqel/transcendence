@@ -621,6 +621,7 @@ class Game:
 				player = self.get_player_from_ws(ws)
 				if (not player):
 					return self.remove_spectator(ws)
+				player.ws = None
 
 				self.to_spectators(OPC_LEAVE, "")
 				self.clear_spectators()
@@ -632,6 +633,7 @@ class Game:
 				player = self.get_player_from_ws(ws)
 				if (not player):
 					return self.remove_spectator(ws)
+				player.ws = None
 
 				opponent = self.get_other_player(player)
 				if (opponent):
@@ -650,6 +652,7 @@ class Game:
 			player = self.get_player_from_ws(ws)
 			if (not player):
 				return self.remove_spectator(ws)
+			player.ws = None
 
 			opponent = self.get_other_player(player)
 			if (not player.asked_leave):
