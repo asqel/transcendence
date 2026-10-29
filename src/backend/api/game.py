@@ -667,6 +667,8 @@ class Game:
 				api.ach.gain(opponent.user, api.ach.ACH_FORF)
 				opponent.send(OPC_LEAVE, "")
 				opponent.send(OPC_WIN, "b", opponent.idx)
+				if (not self.ai):
+					self.to_spectators(OPC_WIN2, "s", opponent.user.username)
 				self.register_win(opponent.idx)
 				return 
 
@@ -674,6 +676,8 @@ class Game:
 				api.ach.gain(player.user, api.ach.ACH_FORF)
 				opponent.send(OPC_WIN, "b", player.idx)
 				opponent.send(OPC_LEAVE, "")
+				if (not self.ai):
+					self.to_spectators(OPC_WIN2, "s", opponent.user.username)
 				self.register_win(player.idx)
 				self.state = STATE_END
 				self.remove_player(player.idx, True)
@@ -684,6 +688,8 @@ class Game:
 			api.ach.gain(opponent.user, api.ach.ACH_FORF)
 			opponent.send(OPC_LEAVE, "")
 			opponent.send(OPC_WIN, "b", opponent.idx)
+			if (not self.ai):
+				self.to_spectators(OPC_WIN2, "s", opponent.user.username)
 			self.register_win(opponent.idx)
 			self.state = STATE_END
 			self.remove_player(player.idx, True)
