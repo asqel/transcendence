@@ -11,7 +11,7 @@ AI = 2
 DIFFICULTIES = {
     "easy": 1,
     "normal": 3,
-    "hard": 4,
+    "hard": 6,
 }
 
 
@@ -211,7 +211,7 @@ def get_best_move(board, difficulty):
         new_board = make_move(board, col, AI)
 
         if check_win(new_board, AI):
-            score = 1000000
+            score = 10000000
         else:
             _, score = minimax(
                 new_board,
