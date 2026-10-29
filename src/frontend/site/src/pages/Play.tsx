@@ -56,7 +56,7 @@ function Play() {
 	const [rematchSelf, setRemathSelf] = useState<0|1>(0);
 	const [rematchOp, setRemathOp] = useState<0|1>(0);
 	const turnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-	const [opAkf, setOpAkf] = useState<boolean>(false);
+	const [opAkf, setOpAkf] = useState<boolean>(true);
 	const [aiDifficulty, setAiDifficulty] = useState<number>(2);
 
 	function sender(nb: number, val: string | number | null = null) {
@@ -111,11 +111,11 @@ function Play() {
 			const decoder = new TextDecoder();
 			const str = decoder.decode(bytes.subarray(3));
 			setChatMessages((prev) => [...prev, str + " " + t("play-page.join_string")]);
+			setOpAkf(false);
 		}
 		else if (bytes[0] === OPC_JOINED_SPEC) {
 			selfSkin.current = bytes[1];
 			opponentSkin.current = bytes[2];
-			setOpAkf(true);
 		}
 		else if (bytes[0] === OPC_REMATCH) {
 			setRemathOp(1);
@@ -212,7 +212,7 @@ function Play() {
 		setRemathOp(0);
 		setWiner("");
 		setChatMessages([]);
-		setOpAkf(false);
+		setOpAkf(true);
 		setOpLeft(false);
 		setCurrentPlayer(2);
 		navigate('/play/')
@@ -271,6 +271,7 @@ function Play() {
 		if (turnTimerRef.current !== null) {
 			clearTimeout(turnTimerRef.current)
 			turnTimerRef.current = null
+			setOpAkf(false)
 		}
 	}
 
