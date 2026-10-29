@@ -466,8 +466,9 @@ function Play() {
 									onChange={(e) => setChatInput(e.target.value)}
 									onKeyDown={(e) => {
 										if (e.key === "Enter") handleSendChat()
-									}}
+										}}
 									placeholder={t("chatbox.write_message")}
+									maxLength={100}
 								/>
 								<button onClick={handleSendChat}>
 									{t("chatbox.send")}

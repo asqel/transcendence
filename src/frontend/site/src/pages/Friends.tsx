@@ -305,12 +305,13 @@ function Friends() {
 						<input
 							type="text"
 							value={chatInput}
+							className="input"
 							onChange={(e) => setChatInput(e.target.value)}
 							onKeyDown={(e) => {
 								if (e.key === "Enter") handleSendChat()
-							}}
+								}}
 							placeholder={t("chatbox.write_message")}
-							className="input"
+							maxLength={100}
 							/>
 						<button onClick={handleSendChat}>
 							{t("chatbox.send")}
